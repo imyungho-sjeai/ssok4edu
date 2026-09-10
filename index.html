@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세종특별자치시교육청 여비정산 신청서</title>
+  <style>
+    /* 화면 기본 스타일 */
+    :root {
+      --primary-color: #0056b3;
+      --bg-color: #f4f7f9;
+      --border-color: #ccc;
+    }
+    body {
+      font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+      background-color: var(--bg-color);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      font-size: 24px;
+    }
+    fieldset {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      background: #fafafa;
+    }
+    legend {
+      font-weight: bold;
+      color: var(--primary-color);
+      padding: 0 8px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    input, select {
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    input[readonly] {
+      background-color: #e9ecef;
+      font-weight: bold;
+    }
+    .calc-box {
+      background: #eef6ff;
+      border: 1px solid #b6d4fe;
+    }
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary { background: var(--primary-color); color: #fff; }
+    .btn-primary:hover { background: #004085; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn-secondary:hover { background: #5a6268; }
+    .btn-success { background: #28a745; color: #fff; }
+    .btn-success:hover { background: #218838; }
+
+    /* 인쇄용 양식 (화면에서는 숨김) */
+    #print-area {
+      display: none;
+    }
+
+    /* A4 인쇄 스타일 (@media print) */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+        background: #fff;
+      }
+      .print-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+      }
+      .print-table th, .print-table td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: center;
+        font-size: 12px;
+      }
+      .print-table th {
+        background-color: #f2f2f2 !important;
+        -webkit-print-color-adjust: exact;
+      }
+      .print-title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-decoration: underline;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>세종특별자치시교육청 여비정산 신청서</h1>
+
+  <!-- 1. 출장자 기본 정보 (localStorage로 자동 저장/복원) -->
+  <fieldset>
+    <legend>1. 출장자 기본 정보</legend>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="dept">소속 기관/학교</label>
+        <input type="text" id="dept" placeholder="예: 세종시교육청">
+      </div>
+      <div class="form-group">
+        <label for="name">성명</label>
+        <input type="text" id="name" placeholder="홍길동">
+      </div>
+      <div class="form-group">
+        <label for="position">직급</label>
+        <select id="position">
+          <option value="2호">2호 대상자 (교원/공무원 일반)</option>
+          <option value="1호">1호 대상자 (고위공무원/교육감 등)</option>
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 2. 출장 일정 및 세부 사항 -->
+  <fieldset>
+    <legend>2. 출장 일정 및 구분</legend>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="startDate">출장 시작일</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="form-group">
+        <label for="endDate">출장 종료일</label>
+        <input type="date" id="endDate">
+      </div>
+      <div class="form-group">
+        <label for="travelType">출장 구분</label>
+        <select id="travelType">
+          <option value="관외">관외 출장</option>
+          <option value="관내">관내 출장 (4시간 이상)</option>
+          <option value="관내_미만">관내 출장 (4시간 미만)</option>
+        </select>
+      </div>
+      <div class="form-group full-width">
+        <label for="destination">출장지 및 목적</label>
+        <input type="text" id="destination" placeholder="예: 서울특별시 교육부 (회의 참석)">
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 3. 교통 및 숙박 옵션 -->
+  <fieldset>
+    <legend>3. 교통편 및 비용 설정</legend>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="transType">교통수단</label>
+        <select id="transType">
+          <option value="자가용">자가용 (유류비/통행료 산출)</option>
+          <option value="대중교통">대중교통 (실비 정산)</option>
+          <option value="관용차량">관용차량 (운임 제외)</option>
+        </select>
+      </div>
+      <div class="form-group" id="fuelTypeGroup">
+        <label for="fuelType">유종</label>
+        <select id="fuelType">
+          <option value="휘발유">휘발유</option>
+          <option value="경유">경유</option>
+          <option value="LPG">LPG</option>
+          <option value="전기">전기차</option>
+        </select>
+      </div>
+      <div class="form-group" id="distanceGroup">
+        <label for="distance">왕복 주행거리 (km)</label>
+        <input type="number" id="distance" value="0" min="0">
+      </div>
+      <div class="form-group" id="fareGroup" style="display:none;">
+        <label for="publicFare">대중교통 실비 운임 (원)</label>
+        <input type="number" id="publicFare" value="0" step="100">
+      </div>
+      <div class="form-group">
+        <label for="tollFare">통행료 (원)</label>
+        <input type="number" id="tollFare" value="0" step="100">
+      </div>
+      <div class="form-group">
+        <label for="stayNights">숙박 박수</label>
+        <input type="number" id="stayNights" value="0" min="0">
+      </div>
+    </div>
+    <div style="margin-top: 10px; font-size: 12px;">
+      <a href="https://map.kakao.com" target="_blank" style="color:#0056b3; margin-right:15px;">🔗 카카오맵 거리조회</a>
+      <a href="https://map.naver.com" target="_blank" style="color:#0056b3;">🔗 네이버지도 거리조회</a>
+    </div>
+  </fieldset>
+
+  <!-- 4. 정산 결과 (자동 계산) -->
+  <fieldset class="calc-box">
+    <legend>4. 여비 정산 산출 결과</legend>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>일비</label>
+        <input type="text" id="resDaily" readonly value="0 원">
+      </div>
+      <div class="form-group">
+        <label>식비</label>
+        <input type="text" id="resMeal" readonly value="0 원">
+      </div>
+      <div class="form-group">
+        <label>운임 / 유류비</label>
+        <input type="text" id="resTrans" readonly value="0 원">
+      </div>
+      <div class="form-group">
+        <label>숙박비</label>
+        <input type="text" id="resStay" readonly value="0 원">
+      </div>
+      <div class="form-group full-width">
+        <label style="font-size: 16px; color: #0056b3;">총 여비 정산 합계</label>
+        <input type="text" id="resTotal" readonly value="0 원" style="font-size: 18px; color: #d9534f;">
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- 버튼 영역 -->
+  <div class="btn-group">
+    <button class="btn-success" onclick="openKakaoMap()">지도 경로 확인</button>
+    <button class="btn-primary" onclick="printReport()">📄 여비정산서 인쇄 / PDF 저장</button>
+  </div>
+</div>
+
+<!-- 인쇄용 A4 서식 -->
+<div id="print-area">
+  <div class="print-title">여 비 정 산 신 청 서</div>
+  <table class="print-table">
+    <tr>
+      <th>소속</th><td id="p-dept"></td>
+      <th>성명</th><td id="p-name"></td>
+      <th>직급</th><td id="p-position"></td>
+    </tr>
+    <tr>
+      <th>출장지 및 목적</th>
+      <td colspan="5" id="p-destination"></td>
+    </tr>
+    <tr>
+      <th>출장 기간</th>
+      <td colspan="5" id="p-period"></td>
+    </tr>
+    <tr>
+      <th>교통 수단</th><td id="p-transType"></td>
+      <th>주행거리/운임</th><td colspan="3" id="p-transDetail"></td>
+    </tr>
+  </table>
+
+  <h3 style="margin-top: 20px; font-size: 14px;">■ 여비 정산 내역</h3>
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th>항목</th>
+        <th>산출 근거</th>
+        <th>금액 (원)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>일비</td><td id="p-dailyCalc">-</td><td id="p-dailyAmt">0</td></tr>
+      <tr><td>식비</td><td id="p-mealCalc">-</td><td id="p-mealAmt">0</td></tr>
+      <tr><td>운임 / 유류비</td><td id="p-transCalc">-</td><td id="p-transAmt">0</td></tr>
+      <tr><td>숙박비</td><td id="p-stayCalc">-</td><td id="p-stayAmt">0</td></tr>
+      <tr>
+        <th colspan="2">합 계</th>
+        <th id="p-totalAmt" style="color:red;">0</th>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 40px; text-align: center; font-size: 14px;">
+    위와 같이 여비 정산서를 제출합니다.<br><br>
+    <span id="p-todayDate"></span><br><br>
+    신청자 : <span id="p-signName"></span> (서명/인)
+  </div>
+</div>
+
+<script>
+  // 유가 기준표 (기본값 설정 - 필요시 수정 가능)
+  const FUEL_PRICE = { 휘발유: 1650, 경유: 1550, LPG: 1050, 전기: 340 };
+  const EFFICIENCY = { 휘발유: 11.6, 경유: 14.0, LPG: 9.0, 전기: 5.8 };
+
+  // 페이지 로드 시 초기화 및 저장된 출장자 정보 불러오기 (ssok.ini 대신 localStorage)
+  window.onload = function() {
+    document.getElementById('startDate').valueAsDate = new Date();
+    document.getElementById('endDate').valueAsDate = new Date();
+    
+    // 저장된 데이터 복원
+    if(localStorage.getItem('ssok_dept')) document.getElementById('dept').value = localStorage.getItem('ssok_dept');
+    if(localStorage.getItem('ssok_name')) document.getElementById('name').value = localStorage.getItem('ssok_name');
+    if(localStorage.getItem('ssok_position')) document.getElementById('position').value = localStorage.getItem('ssok_position');
+
+    // 이벤트 리스너 등록 (입력값 변경 시 자동 계산)
+    document.querySelectorAll('input, select').forEach(element => {
+      element.addEventListener('change', calculate);
+      element.addEventListener('input', calculate);
+    });
+
+    // 출장자 정보 변경 시 자동 저장
+    ['dept', 'name', 'position'].forEach(id => {
+      document.getElementById(id).addEventListener('change', (e) => {
+        localStorage.setItem('ssok_' + id, e.target.value);
+      });
+    });
+
+    calculate();
+  };
+
+  // 계산 로직 (AHK SSOK_Travel_Calc 1:1 이식)
+  function calculate() {
+    const travelType = document.getElementById('travelType').value;
+    const transType = document.getElementById('transType').value;
+    const position = document.getElementById('position').value;
+    const fuelType = document.getElementById('fuelType').value;
+    const distance = parseFloat(document.getElementById('distance').value) || 0;
+    const publicFare = parseInt(document.getElementById('publicFare').value) || 0;
+    const tollFare = parseInt(document.getElementById('tollFare').value) || 0;
+    const stayNights = parseInt(document.getElementById('stayNights').value) || 0;
+
+    // 날짜 계산
+    const start = new Date(document.getElementById('startDate').value);
+    const end = new Date(document.getElementById('endDate').value);
+    let days = 1;
+    if (start && end && end >= start) {
+      days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    // UI 토글 (교통수단에 따른 필드 표시)
+    if (transType === '자가용') {
+      document.getElementById('fuelTypeGroup').style.display = 'flex';
+      document.getElementById('distanceGroup').style.display = 'flex';
+      document.getElementById('fareGroup').style.display = 'none';
+    } else if (transType === '대중교통') {
+      document.getElementById('fuelTypeGroup').style.display = 'none';
+      document.getElementById('distanceGroup').style.display = 'none';
+      document.getElementById('fareGroup').style.display = 'flex';
+    } else {
+      document.getElementById('fuelTypeGroup').style.display = 'none';
+      document.getElementById('distanceGroup').style.display = 'none';
+      document.getElementById('fareGroup').style.display = 'none';
+    }
+
+    let dailyAmt = 0;
+    let mealAmt = 0;
+    let transAmt = 0;
+    let stayAmt = 0;
+
+    // 관외 / 관내 정산 기준
+    if (travelType === '관외') {
+      dailyAmt = 20000 * days; // 일비 2만원/일
+      mealAmt = 25000 * days;  // 식비 2.5만원/일 (세종 교육청 2호 기준)
+
+      // 숙박비 (2호 기준 광역시 7만원, 기타 6만원 상한 예시)
+      stayAmt = stayNights * 70000;
+
+      // 운임 계산
+      if (transType === '자가용') {
+        const fuelCost = (distance / EFFICIENCY[fuelType]) * FUEL_PRICE[fuelType];
+        transAmt = Math.round(fuelCost) + tollFare;
+      } else if (transType === '대중교통') {
+        transAmt = publicFare + tollFare;
+      }
+    } else if (travelType === '관내') {
+      // 관내 4시간 이상 : 20,000원 정액 (공용차량 이용 시 10,000원 감액)
+      dailyAmt = (transType === '관용차량') ? 10000 : 20000;
+    } else if (travelType === '관내_미만') {
+      // 관내 4시간 미만 : 10,000원 정액 (공용차량 이용 시 5,000원 감액)
+      dailyAmt = (transType === '관용차량') ? 5000 : 10000;
+    }
+
+    // 결과 화면 반영
+    document.getElementById('resDaily').value = dailyAmt.toLocaleString() + ' 원';
+    document.getElementById('resMeal').value = mealAmt.toLocaleString() + ' 원';
+    document.getElementById('resTrans').value = transAmt.toLocaleString() + ' 원';
+    document.getElementById('resStay').value = stayAmt.toLocaleString() + ' 원';
+    
+    const totalAmt = dailyAmt + mealAmt + transAmt + stayAmt;
+    document.getElementById('resTotal').value = totalAmt.toLocaleString() + ' 원';
+  }
+
+  // 카카오맵 외부 연결
+  function openKakaoMap() {
+    const dest = document.getElementById('destination').value;
+    const url = dest ? `https://map.kakao.com/?q=${encodeURIComponent(dest)}` : 'https://map.kakao.com';
+    window.open(url, '_blank');
+  }
+
+  // 인쇄 및 PDF 저장 함수
+  function printReport() {
+    document.getElementById('p-dept').innerText = document.getElementById('dept').value;
+    document.getElementById('p-name').innerText = document.getElementById('name').value;
+    document.getElementById('p-position').innerText = document.getElementById('position').options[document.getElementById('position').selectedIndex].text;
+    document.getElementById('p-destination').innerText = document.getElementById('destination').value;
+    document.getElementById('p-period').innerText = `${document.getElementById('startDate').value} ~ ${document.getElementById('endDate').value}`;
+    document.getElementById('p-transType').innerText = document.getElementById('transType').value;
+    
+    const transType = document.getElementById('transType').value;
+    if(transType === '자가용') {
+      document.getElementById('p-transDetail').innerText = `주행거리 ${document.getElementById('distance').value}km (통행료: ${document.getElementById('tollFare').value}원)`;
+    } else if(transType === '대중교통') {
+      document.getElementById('p-transDetail').innerText = `대중교통 실비 (${document.getElementById('publicFare').value}원)`;
+    } else {
+      document.getElementById('p-transDetail').innerText = '관용차량 이용';
+    }
+
+    document.getElementById('p-dailyAmt').innerText = document.getElementById('resDaily').value;
+    document.getElementById('p-mealAmt').innerText = document.getElementById('resMeal').value;
+    document.getElementById('p-transAmt').innerText = document.getElementById('resTrans').value;
+    document.getElementById('p-stayAmt').innerText = document.getElementById('resStay').value;
+    document.getElementById('p-totalAmt').innerText = document.getElementById('resTotal').value;
+
+    const today = new Date();
+    document.getElementById('p-todayDate').innerText = `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`;
+    document.getElementById('p-signName').innerText = document.getElementById('name').value;
+
+    window.print();
+  }
+</script>
+
+</body>
+</html>
