@@ -1,6 +1,6 @@
-# SSOK 여비정산 - GitHub Pages
+# SSOK for K-에듀파인 업무 도우미 - GitHub Pages
 
-이 폴더의 `index.html`을 GitHub 저장소에 올려 GitHub Pages로 배포하면 됩니다.
+이 폴더의 `index.html`을 다운로드 받아 사용하시면 됩니다.
 
 ## 동작
 - 기존 AHK의 문구와 핵심 계산식을 그대로 유지
