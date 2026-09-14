@@ -1,16 +1,113 @@
 <!doctype html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SSOK 다운로드</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 40px 20px;
+        font-family: "Malgun Gothic", "맑은 고딕", Arial, sans-serif;
+        background: #f5f7f9;
+        color: #222;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    h1 {
+        margin: 0 0 28px;
+        font-size: clamp(28px, 4vw, 44px);
+        font-weight: 800;
+    }
+
+    .hero-image {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        margin: 0 auto 38px;
+        border-radius: 14px;
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+    }
+
+    .download-button {
+        display: inline-block;
+        width: min(92%, 760px);
+        padding: 24px 30px;
+        background-color: #2da44e;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 12px;
+        font-size: clamp(20px, 3vw, 30px);
+        font-weight: 800;
+        line-height: 1.4;
+        box-shadow: 0 8px 20px rgba(45, 164, 78, 0.28);
+        transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .download-button:hover {
+        background-color: #278d43;
+        transform: translateY(-2px);
+    }
+
+    .guide {
+        margin-top: 18px;
+        font-size: 16px;
+        color: #666;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 24px 12px;
+        }
+
+        .hero-image {
+            margin-bottom: 28px;
+            border-radius: 10px;
+        }
+
+        .download-button {
+            width: 100%;
+            padding: 20px 18px;
+        }
+    }
+</style>
 </head>
+
 <body>
 
-<a href="https://github.com/imyungho-sjeai/ssok4edu/raw/refs/heads/main/%EC%8F%99%EC%9B%B9%EC%8B%A4%ED%96%89%ED%95%98%EA%B8%B0.bat"
-download="쏙웹실행하기.bat"
-style="padding:10px 20px; background-color:#2da44e; color:white; text-decoration:none; border-radius:6px; font-weight:bold;">
-쏙(SSOK) for K-에듀파인 교육행정 업무 도우미 다운로드</a>
+<div class="container">
+
+    <h1>쏙(SSOK) for K-에듀파인</h1>
+
+    <img
+        class="hero-image"
+        src="https://img.brojun.kr/81fad0ab-c5f1-4455-98b5-a0f8b41028f8/1788938966190-h2zsm0.png"
+        alt="SSOK for K-에듀파인 안내 이미지">
+
+    <a
+        class="download-button"
+        href="https://github.com/imyungho-sjeai/ssok4edu/raw/refs/heads/main/%EC%8F%99%EC%9B%B9%EC%8B%A4%ED%96%89%ED%95%98%EA%B8%B0.bat"
+        download="쏙웹실행하기.bat">
+        쏙(SSOK) for K-에듀파인<br>
+        교육행정 업무 도우미 다운로드
+    </a>
+
+    <div class="guide">
+        버튼을 눌러 설치·업데이트 파일을 다운로드하세요.
+    </div>
+
+</div>
 
 </body>
 </html>
