@@ -1,10 +1,10 @@
 @echo off
 chcp 949 >nul
 setlocal EnableExtensions
-title SSOK4EDU 설치 및 실행
+title SSOK4에듀파인 업무도우미 설치 및 실행
 
 rem ============================================================
-rem SSOK4EDU 통합 설치 / 실행 프로그램
+rem SSOK4에듀파인통합 설치 / 실행 프로그램
 rem
 rem [동작 규칙]
 rem 1. 이 BAT 파일을 C:\ssok 밖에서 실행하면
