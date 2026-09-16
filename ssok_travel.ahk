@@ -391,7 +391,8 @@ SSOK_Travel_Show()
     Gosub, SSOK_Travel_UpdateLodgingInfo
     Gosub, SSOK_Travel_Calc
 
-    Gui, SSOKTravel:Show, w960 h868, % "세종특별자치시교육청 여비정산 신청"
+    SSOK_Travel_GetMainLeftPos(960, 868, travelWinX, travelWinY)
+    Gui, SSOKTravel:Show, x%travelWinX% y%travelWinY% w960 h868, % "세종특별자치시교육청 여비정산 신청"
     GuiControl, MoveDraw, ST_SaveSettingsButton, x545 y790 w97 h36
 
     ; 메인 화면의 미입력 필수 입력칸을 연노랑으로 즉시 강조
@@ -410,6 +411,34 @@ SSOK_Travel_Show()
         if (hIconLg)
             SendMessage, 0x0080, 1, hIconLg,, ahk_id %hTravelGui% ; WM_SETICON, ICON_BIG
     }
+}
+
+SSOK_Travel_GetMainLeftPos(guiW, guiH, ByRef outX, ByRef outY)
+{
+    SysGet, travelWork, MonitorWorkArea
+    gap := 8
+    sideX := ""
+    sideY := ""
+    sideW := 112
+
+    WinGetPos, sideX, sideY, sideW, , 쏙(SSOK)
+    if (sideX = "")
+    {
+        sideX := travelWorkRight - sideW
+        sideY := travelWorkTop + 76
+    }
+
+    outX := sideX - guiW - gap
+    if (outX < travelWorkLeft)
+        outX := travelWorkLeft
+    if (outX + guiW > travelWorkRight)
+        outX := travelWorkRight - guiW
+
+    outY := sideY
+    if (outY + guiH > travelWorkBottom)
+        outY := travelWorkBottom - guiH
+    if (outY < travelWorkTop)
+        outY := travelWorkTop
 }
 
 SSOK_Travel_OpenCopyright:

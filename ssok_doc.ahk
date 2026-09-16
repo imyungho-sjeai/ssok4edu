@@ -891,86 +891,86 @@ DOC_ShowTemplateGui()
     ; 제목은 타이틀바에만 표시하고, GUI 내부에는 짧은 안내만 표시
     ; -----------------------------------------------------
     Gui, DOC:Font, s17 Bold c005BAC, Malgun Gothic
-    Gui, DOC:Add, Text, x20 y16 w920 h34 Center, 쏘옥 for K-에듀파인
+    Gui, DOC:Add, Text, x15 y16 w650 h34 Center, 쏘옥 for K-에듀파인
 
     ; 구분선
-    Gui, DOC:Add, Text, x20 y58 w920 h1 0x10
+    Gui, DOC:Add, Text, x15 y58 w650 h1 0x10
 
     ; -----------------------------------------------------
     ; 메뉴 구분
     ; -----------------------------------------------------
     Gui, DOC:Font, s10 Bold c000000, Malgun Gothic
-    Gui, DOC:Add, Text, x20 y72 w170 h28 Center, 물품
-    Gui, DOC:Add, Text, x205 y72 w170 h28 Center, 용역
-    Gui, DOC:Add, Text, x390 y72 w170 h28 Center, 기타
-    Gui, DOC:Add, Text, x575 y72 w170 h28 Center, 세입
-    Gui, DOC:Add, Text, x760 y72 w170 h28 Center, 일반
+    Gui, DOC:Add, Text, x15 y72 w120 h28 Center, 물품
+    Gui, DOC:Add, Text, x145 y72 w120 h28 Center, 용역
+    Gui, DOC:Add, Text, x275 y72 w120 h28 Center, 기타
+    Gui, DOC:Add, Text, x405 y72 w120 h28 Center, 세입
+    Gui, DOC:Add, Text, x535 y72 w120 h28 Center, 일반
 
     Gui, DOC:Font, s9 Bold c003D73, Malgun Gothic
-    Gui, DOC:Add, Button, x20 y126 w170 h34 gGUI_GoodsGeneral, 일반물품
-    Gui, DOC:Add, Button, x20 y166 w170 h34 gGUI_Supplies, 학습준비물
-    Gui, DOC:Add, Button, x20 y206 w170 h34 gGUI_Book, 도서
-    Gui, DOC:Add, Button, x20 y246 w170 h34 gGUI_Album, 졸업앨범
-    Gui, DOC:Add, Button, x20 y286 w170 h34 gGUI_CareSnack, 돌봄교실 간식
-    Gui, DOC:Add, Button, x20 y326 w170 h34 gGUI_Furniture, 비품
-    Gui, DOC:Add, Button, x20 y366 w170 h34 gGUI_OldGoodsImprove, 노후화 환경개선
-    Gui, DOC:Add, Button, x20 y406 w170 h34 gGUI_SchoolMeal, 학교 급식
+    Gui, DOC:Add, Button, x15 y126 w120 h34 gGUI_GoodsGeneral, 일반물품
+    Gui, DOC:Add, Button, x15 y166 w120 h34 gGUI_Supplies, 학습준비물
+    Gui, DOC:Add, Button, x15 y206 w120 h34 gGUI_Book, 도서
+    Gui, DOC:Add, Button, x15 y246 w120 h34 gGUI_Album, 졸업앨범
+    Gui, DOC:Add, Button, x15 y286 w120 h34 gGUI_CareSnack, 돌봄교실 간식
+    Gui, DOC:Add, Button, x15 y326 w120 h34 gGUI_Furniture, 비품
+    Gui, DOC:Add, Button, x15 y366 w120 h34 gGUI_OldGoodsImprove, 노후화 환경개선
+    Gui, DOC:Add, Button, x15 y406 w120 h34 gGUI_SchoolMeal, 학교 급식
 
     Gui, DOC:Font, s9 Bold c004D3B, Malgun Gothic
-    Gui, DOC:Add, Button, x205 y126 w170 h34 gGUI_ServiceGeneral, 일반용역
-    Gui, DOC:Add, Button, x205 y166 w170 h34 gGUI_FieldTripBus, 현장체험 차량임차
-    Gui, DOC:Add, Button, x205 y206 w170 h34 gGUI_SchoolTrip, 수학여행 용역
-    Gui, DOC:Add, Button, x205 y246 w170 h34 gGUI_AfterSchool, 방과후학교 위탁
-    Gui, DOC:Add, Button, x205 y286 w170 h34 gGUI_SchoolBus, 통학버스 임차
-    Gui, DOC:Add, Button, x205 y326 w170 h34 gGUI_CleaningService, 청소용역
+    Gui, DOC:Add, Button, x145 y126 w120 h34 gGUI_ServiceGeneral, 일반용역
+    Gui, DOC:Add, Button, x145 y166 w120 h34 gGUI_FieldTripBus, 현장체험 차량임차
+    Gui, DOC:Add, Button, x145 y206 w120 h34 gGUI_SchoolTrip, 수학여행 용역
+    Gui, DOC:Add, Button, x145 y246 w120 h34 gGUI_AfterSchool, 방과후학교 위탁
+    Gui, DOC:Add, Button, x145 y286 w120 h34 gGUI_SchoolBus, 통학버스 임차
+    Gui, DOC:Add, Button, x145 y326 w120 h34 gGUI_CleaningService, 청소용역
 
     Gui, DOC:Font, s9 Bold c423070, Malgun Gothic
-    Gui, DOC:Add, Button, x390 y126 w170 h34 gGUI_MeetingFee, 협의회비
-    Gui, DOC:Add, Button, x390 y166 w170 h34 gGUI_LecturerFee, 강사비
-    Gui, DOC:Add, Button, x390 y206 w170 h34 gGUI_TravelFee, 출장비
+    Gui, DOC:Add, Button, x275 y126 w120 h34 gGUI_MeetingFee, 협의회비
+    Gui, DOC:Add, Button, x275 y166 w120 h34 gGUI_LecturerFee, 강사비
+    Gui, DOC:Add, Button, x275 y206 w120 h34 gGUI_TravelFee, 출장비
 
     ; 기타와 공사 사이를 한 줄 띄워 구분
     Gui, DOC:Font, s9 Bold c5A3300, Malgun Gothic
-    Gui, DOC:Add, Button, x390 y286 w170 h30 gGUI_OtherGift, 상품권
-    Gui, DOC:Add, Button, x390 y326 w170 h30 gGUI_OtherCard, 법인카드사용부
-    Gui, DOC:Add, Text, x390 y366 w170 h24 Center, 공사
-    Gui, DOC:Add, Button, x390 y406 w170 h30 gGUI_Construction, 일반공사
-    Gui, DOC:Add, Text, x575 y370 w170 h24 Center, 예산
-    Gui, DOC:Add, Button, x575 y410 w170 h30 gGUI_Budget1, 예산요구서
-    Gui, DOC:Add, Button, x575 y440 w170 h30 gGUI_Budget2, 추가경정예산
-    Gui, DOC:Add, Button, x575 y470 w170 h30 gGUI_Budget3, 성립전(목적사업비)
-    Gui, DOC:Add, Button, x575 y500 w170 h30 gGUI_Budget4, 성립전(수익자부담)
-    Gui, DOC:Add, Button, x575 y530 w170 h30 gGUI_Budget5, 과목경정
+    Gui, DOC:Add, Button, x275 y286 w120 h30 gGUI_OtherGift, 상품권
+    Gui, DOC:Add, Button, x275 y326 w120 h30 gGUI_OtherCard, 법인카드사용부
+    Gui, DOC:Add, Text, x275 y366 w120 h24 Center, 공사
+    Gui, DOC:Add, Button, x275 y406 w120 h30 gGUI_Construction, 일반공사
+    Gui, DOC:Add, Text, x405 y370 w120 h24 Center, 예산
+    Gui, DOC:Add, Button, x405 y410 w120 h30 gGUI_Budget1, 예산요구서
+    Gui, DOC:Add, Button, x405 y440 w120 h30 gGUI_Budget2, 추가경정예산
+    Gui, DOC:Add, Button, x405 y470 w120 h30 gGUI_Budget3, 성립전(목적사업비)
+    Gui, DOC:Add, Button, x405 y500 w120 h30 gGUI_Budget4, 성립전(수익자부담)
+    Gui, DOC:Add, Button, x405 y530 w120 h30 gGUI_Budget5, 과목경정
 
     Gui, DOC:Font, s9 Bold c703000, Malgun Gothic
-    Gui, DOC:Add, Button, x575 y126 w170 h34 gGUI_RevenueCollect, % SSOK_RevenueLabel(1)
-    Gui, DOC:Add, Button, x575 y186 w170 h34 gGUI_RevenueInterest, % SSOK_RevenueLabel(3)
-    Gui, DOC:Add, Button, x575 y216 w170 h34 gGUI_RevenueTransfer, % SSOK_RevenueLabel(4)
-    Gui, DOC:Add, Button, x575 y276 w170 h34 gGUI_RevenueRefundPurpose, % SSOK_RevenueLabel(6)
+    Gui, DOC:Add, Button, x405 y126 w120 h34 gGUI_RevenueCollect, % SSOK_RevenueLabel(1)
+    Gui, DOC:Add, Button, x405 y186 w120 h34 gGUI_RevenueInterest, % SSOK_RevenueLabel(3)
+    Gui, DOC:Add, Button, x405 y216 w120 h34 gGUI_RevenueTransfer, % SSOK_RevenueLabel(4)
+    Gui, DOC:Add, Button, x405 y276 w120 h34 gGUI_RevenueRefundPurpose, % SSOK_RevenueLabel(6)
 
-    Gui, DOC:Add, Button, x575 y156 w170 h28 gGUI_RevenueFieldTrip, % SSOK_RevenueLabel(2)
-    Gui, DOC:Add, Button, x575 y246 w170 h28 gGUI_RevenueSettlement, % SSOK_RevenueLabel(5)
-    Gui, DOC:Add, Button, x575 y306 w170 h28 gGUI_RevenueRefundBeneficiary, % SSOK_RevenueLabel(7)
+    Gui, DOC:Add, Button, x405 y156 w120 h28 gGUI_RevenueFieldTrip, % SSOK_RevenueLabel(2)
+    Gui, DOC:Add, Button, x405 y246 w120 h28 gGUI_RevenueSettlement, % SSOK_RevenueLabel(5)
+    Gui, DOC:Add, Button, x405 y306 w120 h28 gGUI_RevenueRefundBeneficiary, % SSOK_RevenueLabel(7)
     Gui, DOC:Font, s9 Bold c003D73, Malgun Gothic
-    Gui, DOC:Add, Button, x760 y126 w170 h34 gGUI_GeneralPlan, 계획수립
-    Gui, DOC:Add, Button, x760 y166 w170 h34 gGUI_GeneralEventNotice, 행사안내
+    Gui, DOC:Add, Button, x535 y126 w120 h34 gGUI_GeneralPlan, 계획수립
+    Gui, DOC:Add, Button, x535 y166 w120 h34 gGUI_GeneralEventNotice, 행사안내
 
     Gui, DOC:Font, s9 Bold c423070, Malgun Gothic
-    Gui, DOC:Add, Text, x760 y286 w170 h24 Center, 기타
-    Gui, DOC:Add, Button, x760 y326 w170 h34 gGUI_NationalPetition, 국민신문고
-    Gui, DOC:Add, Button, x760 y366 w170 h34 gGUI_SchoolMarket, 학교장터
-    Gui, DOC:Add, Button, x760 y406 w170 h34 gGUI_LegalBasis, 법령근거
+    Gui, DOC:Add, Text, x535 y286 w120 h24 Center, 기타
+    Gui, DOC:Add, Button, x535 y326 w120 h34 gGUI_NationalPetition, 국민신문고
+    Gui, DOC:Add, Button, x535 y366 w120 h34 gGUI_SchoolMarket, 학교장터
+    Gui, DOC:Add, Button, x535 y406 w120 h34 gGUI_LegalBasis, 법령근거
 
     ; 왼쪽 하단 안내문
     Gui, DOC:Font, s7 c777777, Malgun Gothic
-    Gui, DOC:Add, Text, x20 y570 w420 h18 Left, 쏘옥 for K-에듀파인 (SSOK-Sejong Smart One Key)
+    Gui, DOC:Add, Text, x15 y570 w300 h18 Left, 쏘옥 for K-에듀파인 (SSOK-Sejong Smart One Key)
 
     ; 오른쪽 하단 저작권
     Gui, DOC:Font, s7 c777777, Malgun Gothic
-    Gui, DOC:Add, Text, x540 y570 w390 h18 Right, 저작권: 세종특별자치시교육청 주무관 이명호
+    Gui, DOC:Add, Text, x365 y570 w290 h18 Right, 저작권: 세종특별자치시교육청 주무관 이명호
 
-    DOC_GetSidebarAttachedGuiPos(960, 510, DOCWinX, DOCWinY)
-    Gui, DOC:Show, x%DOCWinX% y%DOCWinY% w960 h600, %APP_FULL_TITLE%
+    DOC_GetSidebarAttachedGuiPos(680, 510, DOCWinX, DOCWinY)
+    Gui, DOC:Show, x%DOCWinX% y%DOCWinY% w680 h600, %APP_FULL_TITLE%
 
     Sleep, 100
     WinSetTitle, ahk_id %DOC_Hwnd%,, %APP_FULL_TITLE%

@@ -2393,14 +2393,14 @@ SSOK_ShowCalculator:
 
     ; 2. 도움말 안내
     Gui, SSOKCalc:Font, s8 norm c2A5C70, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x12 y102 w796 h20 vSSOK_CalcHelp, 예: 5,000 * 2개 * 4주=  또는  (1,000 + 2,000) * 10
+    Gui, SSOKCalc:Add, Text, x12 y102 w656 h20 vSSOK_CalcHelp, 예: 5,000 * 2개 * 4주=  또는  (1,000 + 2,000) * 10
 
     ; 3. 분리된 입력칸 1 & 2 (3배 대형화 h54)
     Gui, SSOKCalc:Font, s8 bold c333333, Malgun Gothic
     Gui, SSOKCalc:Add, Text, x12 y126 w300 h18 vSSOK_CalcPrompt1, 계산 수식 또는 금액 입력:
     Gui, SSOKCalc:Add, Text, x324 y126 w300 h18 vSSOK_CalcPrompt2, 추가 옵션:
     Gui, SSOKCalc:Font, s18 bold c173F52, Malgun Gothic
-    Gui, SSOKCalc:Add, Edit, x12 y146 w796 h54 -WantReturn vSSOK_CalcInput1 gSSOK_CalcInput1Changed HwndSSOK_CalcInput1Hwnd
+    Gui, SSOKCalc:Add, Edit, x12 y146 w656 h54 -WantReturn vSSOK_CalcInput1 gSSOK_CalcInput1Changed HwndSSOK_CalcInput1Hwnd
     Gui, SSOKCalc:Font, s15 bold c173F52, Malgun Gothic
     Gui, SSOKCalc:Add, Edit, x324 y146 w300 h54 -WantReturn vSSOK_CalcInput2
 
@@ -2420,11 +2420,11 @@ SSOK_ShowCalculator:
 
     ; 인정률 컨트롤 (날짜·요일 전용)
     Gui, SSOKCalc:Font, s8 bold c333333, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x638 y156 w52 h20 Right vSSOK_CalcRateLabel, 인정률:
+    Gui, SSOKCalc:Add, Text, x500 y210 w52 h20 Right vSSOK_CalcRateLabel, 인정률:
     Gui, SSOKCalc:Font, s9 bold c173F52, Malgun Gothic
-    Gui, SSOKCalc:Add, Edit, x694 y153 w66 h24 Center -WantReturn vSSOK_CalcRate, 100
+    Gui, SSOKCalc:Add, Edit, x556 y207 w66 h24 Center -WantReturn vSSOK_CalcRate, 100
     Gui, SSOKCalc:Font, s8 bold c333333, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x764 y156 w24 h20 Left vSSOK_CalcRateUnit, `%
+    Gui, SSOKCalc:Add, Text, x626 y210 w24 h20 Left vSSOK_CalcRateUnit, `%
 
     ; 조달수수료 계약 방식 선택 라디오 (조달수수료 전용)
     Gui, SSOKCalc:Font, s8 bold c173F52, Malgun Gothic
@@ -2443,9 +2443,9 @@ SSOK_ShowCalculator:
 
     ; 4. 실행 버튼 영역 (계산 1.5배 길게: 295px / 결과 복사 60% 작게: 125px)
     Gui, SSOKCalc:Font, s9 bold, Malgun Gothic
-    Gui, SSOKCalc:Add, Button, x12 y242 w550 h30 Default vSSOK_CalcCalculateBtn gSSOK_CalcCalculate, 계산 (Enter)
+    Gui, SSOKCalc:Add, Button, x12 y242 w455 h30 Default vSSOK_CalcCalculateBtn gSSOK_CalcCalculate, 계산 (Enter)
     Gui, SSOKCalc:Font, s9 norm, Malgun Gothic
-    Gui, SSOKCalc:Add, Button, x574 y242 w234 h30 vSSOK_CalcCopyBtn gSSOK_CalcCopyResult, 결과 복사
+    Gui, SSOKCalc:Add, Button, x477 y242 w191 h30 vSSOK_CalcCopyBtn gSSOK_CalcCopyResult, 결과 복사
 
     ; 5. 자릿수 옵션 (칸을 넓혀서 2줄 줄바꿈 방지)
     Gui, SSOKCalc:Font, s8 bold c173F52, Malgun Gothic
@@ -2460,7 +2460,7 @@ SSOK_ShowCalculator:
     Gui, SSOKCalc:Font, s8 bold c173F52, Malgun Gothic
     Gui, SSOKCalc:Add, Text, x12 y308 w100 h18 vSSOK_CalcResultLabel, 계산 결과:
     Gui, SSOKCalc:Font, s10 bold c006C73, Malgun Gothic
-    Gui, SSOKCalc:Add, Edit, x12 y330 w796 h170 ReadOnly +Multi +Wrap -WantReturn HwndSSOK_CalcResultHwnd vSSOK_CalcResult,
+    Gui, SSOKCalc:Add, Edit, x12 y330 w656 h170 ReadOnly +Multi +Wrap -WantReturn HwndSSOK_CalcResultHwnd vSSOK_CalcResult,
 
     ; =====================================================
     ; 경력기간 입력 영역 (최대 10개)
@@ -2481,15 +2481,15 @@ SSOK_ShowCalculator:
     }
 
     Gui, SSOKCalc:Font, s11 bold c173F52, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x12 y98 w796 h28 Hidden vSSOK_CareerTitle, 경력기간
+    Gui, SSOKCalc:Add, Text, x12 y98 w656 h28 Hidden vSSOK_CareerTitle, 경력기간
     Gui, SSOKCalc:Font, s9 bold c173F52, Malgun Gothic
-    Gui, SSOKCalc:Add, GroupBox, x12 y126 w796 h700 Hidden vSSOK_CareerGroup, 경력기간 입력
-    Gui, SSOKCalc:Add, Text, x20 y148 w62 h20 Center Hidden vSSOK_CareerHeadV, 선택
-    Gui, SSOKCalc:Add, Text, x84 y148 w30 h20 Center Hidden vSSOK_CareerHeadNo, 구분
-    Gui, SSOKCalc:Add, Text, x120 y148 w150 h20 Center Hidden vSSOK_CareerHeadStart, 시작일
-    Gui, SSOKCalc:Add, Text, x278 y148 w150 h20 Center Hidden vSSOK_CareerHeadEnd, 종료일
-    Gui, SSOKCalc:Add, Text, x436 y148 w130 h20 Center Hidden vSSOK_CareerHeadRate, 인정률
-    Gui, SSOKCalc:Add, Text, x570 y148 w225 h20 Center Hidden vSSOK_CareerHeadYMD, 인정 경력 (년·월·일)
+    Gui, SSOKCalc:Add, GroupBox, x12 y126 w656 h700 Hidden vSSOK_CareerGroup, 경력기간 입력
+    Gui, SSOKCalc:Add, Text, x20 y148 w52 h20 Center Hidden vSSOK_CareerHeadV, 선택
+    Gui, SSOKCalc:Add, Text, x74 y148 w28 h20 Center Hidden vSSOK_CareerHeadNo, 구분
+    Gui, SSOKCalc:Add, Text, x108 y148 w140 h20 Center Hidden vSSOK_CareerHeadStart, 시작일
+    Gui, SSOKCalc:Add, Text, x256 y148 w140 h20 Center Hidden vSSOK_CareerHeadEnd, 종료일
+    Gui, SSOKCalc:Add, Text, x404 y148 w72 h20 Center Hidden vSSOK_CareerHeadRate, 인정률
+    Gui, SSOKCalc:Add, Text, x550 y148 w105 h20 Center Hidden vSSOK_CareerHeadYMD, 인정 경력
 
     Gui, SSOKCalc:Font, s8 norm c173F52, Malgun Gothic
     SSOK_CareerYMDHwnd := {}
@@ -2501,39 +2501,39 @@ SSOK_ShowCalculator:
         ; 1번은 경력기간 화면을 열 때 기본 선택(체크) 상태입니다.
         SSOK_CareerSelected[idx] := (idx = 1)
         checkOpt := (idx = 1) ? "Checked" : ""
-        Gui, SSOKCalc:Add, CheckBox, x20 y%y% w62 h28 Center Hidden vSSOK_CareerUse%idx% gSSOK_CareerSelectionChanged %checkOpt%, 선택
-        Gui, SSOKCalc:Add, Text, x84 y%y% w30 h28 Center +0x200 Hidden vSSOK_CareerNo%idx%, %idx%
+        Gui, SSOKCalc:Add, CheckBox, x20 y%y% w52 h28 Center Hidden vSSOK_CareerUse%idx% gSSOK_CareerSelectionChanged %checkOpt%, 선택
+        Gui, SSOKCalc:Add, Text, x74 y%y% w28 h28 Center +0x200 Hidden vSSOK_CareerNo%idx%, %idx%
 
         chooseStart := careerDefaultStarts[idx]
         chooseEnd := careerDefaultEnds[idx]
 
-        Gui, SSOKCalc:Add, DateTime, x120 y%y% w150 h28 Hidden vSSOK_CareerStart%idx% Choose%chooseStart% gSSOK_CareerDateChanged, yyyy-MM-dd
-        Gui, SSOKCalc:Add, DateTime, x278 y%y% w150 h28 Hidden vSSOK_CareerEnd%idx% Choose%chooseEnd% gSSOK_CareerDateChanged, yyyy-MM-dd
+        Gui, SSOKCalc:Add, DateTime, x108 y%y% w140 h28 Hidden vSSOK_CareerStart%idx% Choose%chooseStart% gSSOK_CareerDateChanged, yyyy-MM-dd
+        Gui, SSOKCalc:Add, DateTime, x256 y%y% w140 h28 Hidden vSSOK_CareerEnd%idx% Choose%chooseEnd% gSSOK_CareerDateChanged, yyyy-MM-dd
         ; 인정률: 0~100% 숫자 입력 + 실제 UpDown(▲▼) 조절
-        Gui, SSOKCalc:Add, Edit, x436 y%y% w110 h28 Center Number Limit3 Hidden vSSOK_CareerRate%idx% gSSOK_CareerRateChanged, 100
+        Gui, SSOKCalc:Add, Edit, x404 y%y% w72 h28 Center Number Limit3 Hidden vSSOK_CareerRate%idx% gSSOK_CareerRateChanged, 100
         Gui, SSOKCalc:Add, UpDown, Hidden Range0-100 0x80 vSSOK_CareerRateUD%idx% gSSOK_CareerRateChanged, 100
         ; 개별 인정경력 출력칸은 1~10번을 실제 컨트롤명으로 명시합니다.
         ; 동적 v변수 바인딩 문제를 피하기 위한 방식입니다.
         if (idx = 1)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD1, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD1, -
         else if (idx = 2)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD2, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD2, -
         else if (idx = 3)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD3, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD3, -
         else if (idx = 4)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD4, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD4, -
         else if (idx = 5)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD5, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD5, -
         else if (idx = 6)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD6, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD6, -
         else if (idx = 7)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD7, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD7, -
         else if (idx = 8)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD8, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD8, -
         else if (idx = 9)
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD9, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD9, -
         else
-            Gui, SSOKCalc:Add, Text, x570 y%y% w225 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD10, -
+            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD10, -
 
         SSOK_CareerYMDHwnd[idx] := hCareerYMD
 
@@ -2542,21 +2542,22 @@ SSOK_ShowCalculator:
     }
 
     Gui, SSOKCalc:Font, s9 bold c173F52, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x22 y590 w110 h24 +0x200 Hidden vSSOK_CareerTotalLabel, 총 근무년한
-    Gui, SSOKCalc:Add, Text, x135 y590 w250 h24 Center +0x200 Hidden vSSOK_CareerTotalYMD, 0년 0월 0일
-    Gui, SSOKCalc:Add, Text, x400 y590 w395 h24 Center +0x200 Hidden vSSOK_CareerTotalMonths, 총 인정개월: 0개월
-    Gui, SSOKCalc:Add, Text, x22 y620 w773 h24 Center +0x200 Hidden vSSOK_CareerTotalDays, 총 0일 (평일 0일 / 주말 0일) / 인정일수 0일
+    Gui, SSOKCalc:Add, Text, x22 y590 w95 h24 +0x200 Hidden vSSOK_CareerTotalLabel, 총 근무년한
+    Gui, SSOKCalc:Add, Text, x120 y590 w180 h24 Center +0x200 Hidden vSSOK_CareerTotalYMD, 0년 0월 0일
+    Gui, SSOKCalc:Add, Text, x310 y590 w345 h24 Center +0x200 Hidden vSSOK_CareerTotalMonths, 총 인정개월: 0개월
+    Gui, SSOKCalc:Add, Text, x22 y620 w633 h24 Center +0x200 Hidden vSSOK_CareerTotalDays, 총 0일 (평일 0일 / 주말 0일) / 인정일수 0일
 
     ; 기간 중복 경고 표시
     Gui, SSOKCalc:Font, s9 bold cRed, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x22 y646 w773 h20 Center +0x200 Hidden vSSOK_CareerWarnText,
+    Gui, SSOKCalc:Add, Text, x22 y646 w633 h20 Center +0x200 Hidden vSSOK_CareerWarnText,
 
     Gui, SSOKCalc:Font, s8 norm c2A5C70, Malgun Gothic
-    Gui, SSOKCalc:Add, Text, x22 y670 w773 h38 Left Hidden vSSOK_CareerHelp1, ※ 선택 버튼을 누른 경력만 계산합니다. 시작일과 종료일이 같으면 1일로 계산합니다.`n※ 인정률은 경력별로 입력하며 기본값은 100입니다.
-    Gui, SSOKCalc:Add, Text, x22 y712 w773 h42 Left Hidden vSSOK_CareerHelp2, 예시: 1번 = 올해 3월 1일 ~ 다음 해 2월 말일 / 2번 = 작년 3월 1일 ~ 올해 2월 말일.`n※ 윤년의 2월 말일은 29일이며, 선택된 기간이 서로 겹치면 중복 날짜는 한 번만 합산합니다.
+    Gui, SSOKCalc:Add, Text, x22 y670 w633 h38 Left Hidden vSSOK_CareerHelp1, ※ 선택 버튼을 누른 경력만 계산합니다. 시작일과 종료일이 같으면 1일로 계산합니다.`n※ 인정률은 경력별로 입력하며 기본값은 100입니다.
+    Gui, SSOKCalc:Add, Text, x22 y712 w633 h42 Left Hidden vSSOK_CareerHelp2, 예시: 1번 = 올해 3월 1일 ~ 다음 해 2월 말일 / 2번 = 작년 3월 1일 ~ 올해 2월 말일.`n※ 윤년의 2월 말일은 29일이며, 선택된 기간이 서로 겹치면 중복 날짜는 한 번만 합산합니다.
 
-    Gui, SSOKCalc:Add, Button, x22 y770 w773 h34 Hidden vSSOK_CareerCopyBtn gSSOK_CareerCopy, 경력 결과 복사
-    Gui, SSOKCalc:Show, w820 h850, SSOK 행정업무 간편 계산기
+    Gui, SSOKCalc:Add, Button, x22 y770 w633 h34 Hidden vSSOK_CareerCopyBtn gSSOK_CareerCopy, 경력 결과 복사
+    SSOK_GetSidebarAttachedGuiPos(680, 850, SSOK_CalcWinX, SSOK_CalcWinY)
+    Gui, SSOKCalc:Show, x%SSOK_CalcWinX% y%SSOK_CalcWinY% w680 h850, SSOK 행정업무 간편 계산기
 
     SSOK_CalcMode := "expr"
     SSOK_CalcPrecision := 1
@@ -2637,7 +2638,7 @@ SSOK_CalcApplyModeUI:
 
     if (SSOK_CalcMode = "career")
     {
-        Gui, SSOKCalc:Show, w820 h850, SSOK 행정업무 간편 계산기 - 경력기간
+        Gui, SSOKCalc:Show, x%SSOK_CalcWinX% y%SSOK_CalcWinY% w680 h850, SSOK 행정업무 간편 계산기 - 경력기간
 
         GuiControl, SSOKCalc:Hide, SSOK_CalcHelp
         GuiControl, SSOKCalc:Hide, SSOK_CalcPrompt1
@@ -2718,7 +2719,7 @@ SSOK_CalcApplyModeUI:
         ; 예산 총액 입력칸: 높이 3배(h54), 글자 크기 2배(s18 bold)
         Gui, SSOKCalc:Font, s18 bold c173F52, Malgun Gothic
         GuiControl, SSOKCalc:Font, SSOK_CalcInput1
-        GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w796 h54
+        GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w656 h54
         GuiControl, SSOKCalc:Show, SSOK_CalcInput1
 
         ; 예산비목은 입력칸 하단(y200) 아래 독립된 행에 배치
@@ -2737,14 +2738,14 @@ SSOK_CalcApplyModeUI:
         GuiControl, SSOKCalc:Show, SSOK_CalcBudgetBtn5
 
         ; 결과 복사 버튼 전체 너비 배치
-        GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x12 y242 w796 h30
+        GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x12 y242 w656 h30
         GuiControl, SSOKCalc:Show, SSOK_CalcCopyBtn
         GuiControl, SSOKCalc:Move, SSOK_CalcResultLabel, y308
         GuiControl, SSOKCalc:Move, SSOK_CalcResult, y330 h170
 
         GuiControl, SSOKCalc:, SSOK_CalcHelp, 예산 산출내역: 예산 총액을 입력하고 비목 버튼을 누르면 산출식이 자동 작성됩니다.
         GuiControl, SSOKCalc:, SSOK_CalcPrompt1, 예산 총액 입력 (예: 1,000,000):
-        GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w796
+        GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w656
         GuiControl, SSOKCalc:Hide, SSOK_CalcPrompt2
         GuiControl, SSOKCalc:Hide, SSOK_CalcInput2
 
@@ -2774,8 +2775,8 @@ SSOK_CalcApplyModeUI:
         GuiControl, SSOKCalc:Hide, SSOK_CalcBudgetBtn5
 
         ; 계산(1.5배 길게: w295) / 복사(60% 작게: w125) 버튼 배치 (y172)
-        GuiControl, SSOKCalc:Move, SSOK_CalcCalculateBtn, x12 y242 w550 h30
-        GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x574 y242 w234 h30
+        GuiControl, SSOKCalc:Move, SSOK_CalcCalculateBtn, x12 y242 w455 h30
+        GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x477 y242 w191 h30
         GuiControl, SSOKCalc:Show, SSOK_CalcCalculateBtn
         GuiControl, SSOKCalc:Show, SSOK_CalcCopyBtn
         GuiControl, SSOKCalc:Text, SSOK_CalcCalculateBtn, 계산 (Enter)
@@ -2785,7 +2786,7 @@ SSOK_CalcApplyModeUI:
             ; 일반계산: 대형 입력칸 (h54, s18 bold)
             Gui, SSOKCalc:Font, s18 bold c173F52, Malgun Gothic
             GuiControl, SSOKCalc:Font, SSOK_CalcInput1
-            GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w796 h54
+            GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w656 h54
             GuiControl, SSOKCalc:Show, SSOK_CalcInput1
 
             SSOK_CalcSetPrecisionVisible(true)
@@ -2799,7 +2800,7 @@ SSOK_CalcApplyModeUI:
             GuiControl, SSOKCalc:Move, SSOK_CalcResult, y330 h170
             GuiControl, SSOKCalc:, SSOK_CalcHelp, 예: 5,000 * 2개 * 4주=  또는  (1,000 + 2,000) * 10
             GuiControl, SSOKCalc:, SSOK_CalcPrompt1, 계산 수식 또는 금액 입력:
-            GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w796
+            GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w656
             GuiControl, SSOKCalc:Hide, SSOK_CalcPrompt2
             GuiControl, SSOKCalc:Hide, SSOK_CalcInput2
             GuiControlGet, vIn1, SSOKCalc:, SSOK_CalcInput1
@@ -2811,7 +2812,7 @@ SSOK_CalcApplyModeUI:
             ; VAT 계산: 대형 입력칸 (h54, s18 bold)
             Gui, SSOKCalc:Font, s18 bold c173F52, Malgun Gothic
             GuiControl, SSOKCalc:Font, SSOK_CalcInput1
-            GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w796 h54
+            GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w656 h54
             GuiControl, SSOKCalc:Show, SSOK_CalcInput1
 
             SSOK_CalcSetPrecisionVisible(false)
@@ -2820,7 +2821,7 @@ SSOK_CalcApplyModeUI:
             GuiControl, SSOKCalc:Move, SSOK_CalcResult, y304 h196
             GuiControl, SSOKCalc:, SSOK_CalcHelp, % "VAT 계산: 금액을 입력하면 공급가액(원가)과 부가세(10%)를 즉시 자동 계산합니다."
             GuiControl, SSOKCalc:, SSOK_CalcPrompt1, 금액 입력 (예: 10,000):
-            GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w796
+            GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w656
             GuiControl, SSOKCalc:Hide, SSOK_CalcPrompt2
             GuiControl, SSOKCalc:Hide, SSOK_CalcInput2
             GuiControlGet, vIn1, SSOKCalc:, SSOK_CalcInput1
@@ -2831,20 +2832,20 @@ SSOK_CalcApplyModeUI:
         {
             Gui, SSOKCalc:Font, s18 bold c173F52, Malgun Gothic
             GuiControl, SSOKCalc:Font, SSOK_CalcInput1
-            GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w796 h54
+            GuiControl, SSOKCalc:Move, SSOK_CalcInput1, x12 y146 w656 h54
             GuiControl, SSOKCalc:Show, SSOK_CalcInput1
 
             SSOK_CalcSetPrecisionVisible(false)
             GuiControl, SSOKCalc:Text, SSOK_CalcCalculateBtn, 조달수수료 계산 (Enter)
-            GuiControl, SSOKCalc:Move, SSOK_CalcCalculateBtn, x12 y242 w550 h30
-            GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x574 y242 w234 h30
+            GuiControl, SSOKCalc:Move, SSOK_CalcCalculateBtn, x12 y242 w455 h30
+            GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x477 y242 w191 h30
             GuiControl, SSOKCalc:Show, SSOK_CalcProcureRad1
             GuiControl, SSOKCalc:Show, SSOK_CalcProcureRad2
             GuiControl, SSOKCalc:Move, SSOK_CalcResultLabel, y308
             GuiControl, SSOKCalc:Move, SSOK_CalcResult, y330 h170
             GuiControl, SSOKCalc:, SSOK_CalcHelp, % "조달수수료: 계약(구매) 금액을 넣고 계약 방식을 선택하면 조달청 수수료를 즉시 계산합니다."
             GuiControl, SSOKCalc:, SSOK_CalcPrompt1, 계약(구매) 금액 입력 (예: 30,000,000 또는 3000만):
-            GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w796
+            GuiControl, SSOKCalc:Move, SSOK_CalcPrompt1, x12 y126 w656
             GuiControl, SSOKCalc:Hide, SSOK_CalcPrompt2
             GuiControl, SSOKCalc:Hide, SSOK_CalcInput2
             GuiControlGet, vIn1, SSOKCalc:, SSOK_CalcInput1
@@ -2886,8 +2887,8 @@ SSOK_CalcApplyModeUI:
                 GuiControl, SSOKCalc:Show, SSOK_CalcRateLabel
                 GuiControl, SSOKCalc:Show, SSOK_CalcRate
                 GuiControl, SSOKCalc:Show, SSOK_CalcRateUnit
-                GuiControl, SSOKCalc:Move, SSOK_CalcCalculateBtn, x12 y242 w550 h30
-                GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x574 y242 w234 h30
+                GuiControl, SSOKCalc:Move, SSOK_CalcCalculateBtn, x12 y242 w455 h30
+                GuiControl, SSOKCalc:Move, SSOK_CalcCopyBtn, x477 y242 w191 h30
                 GuiControl, SSOKCalc:Move, SSOK_CalcResultLabel, y280
                 GuiControl, SSOKCalc:Move, SSOK_CalcResult, y304 h196
             }
@@ -6861,66 +6862,66 @@ SSOK_ShowGeminiAIMenu:
     Gui, SSOKGeminiAI:+AlwaysOnTop +ToolWindow -MinimizeBox +HwndSSOK_AI_GuiHwnd
     Gui, SSOKGeminiAI:Color, F7FBFF
     Gui, SSOKGeminiAI:Font, s17 bold, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Text, x35 y28 w890 h34 c005BAC Center, SSOK Gemini AI 도우미
+    Gui, SSOKGeminiAI:Add, Text, x20 y28 w640 h34 c005BAC Center, SSOK Gemini AI 도우미
     Gui, SSOKGeminiAI:Font, s9 norm, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Text, x35 y76 w890 h24 c555555 Center, 작성을 원하는 문구를 블럭 지정하고 아래 버튼을 선택하면, Gemini에 프롬프트가 자동 입력됩니다.
+    Gui, SSOKGeminiAI:Add, Text, x20 y76 w640 h24 c555555 Center, 작성을 원하는 문구를 블럭 지정하고 아래 버튼을 선택하면, Gemini에 프롬프트가 자동 입력됩니다.
     Gui, SSOKGeminiAI:Font, s11 bold, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, GroupBox, x50 y116 w425 h180 c005BAC, 기안문
-    Gui, SSOKGeminiAI:Add, GroupBox, x485 y116 w425 h180 c005BAC, 계획서
+    Gui, SSOKGeminiAI:Add, GroupBox, x30 y116 w300 h180 c005BAC, 기안문
+    Gui, SSOKGeminiAI:Add, GroupBox, x350 y116 w300 h180 c005BAC, 계획서
     Gui, SSOKGeminiAI:Font, s10 bold, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Button, x65 y160 w395 h54 gSSOK_AI_DraftMemo, 1. AI 작성
-    Gui, SSOKGeminiAI:Add, Button, x500 y160 w395 h54 gSSOK_AI_PlanDoc, 1. AI 작성
-    Gui, SSOKGeminiAI:Add, Button, x65 y226 w395 h54 gSSOK_AI_ReportConvert1, 2. HWP 양식 변환
-    Gui, SSOKGeminiAI:Add, Button, x500 y226 w395 h54 gSSOK_AI_ReportConvert2, 2. HWP 양식 변환
+    Gui, SSOKGeminiAI:Add, Button, x40 y160 w280 h54 gSSOK_AI_DraftMemo, 1. AI 작성
+    Gui, SSOKGeminiAI:Add, Button, x360 y160 w280 h54 gSSOK_AI_PlanDoc, 1. AI 작성
+    Gui, SSOKGeminiAI:Add, Button, x40 y226 w280 h54 gSSOK_AI_ReportConvert1, 2. HWP 양식 변환
+    Gui, SSOKGeminiAI:Add, Button, x360 y226 w280 h54 gSSOK_AI_ReportConvert2, 2. HWP 양식 변환
 
     Gui, SSOKGeminiAI:Font, s9 norm, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Text, x65 y315 w450 h22 c777777, 블록 지정하지 않아도 Gemini에서 원하는 문구를 작성할 수 있습니다.
+    Gui, SSOKGeminiAI:Add, Text, x40 y315 w600 h22 c777777, 블록 지정하지 않아도 Gemini에서 원하는 문구를 작성할 수 있습니다.
 
     Gui, SSOKGeminiAI:Font, s9 bold, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Button, x65 y337 w155 h30 gSSOK_AI_OpenSite1, %SSOK_AI_SiteName1%
-    Gui, SSOKGeminiAI:Add, Button, x225 y337 w155 h30 gSSOK_AI_OpenSite2, %SSOK_AI_SiteName2%
-    Gui, SSOKGeminiAI:Add, Button, x385 y337 w155 h30 gSSOK_AI_OpenSite3, %SSOK_AI_SiteName3%
-    Gui, SSOKGeminiAI:Add, Button, x545 y337 w155 h30 gSSOK_AI_OpenSite4, %SSOK_AI_SiteName4%
-    Gui, SSOKGeminiAI:Add, Button, x705 y337 w155 h30 gSSOK_AI_OpenSite5, %SSOK_AI_SiteName5%
+    Gui, SSOKGeminiAI:Add, Button, x40 y337 w116 h30 gSSOK_AI_OpenSite1, %SSOK_AI_SiteName1%
+    Gui, SSOKGeminiAI:Add, Button, x164 y337 w116 h30 gSSOK_AI_OpenSite2, %SSOK_AI_SiteName2%
+    Gui, SSOKGeminiAI:Add, Button, x288 y337 w116 h30 gSSOK_AI_OpenSite3, %SSOK_AI_SiteName3%
+    Gui, SSOKGeminiAI:Add, Button, x412 y337 w116 h30 gSSOK_AI_OpenSite4, %SSOK_AI_SiteName4%
+    Gui, SSOKGeminiAI:Add, Button, x536 y337 w116 h30 gSSOK_AI_OpenSite5, %SSOK_AI_SiteName5%
 
     Gui, SSOKGeminiAI:Font, s10 bold, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, GroupBox, x50 y382 w860 h205 c005BAC, AI 사이트 바로가기 / 이름·주소 수정
+    Gui, SSOKGeminiAI:Add, GroupBox, x30 y382 w620 h205 c005BAC, AI 사이트 바로가기 / 이름·주소 수정
     Gui, SSOKGeminiAI:Font, s8 norm, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Text, x95 y408 w145 h18 c005BAC Center, 이름
-    Gui, SSOKGeminiAI:Add, Text, x250 y408 w480 h18 c005BAC Center, 주소
+    Gui, SSOKGeminiAI:Add, Text, x60 y408 w120 h18 c005BAC Center, 이름
+    Gui, SSOKGeminiAI:Add, Text, x190 y408 w300 h18 c005BAC Center, 주소
 
     Gui, SSOKGeminiAI:Font, s9 norm, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Text, x65 y433 w24 h24 c005BAC Center, 1
-    Gui, SSOKGeminiAI:Add, Edit, x95 y429 w145 h28 vSSOK_AI_SiteNameEdit1, %SSOK_AI_SiteName1%
-    Gui, SSOKGeminiAI:Add, Edit, x250 y429 w480 h28 vSSOK_AI_SiteUrlEdit1, %SSOK_AI_SiteUrl1%
-    Gui, SSOKGeminiAI:Add, Button, x745 y428 w150 h30 gSSOK_AI_OpenSite1, 저장&&열기
+    Gui, SSOKGeminiAI:Add, Text, x40 y433 w24 h24 c005BAC Center, 1
+    Gui, SSOKGeminiAI:Add, Edit, x60 y429 w120 h28 vSSOK_AI_SiteNameEdit1, %SSOK_AI_SiteName1%
+    Gui, SSOKGeminiAI:Add, Edit, x190 y429 w300 h28 vSSOK_AI_SiteUrlEdit1, %SSOK_AI_SiteUrl1%
+    Gui, SSOKGeminiAI:Add, Button, x500 y428 w135 h30 gSSOK_AI_OpenSite1, 저장&&열기
 
-    Gui, SSOKGeminiAI:Add, Text, x65 y464 w24 h24 c005BAC Center, 2
-    Gui, SSOKGeminiAI:Add, Edit, x95 y460 w145 h28 vSSOK_AI_SiteNameEdit2, %SSOK_AI_SiteName2%
-    Gui, SSOKGeminiAI:Add, Edit, x250 y460 w480 h28 vSSOK_AI_SiteUrlEdit2, %SSOK_AI_SiteUrl2%
-    Gui, SSOKGeminiAI:Add, Button, x745 y459 w150 h30 gSSOK_AI_OpenSite2, 저장&&열기
+    Gui, SSOKGeminiAI:Add, Text, x40 y464 w24 h24 c005BAC Center, 2
+    Gui, SSOKGeminiAI:Add, Edit, x60 y460 w120 h28 vSSOK_AI_SiteNameEdit2, %SSOK_AI_SiteName2%
+    Gui, SSOKGeminiAI:Add, Edit, x190 y460 w300 h28 vSSOK_AI_SiteUrlEdit2, %SSOK_AI_SiteUrl2%
+    Gui, SSOKGeminiAI:Add, Button, x500 y459 w135 h30 gSSOK_AI_OpenSite2, 저장&&열기
 
-    Gui, SSOKGeminiAI:Add, Text, x65 y495 w24 h24 c005BAC Center, 3
-    Gui, SSOKGeminiAI:Add, Edit, x95 y491 w145 h28 vSSOK_AI_SiteNameEdit3, %SSOK_AI_SiteName3%
-    Gui, SSOKGeminiAI:Add, Edit, x250 y491 w480 h28 vSSOK_AI_SiteUrlEdit3, %SSOK_AI_SiteUrl3%
-    Gui, SSOKGeminiAI:Add, Button, x745 y490 w150 h30 gSSOK_AI_OpenSite3, 저장&&열기
+    Gui, SSOKGeminiAI:Add, Text, x40 y495 w24 h24 c005BAC Center, 3
+    Gui, SSOKGeminiAI:Add, Edit, x60 y491 w120 h28 vSSOK_AI_SiteNameEdit3, %SSOK_AI_SiteName3%
+    Gui, SSOKGeminiAI:Add, Edit, x190 y491 w300 h28 vSSOK_AI_SiteUrlEdit3, %SSOK_AI_SiteUrl3%
+    Gui, SSOKGeminiAI:Add, Button, x500 y490 w135 h30 gSSOK_AI_OpenSite3, 저장&&열기
 
-    Gui, SSOKGeminiAI:Add, Text, x65 y526 w24 h24 c005BAC Center, 4
-    Gui, SSOKGeminiAI:Add, Edit, x95 y522 w145 h28 vSSOK_AI_SiteNameEdit4, %SSOK_AI_SiteName4%
-    Gui, SSOKGeminiAI:Add, Edit, x250 y522 w480 h28 vSSOK_AI_SiteUrlEdit4, %SSOK_AI_SiteUrl4%
-    Gui, SSOKGeminiAI:Add, Button, x745 y521 w150 h30 gSSOK_AI_OpenSite4, 저장&&열기
+    Gui, SSOKGeminiAI:Add, Text, x40 y526 w24 h24 c005BAC Center, 4
+    Gui, SSOKGeminiAI:Add, Edit, x60 y522 w120 h28 vSSOK_AI_SiteNameEdit4, %SSOK_AI_SiteName4%
+    Gui, SSOKGeminiAI:Add, Edit, x190 y522 w300 h28 vSSOK_AI_SiteUrlEdit4, %SSOK_AI_SiteUrl4%
+    Gui, SSOKGeminiAI:Add, Button, x500 y521 w135 h30 gSSOK_AI_OpenSite4, 저장&&열기
 
-    Gui, SSOKGeminiAI:Add, Text, x65 y557 w24 h24 c005BAC Center, 5
-    Gui, SSOKGeminiAI:Add, Edit, x95 y553 w145 h28 vSSOK_AI_SiteNameEdit5, %SSOK_AI_SiteName5%
-    Gui, SSOKGeminiAI:Add, Edit, x250 y553 w480 h28 vSSOK_AI_SiteUrlEdit5, %SSOK_AI_SiteUrl5%
-    Gui, SSOKGeminiAI:Add, Button, x745 y552 w150 h30 gSSOK_AI_OpenSite5, 저장&&열기
+    Gui, SSOKGeminiAI:Add, Text, x40 y557 w24 h24 c005BAC Center, 5
+    Gui, SSOKGeminiAI:Add, Edit, x60 y553 w120 h28 vSSOK_AI_SiteNameEdit5, %SSOK_AI_SiteName5%
+    Gui, SSOKGeminiAI:Add, Edit, x190 y553 w300 h28 vSSOK_AI_SiteUrlEdit5, %SSOK_AI_SiteUrl5%
+    Gui, SSOKGeminiAI:Add, Button, x500 y552 w135 h30 gSSOK_AI_OpenSite5, 저장&&열기
 
     Gui, SSOKGeminiAI:Font, s8 norm, Malgun Gothic
-    Gui, SSOKGeminiAI:Add, Text, x65 y602 w520 h18 c999999, 5개 AI 사이트 이름과 주소는 ssok.ini에 저장됩니다.
-    Gui, SSOKGeminiAI:Add, Button, x620 y595 w120 h30 gSSOK_AI_SaveSites, 전체 저장
-    Gui, SSOKGeminiAI:Add, Text, x500 y632 w425 h24 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
-    SSOK_GetSidebarAttachedGuiPos(960, 667, SSOK_AI_WinX, SSOK_AI_WinY)
-    Gui, SSOKGeminiAI:Show, x%SSOK_AI_WinX% y%SSOK_AI_WinY% w960 h667, SSOK Gemini AI 도우미
+    Gui, SSOKGeminiAI:Add, Text, x40 y602 w400 h18 c999999, 5개 AI 사이트 이름과 주소는 ssok.ini에 저장됩니다.
+    Gui, SSOKGeminiAI:Add, Button, x465 y595 w100 h30 gSSOK_AI_SaveSites, 전체 저장
+    Gui, SSOKGeminiAI:Add, Text, x350 y632 w290 h24 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
+    SSOK_GetSidebarAttachedGuiPos(680, 667, SSOK_AI_WinX, SSOK_AI_WinY)
+    Gui, SSOKGeminiAI:Show, x%SSOK_AI_WinX% y%SSOK_AI_WinY% w680 h667, SSOK Gemini AI 도우미
     SetTimer, SSOK_AI_TrackTargetWindow, 200
 return
 

@@ -205,7 +205,7 @@ SSOK_Expense_FormatPreviewNumber(value)
 SSOK_Expense_Preview(result)
 {
     Gui, SSOKExpense:Destroy
-    Gui, SSOKExpense:New, +AlwaysOnTop +LabelSSOKExpense, 간편 지출품의 - 견적서 확인
+    Gui, SSOKExpense:New, +AlwaysOnTop +LabelSSOKExpense +HwndSSOK_ExpensePreviewHwnd, 간편 지출품의 - 견적서 확인
     Gui, SSOKExpense:Font, s9, Malgun Gothic
 
     displayTotal := SSOK_Expense_FormatPreviewNumber(result.total)
@@ -258,7 +258,22 @@ SSOK_Expense_Preview(result)
     Gui, SSOKExpense:Add, Button, x930 yp+14 w50 h30 gSSOKExpenseCauseArm, 원행목록`n입력하기
 
 
-    Gui, SSOKExpense:Show
+    ; 실제 창 크기로 계산하되 공간이 부족해도 메인 메뉴 오른쪽으로 넘기지 않습니다.
+    Gui, SSOKExpense:Show, Hide AutoSize
+    expenseDetectHidden := A_DetectHiddenWindows
+    DetectHiddenWindows, On
+    WinGetPos, , , SSOK_ExpensePreviewW, SSOK_ExpensePreviewH, ahk_id %SSOK_ExpensePreviewHwnd%
+    DetectHiddenWindows, %expenseDetectHidden%
+    if (SSOK_ExpensePreviewW = "")
+        SSOK_ExpensePreviewW := 1000
+    if (SSOK_ExpensePreviewH = "")
+        SSOK_ExpensePreviewH := 390
+    SSOK_GetSidebarAttachedGuiPos(SSOK_ExpensePreviewW, SSOK_ExpensePreviewH, SSOK_ExpensePreviewX, SSOK_ExpensePreviewY, true)
+    if (SSOK_ExpensePreviewX = "")
+        SSOK_ExpensePreviewX := 0
+    if (SSOK_ExpensePreviewY = "")
+        SSOK_ExpensePreviewY := 0
+    Gui, SSOKExpense:Show, x%SSOK_ExpensePreviewX% y%SSOK_ExpensePreviewY%
 }
 
 SSOKExpenseArm:

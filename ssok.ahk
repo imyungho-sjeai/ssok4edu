@@ -1838,7 +1838,7 @@ SSOK_Sidebar_FirstCharLabel(text, fallback, maxChars := 1)
     return SubStr(t, 1, maxChars)
 }
 
-SSOK_GetSidebarAttachedGuiPos(guiW, guiH, ByRef outX, ByRef outY)
+SSOK_GetSidebarAttachedGuiPos(guiW, guiH, ByRef outX, ByRef outY, forceLeft := false)
 {
     global SSOK_SidebarHwnd, SSOK_SidebarMiniHwnd, SSOK_SidebarSavedY
 
@@ -1863,13 +1863,16 @@ SSOK_GetSidebarAttachedGuiPos(guiW, guiH, ByRef outX, ByRef outY)
             sideY := SSOK_AttachWorkTop + 76
     }
 
-    outX := sideX - guiW - gap
-    if (outX < SSOK_AttachWorkLeft)
-        outX := sideX + sideW + gap
-    if (outX + guiW > SSOK_AttachWorkRight)
-        outX := SSOK_AttachWorkRight - guiW
-    if (outX < SSOK_AttachWorkLeft)
-        outX := SSOK_AttachWorkLeft
+    outX := sideX - guiW - (forceLeft ? 0 : gap)
+    if (!forceLeft)
+    {
+        if (outX < SSOK_AttachWorkLeft)
+            outX := sideX + sideW + gap
+        if (outX + guiW > SSOK_AttachWorkRight)
+            outX := SSOK_AttachWorkRight - guiW
+        if (outX < SSOK_AttachWorkLeft)
+            outX := SSOK_AttachWorkLeft
+    }
 
     outY := sideY
     if (outY + guiH > SSOK_AttachWorkBottom)
@@ -2587,87 +2590,87 @@ SSOK_ShowQuickFileMenu:
     Gui, SSOKQuickFile:+ToolWindow -MinimizeBox
     Gui, SSOKQuickFile:Color, F7FBFF
     Gui, SSOKQuickFile:Font, s17 bold, Malgun Gothic
-    Gui, SSOKQuickFile:Add, Text, x25 y16 w930 h34 c005BAC Center, 자주 사용하는 파일 바로 열기
+    Gui, SSOKQuickFile:Add, Text, x20 y16 w640 h34 c005BAC Center, 자주 사용하는 파일 바로 열기
     Gui, SSOKQuickFile:Font, s8 norm, Malgun Gothic
-    Gui, SSOKQuickFile:Add, Button, x780 y20 w145 h24 gSSOK_QF_ShowAppRecentMenu, 최근문서
+    Gui, SSOKQuickFile:Add, Button, x535 y20 w120 h24 gSSOK_QF_ShowAppRecentMenu, 최근문서
     Gui, SSOKQuickFile:Font, s9 norm, Malgun Gothic
-    Gui, SSOKQuickFile:Add, Text, x25 y52 w930 h20 c555555 Center, 숫자는 바로 열기, [저장&&열기]는 저장 후 열기, [폴더]는 폴더만 엽니다.
+    Gui, SSOKQuickFile:Add, Text, x20 y52 w640 h20 c555555 Center, 숫자는 바로 열기, [저장&&열기]는 저장 후 열기, [폴더]는 폴더만 엽니다.
     Gui, SSOKQuickFile:Font, s10 norm, Malgun Gothic
-    Gui, SSOKQuickFile:Add, Text, x35 y82 w24 h24 c005BAC Center, 1
-    Gui, SSOKQuickFile:Add, Edit, x65 y78 w610 h28 vSSOK_QF_Edit1, %SSOK_QF_Text1%
-    Gui, SSOKQuickFile:Add, Button, x690 y77 w170 h30 gSSOK_QF_Open1, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y77 w54 h30 gSSOK_QF_Folder1, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y82 w24 h24 c005BAC Center, 1
+    Gui, SSOKQuickFile:Add, Edit, x50 y78 w445 h28 vSSOK_QF_Edit1, %SSOK_QF_Text1%
+    Gui, SSOKQuickFile:Add, Button, x500 y77 w105 h30 gSSOK_QF_Open1, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y77 w45 h30 gSSOK_QF_Folder1, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y116 w24 h24 c005BAC Center, 2
-    Gui, SSOKQuickFile:Add, Edit, x65 y112 w610 h28 vSSOK_QF_Edit2, %SSOK_QF_Text2%
-    Gui, SSOKQuickFile:Add, Button, x690 y111 w170 h30 gSSOK_QF_Open2, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y111 w54 h30 gSSOK_QF_Folder2, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y116 w24 h24 c005BAC Center, 2
+    Gui, SSOKQuickFile:Add, Edit, x50 y112 w445 h28 vSSOK_QF_Edit2, %SSOK_QF_Text2%
+    Gui, SSOKQuickFile:Add, Button, x500 y111 w105 h30 gSSOK_QF_Open2, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y111 w45 h30 gSSOK_QF_Folder2, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y150 w24 h24 c005BAC Center, 3
-    Gui, SSOKQuickFile:Add, Edit, x65 y146 w610 h28 vSSOK_QF_Edit3, %SSOK_QF_Text3%
-    Gui, SSOKQuickFile:Add, Button, x690 y145 w170 h30 gSSOK_QF_Open3, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y145 w54 h30 gSSOK_QF_Folder3, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y150 w24 h24 c005BAC Center, 3
+    Gui, SSOKQuickFile:Add, Edit, x50 y146 w445 h28 vSSOK_QF_Edit3, %SSOK_QF_Text3%
+    Gui, SSOKQuickFile:Add, Button, x500 y145 w105 h30 gSSOK_QF_Open3, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y145 w45 h30 gSSOK_QF_Folder3, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y184 w24 h24 c005BAC Center, 4
-    Gui, SSOKQuickFile:Add, Edit, x65 y180 w610 h28 vSSOK_QF_Edit4, %SSOK_QF_Text4%
-    Gui, SSOKQuickFile:Add, Button, x690 y179 w170 h30 gSSOK_QF_Open4, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y179 w54 h30 gSSOK_QF_Folder4, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y184 w24 h24 c005BAC Center, 4
+    Gui, SSOKQuickFile:Add, Edit, x50 y180 w445 h28 vSSOK_QF_Edit4, %SSOK_QF_Text4%
+    Gui, SSOKQuickFile:Add, Button, x500 y179 w105 h30 gSSOK_QF_Open4, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y179 w45 h30 gSSOK_QF_Folder4, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y218 w24 h24 c005BAC Center, 5
-    Gui, SSOKQuickFile:Add, Edit, x65 y214 w610 h28 vSSOK_QF_Edit5, %SSOK_QF_Text5%
-    Gui, SSOKQuickFile:Add, Button, x690 y213 w170 h30 gSSOK_QF_Open5, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y213 w54 h30 gSSOK_QF_Folder5, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y218 w24 h24 c005BAC Center, 5
+    Gui, SSOKQuickFile:Add, Edit, x50 y214 w445 h28 vSSOK_QF_Edit5, %SSOK_QF_Text5%
+    Gui, SSOKQuickFile:Add, Button, x500 y213 w105 h30 gSSOK_QF_Open5, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y213 w45 h30 gSSOK_QF_Folder5, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y252 w24 h24 c005BAC Center, 6
-    Gui, SSOKQuickFile:Add, Edit, x65 y248 w610 h28 vSSOK_QF_Edit6, %SSOK_QF_Text6%
-    Gui, SSOKQuickFile:Add, Button, x690 y247 w170 h30 gSSOK_QF_Open6, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y247 w54 h30 gSSOK_QF_Folder6, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y252 w24 h24 c005BAC Center, 6
+    Gui, SSOKQuickFile:Add, Edit, x50 y248 w445 h28 vSSOK_QF_Edit6, %SSOK_QF_Text6%
+    Gui, SSOKQuickFile:Add, Button, x500 y247 w105 h30 gSSOK_QF_Open6, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y247 w45 h30 gSSOK_QF_Folder6, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y286 w24 h24 c005BAC Center, 7
-    Gui, SSOKQuickFile:Add, Edit, x65 y282 w610 h28 vSSOK_QF_Edit7, %SSOK_QF_Text7%
-    Gui, SSOKQuickFile:Add, Button, x690 y281 w170 h30 gSSOK_QF_Open7, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y281 w54 h30 gSSOK_QF_Folder7, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y286 w24 h24 c005BAC Center, 7
+    Gui, SSOKQuickFile:Add, Edit, x50 y282 w445 h28 vSSOK_QF_Edit7, %SSOK_QF_Text7%
+    Gui, SSOKQuickFile:Add, Button, x500 y281 w105 h30 gSSOK_QF_Open7, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y281 w45 h30 gSSOK_QF_Folder7, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y320 w24 h24 c005BAC Center, 8
-    Gui, SSOKQuickFile:Add, Edit, x65 y316 w610 h28 vSSOK_QF_Edit8, %SSOK_QF_Text8%
-    Gui, SSOKQuickFile:Add, Button, x690 y315 w170 h30 gSSOK_QF_Open8, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y315 w54 h30 gSSOK_QF_Folder8, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y320 w24 h24 c005BAC Center, 8
+    Gui, SSOKQuickFile:Add, Edit, x50 y316 w445 h28 vSSOK_QF_Edit8, %SSOK_QF_Text8%
+    Gui, SSOKQuickFile:Add, Button, x500 y315 w105 h30 gSSOK_QF_Open8, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y315 w45 h30 gSSOK_QF_Folder8, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y354 w24 h24 c005BAC Center, 9
-    Gui, SSOKQuickFile:Add, Edit, x65 y350 w610 h28 vSSOK_QF_Edit9, %SSOK_QF_Text9%
-    Gui, SSOKQuickFile:Add, Button, x690 y349 w170 h30 gSSOK_QF_Open9, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y349 w54 h30 gSSOK_QF_Folder9, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y354 w24 h24 c005BAC Center, 9
+    Gui, SSOKQuickFile:Add, Edit, x50 y350 w445 h28 vSSOK_QF_Edit9, %SSOK_QF_Text9%
+    Gui, SSOKQuickFile:Add, Button, x500 y349 w105 h30 gSSOK_QF_Open9, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y349 w45 h30 gSSOK_QF_Folder9, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y388 w24 h24 c005BAC Center, 10
-    Gui, SSOKQuickFile:Add, Edit, x65 y384 w610 h28 vSSOK_QF_Edit10, %SSOK_QF_Text10%
-    Gui, SSOKQuickFile:Add, Button, x690 y383 w170 h30 gSSOK_QF_Open10, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y383 w54 h30 gSSOK_QF_Folder10, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y388 w24 h24 c005BAC Center, 10
+    Gui, SSOKQuickFile:Add, Edit, x50 y384 w445 h28 vSSOK_QF_Edit10, %SSOK_QF_Text10%
+    Gui, SSOKQuickFile:Add, Button, x500 y383 w105 h30 gSSOK_QF_Open10, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y383 w45 h30 gSSOK_QF_Folder10, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y422 w24 h24 c005BAC Center, 11
-    Gui, SSOKQuickFile:Add, Edit, x65 y418 w610 h28 vSSOK_QF_Edit11, %SSOK_QF_Text11%
-    Gui, SSOKQuickFile:Add, Button, x690 y417 w170 h30 gSSOK_QF_Open11, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y417 w54 h30 gSSOK_QF_Folder11, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y422 w24 h24 c005BAC Center, 11
+    Gui, SSOKQuickFile:Add, Edit, x50 y418 w445 h28 vSSOK_QF_Edit11, %SSOK_QF_Text11%
+    Gui, SSOKQuickFile:Add, Button, x500 y417 w105 h30 gSSOK_QF_Open11, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y417 w45 h30 gSSOK_QF_Folder11, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x35 y456 w24 h24 c005BAC Center, 12
-    Gui, SSOKQuickFile:Add, Edit, x65 y452 w610 h28 vSSOK_QF_Edit12, %SSOK_QF_Text12%
-    Gui, SSOKQuickFile:Add, Button, x690 y451 w170 h30 gSSOK_QF_Open12, 저장&&열기
-    Gui, SSOKQuickFile:Add, Button, x872 y451 w54 h30 gSSOK_QF_Folder12, 폴더
+    Gui, SSOKQuickFile:Add, Text, x20 y456 w24 h24 c005BAC Center, 12
+    Gui, SSOKQuickFile:Add, Edit, x50 y452 w445 h28 vSSOK_QF_Edit12, %SSOK_QF_Text12%
+    Gui, SSOKQuickFile:Add, Button, x500 y451 w105 h30 gSSOK_QF_Open12, 저장&&열기
+    Gui, SSOKQuickFile:Add, Button, x610 y451 w45 h30 gSSOK_QF_Folder12, 폴더
 
-    Gui, SSOKQuickFile:Add, Text, x45 y499 w105 h22 c333333, 다른파일 검색
-    Gui, SSOKQuickFile:Add, Edit, x150 y495 w525 h28 vSSOK_QF_CustomKeyword
-    Gui, SSOKQuickFile:Add, Button, x690 y494 w170 h30 gSSOK_QF_CustomOpen Default, 검색
+    Gui, SSOKQuickFile:Add, Text, x30 y499 w95 h22 c333333, 다른파일 검색
+    Gui, SSOKQuickFile:Add, Edit, x125 y495 w335 h28 vSSOK_QF_CustomKeyword
+    Gui, SSOKQuickFile:Add, Button, x500 y494 w130 h30 gSSOK_QF_CustomOpen Default, 검색
 
     Gui, SSOKQuickFile:Font, s10 bold c005BAC, Malgun Gothic
-    Gui, SSOKQuickFile:Add, Text, x35 y533 w120 h24, Setting
+    Gui, SSOKQuickFile:Add, Text, x20 y533 w120 h24, Setting
     Gui, SSOKQuickFile:Font, s8 norm, Malgun Gothic
-    Gui, SSOKQuickFile:Add, Progress, x35 y560 w890 h1 BackgroundD5DDE8 cD5DDE8
-    Gui, SSOKQuickFile:Add, Text, x35 y573 w88 h22 c333333, 검색 폴더 설정
-    Gui, SSOKQuickFile:Add, Checkbox, x130 y571 w76 h22 vSSOK_QF_SearchDesktop Checked%SSOK_QF_SearchDesktop% gSSOK_QF_SaveFolderOptions, 바탕화면
-    Gui, SSOKQuickFile:Add, Checkbox, x212 y571 w76 h22 vSSOK_QF_SearchDownloads Checked%SSOK_QF_SearchDownloads% gSSOK_QF_SaveFolderOptions, 다운로드
-    Gui, SSOKQuickFile:Add, Checkbox, x294 y571 w54 h22 vSSOK_QF_SearchDocuments Checked%SSOK_QF_SearchDocuments% gSSOK_QF_SaveFolderOptions, 문서
-    Gui, SSOKQuickFile:Add, Checkbox, x358 y571 w80 h22 vSSOK_QF_SearchDriveD Checked%SSOK_QF_SearchDriveD% gSSOK_QF_SaveDriveDOption, D: 드라이브
-    Gui, SSOKQuickFile:Add, Checkbox, x446 y571 w80 h22 vSSOK_QF_SearchDriveE Checked%SSOK_QF_SearchDriveE% gSSOK_QF_SaveDriveEOption, E: 드라이브
-    Gui, SSOKQuickFile:Add, Checkbox, x534 y571 w80 h22 vSSOK_QF_SearchDriveF Checked%SSOK_QF_SearchDriveF% gSSOK_QF_SaveDriveFOption, F: 드라이브
+    Gui, SSOKQuickFile:Add, Progress, x20 y560 w635 h1 BackgroundD5DDE8 cD5DDE8
+    Gui, SSOKQuickFile:Add, Text, x20 y573 w80 h22 c333333, 검색 폴더 설정
+    Gui, SSOKQuickFile:Add, Checkbox, x105 y571 w68 h22 vSSOK_QF_SearchDesktop Checked%SSOK_QF_SearchDesktop% gSSOK_QF_SaveFolderOptions, 바탕화면
+    Gui, SSOKQuickFile:Add, Checkbox, x177 y571 w68 h22 vSSOK_QF_SearchDownloads Checked%SSOK_QF_SearchDownloads% gSSOK_QF_SaveFolderOptions, 다운로드
+    Gui, SSOKQuickFile:Add, Checkbox, x249 y571 w48 h22 vSSOK_QF_SearchDocuments Checked%SSOK_QF_SearchDocuments% gSSOK_QF_SaveFolderOptions, 문서
+    Gui, SSOKQuickFile:Add, Checkbox, x301 y571 w72 h22 vSSOK_QF_SearchDriveD Checked%SSOK_QF_SearchDriveD% gSSOK_QF_SaveDriveDOption, D: 드라이브
+    Gui, SSOKQuickFile:Add, Checkbox, x377 y571 w72 h22 vSSOK_QF_SearchDriveE Checked%SSOK_QF_SearchDriveE% gSSOK_QF_SaveDriveEOption, E: 드라이브
+    Gui, SSOKQuickFile:Add, Checkbox, x453 y571 w72 h22 vSSOK_QF_SearchDriveF Checked%SSOK_QF_SearchDriveF% gSSOK_QF_SaveDriveFOption, F: 드라이브
     if (!InStr(FileExist("D:"), "D"))
         GuiControl, SSOKQuickFile:Disable, SSOK_QF_SearchDriveD
     if (!InStr(FileExist("E:"), "D"))
@@ -2675,8 +2678,8 @@ SSOK_ShowQuickFileMenu:
     if (!InStr(FileExist("F:"), "D"))
         GuiControl, SSOKQuickFile:Disable, SSOK_QF_SearchDriveF
 
-    Gui, SSOKQuickFile:Add, Progress, x35 y606 w890 h1 BackgroundD5DDE8 cD5DDE8
-    Gui, SSOKQuickFile:Add, Text, x35 y619 w88 h22 c333333, 검색 파일 설정
+    Gui, SSOKQuickFile:Add, Progress, x20 y606 w635 h1 BackgroundD5DDE8 cD5DDE8
+    Gui, SSOKQuickFile:Add, Text, x20 y619 w80 h22 c333333, 검색 파일 설정
     Gui, SSOKQuickFile:Add, Checkbox, x130 y617 w84 h22 vSSOK_QF_ExtHwp Checked%SSOK_QF_ExtHwp% gSSOK_QF_SaveFolderOptions, hwp(한글)
     Gui, SSOKQuickFile:Add, Checkbox, x220 y617 w84 h22 vSSOK_QF_ExtXls Checked%SSOK_QF_ExtXls% gSSOK_QF_SaveFolderOptions, xls(엑셀)
     Gui, SSOKQuickFile:Add, Checkbox, x310 y617 w84 h22 vSSOK_QF_ExtDoc Checked%SSOK_QF_ExtDoc% gSSOK_QF_SaveFolderOptions, doc(워드)
@@ -2684,10 +2687,10 @@ SSOK_ShowQuickFileMenu:
     Gui, SSOKQuickFile:Add, Checkbox, x504 y617 w50 h22 vSSOK_QF_ExtTxt Checked%SSOK_QF_ExtTxt% gSSOK_QF_SaveFolderOptions, txt
     Gui, SSOKQuickFile:Add, Checkbox, x560 y617 w50 h22 vSSOK_QF_ExtPdf Checked%SSOK_QF_ExtPdf% gSSOK_QF_SaveFolderOptions, pdf
 
-    Gui, SSOKQuickFile:Add, Text, x35 y655 w650 h18 c999999, SSOK 자체검색은 D/E/F 중 선택한 1개 드라이브만 추가 검색합니다.
-    Gui, SSOKQuickFile:Add, Text, x660 y655 w265 h18 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
-    SSOK_GetSidebarAttachedGuiPos(960, 685, SSOK_QF_WinX, SSOK_QF_WinY)
-    Gui, SSOKQuickFile:Show, x%SSOK_QF_WinX% y%SSOK_QF_WinY% w960 h685, SSOK 자주 여는 파일
+    Gui, SSOKQuickFile:Add, Text, x20 y655 w420 h18 c999999, SSOK 자체검색은 D/E/F 중 선택한 1개 드라이브만 추가 검색합니다.
+    Gui, SSOKQuickFile:Add, Text, x450 y655 w205 h18 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
+    SSOK_GetSidebarAttachedGuiPos(680, 685, SSOK_QF_WinX, SSOK_QF_WinY)
+    Gui, SSOKQuickFile:Show, x%SSOK_QF_WinX% y%SSOK_QF_WinY% w680 h685, SSOK 자주 여는 파일
 return
 SSOKQuickFileGuiEscape:
 SSOKQuickFileGuiClose:
@@ -5808,92 +5811,92 @@ SSOK_ShowQuickUrlMenu:
     Gui, SSOKQuickUrl:+AlwaysOnTop +ToolWindow -MinimizeBox
     Gui, SSOKQuickUrl:Color, F7FBFF
     Gui, SSOKQuickUrl:Font, s17 bold, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x25 y16 w930 h34 c005BAC Center, 자주가는 사이트 URL 바로 열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y16 w640 h34 c005BAC Center, 자주가는 사이트 URL 바로 열기
     Gui, SSOKQuickUrl:Font, s9 norm, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x25 y52 w930 h20 c555555 Center, 숫자 1~9번키와 [저장&&열기]로 바로가기, 10~12번은 버튼으로 실행
+    Gui, SSOKQuickUrl:Add, Text, x20 y52 w640 h20 c555555 Center, 숫자 1~9번키와 [저장&&열기]로 바로가기, 10~12번은 버튼으로 실행
 
     Gui, SSOKQuickUrl:Font, s9 norm, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x65 y78 w175 h20 c005BAC Center, 이름
-    Gui, SSOKQuickUrl:Add, Text, x250 y78 w500 h20 c005BAC Center, 주소
+    Gui, SSOKQuickUrl:Add, Text, x50 y78 w150 h20 c005BAC Center, 이름
+    Gui, SSOKQuickUrl:Add, Text, x205 y78 w335 h20 c005BAC Center, 주소
 
     Gui, SSOKQuickUrl:Font, s10 norm, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x35 y104 w24 h24 c005BAC Center, 1
-    Gui, SSOKQuickUrl:Add, Edit, x65 y100 w175 h28 vSSOK_QU_NameEdit1, %SSOK_QU_Name1%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y100 w500 h28 vSSOK_QU_Edit1, %SSOK_QU_Url1%
-    Gui, SSOKQuickUrl:Add, Button, x760 y99 w160 h30 gSSOK_QU_Open1, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y104 w24 h24 c005BAC Center, 1
+    Gui, SSOKQuickUrl:Add, Edit, x50 y100 w150 h28 vSSOK_QU_NameEdit1, %SSOK_QU_Name1%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y100 w335 h28 vSSOK_QU_Edit1, %SSOK_QU_Url1%
+    Gui, SSOKQuickUrl:Add, Button, x545 y99 w95 h30 gSSOK_QU_Open1, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y138 w24 h24 c005BAC Center, 2
-    Gui, SSOKQuickUrl:Add, Edit, x65 y134 w175 h28 vSSOK_QU_NameEdit2, %SSOK_QU_Name2%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y134 w500 h28 vSSOK_QU_Edit2, %SSOK_QU_Url2%
-    Gui, SSOKQuickUrl:Add, Button, x760 y133 w160 h30 gSSOK_QU_Open2, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y138 w24 h24 c005BAC Center, 2
+    Gui, SSOKQuickUrl:Add, Edit, x50 y134 w150 h28 vSSOK_QU_NameEdit2, %SSOK_QU_Name2%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y134 w335 h28 vSSOK_QU_Edit2, %SSOK_QU_Url2%
+    Gui, SSOKQuickUrl:Add, Button, x545 y133 w95 h30 gSSOK_QU_Open2, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y172 w24 h24 c005BAC Center, 3
-    Gui, SSOKQuickUrl:Add, Edit, x65 y168 w175 h28 vSSOK_QU_NameEdit3, %SSOK_QU_Name3%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y168 w500 h28 vSSOK_QU_Edit3, %SSOK_QU_Url3%
-    Gui, SSOKQuickUrl:Add, Button, x760 y167 w160 h30 gSSOK_QU_Open3, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y172 w24 h24 c005BAC Center, 3
+    Gui, SSOKQuickUrl:Add, Edit, x50 y168 w150 h28 vSSOK_QU_NameEdit3, %SSOK_QU_Name3%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y168 w335 h28 vSSOK_QU_Edit3, %SSOK_QU_Url3%
+    Gui, SSOKQuickUrl:Add, Button, x545 y167 w95 h30 gSSOK_QU_Open3, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y206 w24 h24 c005BAC Center, 4
-    Gui, SSOKQuickUrl:Add, Edit, x65 y202 w175 h28 vSSOK_QU_NameEdit4, %SSOK_QU_Name4%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y202 w500 h28 vSSOK_QU_Edit4, %SSOK_QU_Url4%
-    Gui, SSOKQuickUrl:Add, Button, x760 y201 w160 h30 gSSOK_QU_Open4, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y206 w24 h24 c005BAC Center, 4
+    Gui, SSOKQuickUrl:Add, Edit, x50 y202 w150 h28 vSSOK_QU_NameEdit4, %SSOK_QU_Name4%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y202 w335 h28 vSSOK_QU_Edit4, %SSOK_QU_Url4%
+    Gui, SSOKQuickUrl:Add, Button, x545 y201 w95 h30 gSSOK_QU_Open4, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y240 w24 h24 c005BAC Center, 5
-    Gui, SSOKQuickUrl:Add, Edit, x65 y236 w175 h28 vSSOK_QU_NameEdit5, %SSOK_QU_Name5%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y236 w500 h28 vSSOK_QU_Edit5, %SSOK_QU_Url5%
-    Gui, SSOKQuickUrl:Add, Button, x760 y235 w160 h30 gSSOK_QU_Open5, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y240 w24 h24 c005BAC Center, 5
+    Gui, SSOKQuickUrl:Add, Edit, x50 y236 w150 h28 vSSOK_QU_NameEdit5, %SSOK_QU_Name5%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y236 w335 h28 vSSOK_QU_Edit5, %SSOK_QU_Url5%
+    Gui, SSOKQuickUrl:Add, Button, x545 y235 w95 h30 gSSOK_QU_Open5, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y274 w24 h24 c005BAC Center, 6
-    Gui, SSOKQuickUrl:Add, Edit, x65 y270 w175 h28 vSSOK_QU_NameEdit6, %SSOK_QU_Name6%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y270 w500 h28 vSSOK_QU_Edit6, %SSOK_QU_Url6%
-    Gui, SSOKQuickUrl:Add, Button, x760 y269 w160 h30 gSSOK_QU_Open6, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y274 w24 h24 c005BAC Center, 6
+    Gui, SSOKQuickUrl:Add, Edit, x50 y270 w150 h28 vSSOK_QU_NameEdit6, %SSOK_QU_Name6%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y270 w335 h28 vSSOK_QU_Edit6, %SSOK_QU_Url6%
+    Gui, SSOKQuickUrl:Add, Button, x545 y269 w95 h30 gSSOK_QU_Open6, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y308 w24 h24 c005BAC Center, 7
-    Gui, SSOKQuickUrl:Add, Edit, x65 y304 w175 h28 vSSOK_QU_NameEdit7, %SSOK_QU_Name7%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y304 w500 h28 vSSOK_QU_Edit7, %SSOK_QU_Url7%
-    Gui, SSOKQuickUrl:Add, Button, x760 y303 w160 h30 gSSOK_QU_Open7, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y308 w24 h24 c005BAC Center, 7
+    Gui, SSOKQuickUrl:Add, Edit, x50 y304 w150 h28 vSSOK_QU_NameEdit7, %SSOK_QU_Name7%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y304 w335 h28 vSSOK_QU_Edit7, %SSOK_QU_Url7%
+    Gui, SSOKQuickUrl:Add, Button, x545 y303 w95 h30 gSSOK_QU_Open7, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y342 w24 h24 c005BAC Center, 8
-    Gui, SSOKQuickUrl:Add, Edit, x65 y338 w175 h28 vSSOK_QU_NameEdit8, %SSOK_QU_Name8%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y338 w500 h28 vSSOK_QU_Edit8, %SSOK_QU_Url8%
-    Gui, SSOKQuickUrl:Add, Button, x760 y337 w160 h30 gSSOK_QU_Open8, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y342 w24 h24 c005BAC Center, 8
+    Gui, SSOKQuickUrl:Add, Edit, x50 y338 w150 h28 vSSOK_QU_NameEdit8, %SSOK_QU_Name8%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y338 w335 h28 vSSOK_QU_Edit8, %SSOK_QU_Url8%
+    Gui, SSOKQuickUrl:Add, Button, x545 y337 w95 h30 gSSOK_QU_Open8, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y376 w24 h24 c005BAC Center, 9
-    Gui, SSOKQuickUrl:Add, Edit, x65 y372 w175 h28 vSSOK_QU_NameEdit9, %SSOK_QU_Name9%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y372 w500 h28 vSSOK_QU_Edit9, %SSOK_QU_Url9%
-    Gui, SSOKQuickUrl:Add, Button, x760 y371 w160 h30 gSSOK_QU_Open9, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y376 w24 h24 c005BAC Center, 9
+    Gui, SSOKQuickUrl:Add, Edit, x50 y372 w150 h28 vSSOK_QU_NameEdit9, %SSOK_QU_Name9%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y372 w335 h28 vSSOK_QU_Edit9, %SSOK_QU_Url9%
+    Gui, SSOKQuickUrl:Add, Button, x545 y371 w95 h30 gSSOK_QU_Open9, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y410 w24 h24 c005BAC Center, 10
-    Gui, SSOKQuickUrl:Add, Edit, x65 y406 w175 h28 vSSOK_QU_NameEdit10, %SSOK_QU_Name10%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y406 w500 h28 vSSOK_QU_Edit10, %SSOK_QU_Url10%
-    Gui, SSOKQuickUrl:Add, Button, x760 y405 w160 h30 gSSOK_QU_Open10, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y410 w24 h24 c005BAC Center, 10
+    Gui, SSOKQuickUrl:Add, Edit, x50 y406 w150 h28 vSSOK_QU_NameEdit10, %SSOK_QU_Name10%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y406 w335 h28 vSSOK_QU_Edit10, %SSOK_QU_Url10%
+    Gui, SSOKQuickUrl:Add, Button, x545 y405 w95 h30 gSSOK_QU_Open10, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y444 w24 h24 c005BAC Center, 11
-    Gui, SSOKQuickUrl:Add, Edit, x65 y440 w175 h28 vSSOK_QU_NameEdit11, %SSOK_QU_Name11%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y440 w500 h28 vSSOK_QU_Edit11, %SSOK_QU_Url11%
-    Gui, SSOKQuickUrl:Add, Button, x760 y439 w160 h30 gSSOK_QU_Open11, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y444 w24 h24 c005BAC Center, 11
+    Gui, SSOKQuickUrl:Add, Edit, x50 y440 w150 h28 vSSOK_QU_NameEdit11, %SSOK_QU_Name11%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y440 w335 h28 vSSOK_QU_Edit11, %SSOK_QU_Url11%
+    Gui, SSOKQuickUrl:Add, Button, x545 y439 w95 h30 gSSOK_QU_Open11, 저장&&열기
 
-    Gui, SSOKQuickUrl:Add, Text, x35 y478 w24 h24 c005BAC Center, 12
-    Gui, SSOKQuickUrl:Add, Edit, x65 y474 w175 h28 vSSOK_QU_NameEdit12, %SSOK_QU_Name12%
-    Gui, SSOKQuickUrl:Add, Edit, x250 y474 w500 h28 vSSOK_QU_Edit12, %SSOK_QU_Url12%
-    Gui, SSOKQuickUrl:Add, Button, x760 y473 w160 h30 gSSOK_QU_Open12, 저장&&열기
+    Gui, SSOKQuickUrl:Add, Text, x20 y478 w24 h24 c005BAC Center, 12
+    Gui, SSOKQuickUrl:Add, Edit, x50 y474 w150 h28 vSSOK_QU_NameEdit12, %SSOK_QU_Name12%
+    Gui, SSOKQuickUrl:Add, Edit, x205 y474 w335 h28 vSSOK_QU_Edit12, %SSOK_QU_Url12%
+    Gui, SSOKQuickUrl:Add, Button, x545 y473 w95 h30 gSSOK_QU_Open12, 저장&&열기
 
     Gui, SSOKQuickUrl:Font, s9 norm, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Button, x585 y520 w160 h30 gSSOK_QU_SaveAll, 전체 저장
+    Gui, SSOKQuickUrl:Add, Button, x500 y520 w140 h30 gSSOK_QU_SaveAll, 전체 저장
 
     Gui, SSOKQuickUrl:Font, s8 bold underline c005BAC, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x5 y560 w145 h24 Center +0x200 gSSOK_QU_OpenSchoolSearchFromMenu, [세종 관내 학교]
-    Gui, SSOKQuickUrl:Add, Text, x150 y560 w120 h24 Center +0x200 gSSOK_QU_OpenSchoolInfoFromMenu, [학교알리미1]
-    Gui, SSOKQuickUrl:Add, Text, x270 y560 w30 h24 Center +0x200 gSSOK_QU_OpenSchoolInfo2FromMenu, 2
-    Gui, SSOKQuickUrl:Add, Text, x300 y560 w175 h24 Center +0x200 gSSOK_QU_OpenLocalFinanceInfoFromMenu, [지방교육재정 알리미]
-    Gui, SSOKQuickUrl:Add, Text, x475 y560 w135 h24 Center +0x200 gSSOK_QU_OpenEduOfficeSearchFromMenu, [교육청 업무담당]
-    Gui, SSOKQuickUrl:Add, Text, x610 y560 w190 h24 Center +0x200 gSSOK_QU_OpenSchoolSupportInfoFromMenu, [학교지원본부 업무안내]
-    Gui, SSOKQuickUrl:Add, Text, x800 y560 w155 h24 Center +0x200 gSSOK_QU_OpenContractInfoFromMenu, [거래처 계약정보]
+    Gui, SSOKQuickUrl:Add, Text, x20 y560 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolSearchFromMenu, [세종 관내 학교]
+    Gui, SSOKQuickUrl:Add, Text, x180 y560 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolInfoFromMenu, [학교알리미1]
+    Gui, SSOKQuickUrl:Add, Text, x340 y560 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolInfo2FromMenu, [학교알리미2]
+    Gui, SSOKQuickUrl:Add, Text, x500 y560 w150 h24 Center +0x200 gSSOK_QU_OpenLocalFinanceInfoFromMenu, [지방교육재정 알리미]
+    Gui, SSOKQuickUrl:Add, Text, x100 y588 w150 h24 Center +0x200 gSSOK_QU_OpenEduOfficeSearchFromMenu, [교육청 업무담당]
+    Gui, SSOKQuickUrl:Add, Text, x265 y588 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolSupportInfoFromMenu, [학교지원본부 업무안내]
+    Gui, SSOKQuickUrl:Add, Text, x430 y588 w150 h24 Center +0x200 gSSOK_QU_OpenContractInfoFromMenu, [거래처 계약정보]
 
     Gui, SSOKQuickUrl:Font, s8 norm, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x35 y600 w650 h18 c999999, 숫자 1~9번키 또는 [저장&열기]로 바로가기
-    Gui, SSOKQuickUrl:Add, Text, x585 y620 w335 h18 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
-    SSOK_GetSidebarAttachedGuiPos(960, 645, SSOK_QU_WinX, SSOK_QU_WinY)
-    Gui, SSOKQuickUrl:Show, x%SSOK_QU_WinX% y%SSOK_QU_WinY% w960 h645, SSOK 자주가는 사이트
+    Gui, SSOKQuickUrl:Add, Text, x20 y620 w400 h18 c999999, 숫자 1~9번키 또는 [저장&열기]로 바로가기
+    Gui, SSOKQuickUrl:Add, Text, x350 y642 w290 h18 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
+    SSOK_GetSidebarAttachedGuiPos(680, 670, SSOK_QU_WinX, SSOK_QU_WinY)
+    Gui, SSOKQuickUrl:Show, x%SSOK_QU_WinX% y%SSOK_QU_WinY% w680 h670, SSOK 자주가는 사이트
 return
 
 SSOKQuickUrlGuiEscape:
