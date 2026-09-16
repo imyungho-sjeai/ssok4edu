@@ -873,7 +873,7 @@ DOC_ShowTemplateGui()
     activeHwnd := WinExist("A")
     if (!DOC_IsActualDocumentInputTarget(activeHwnd))
     {
-        MsgBox, 48, SSOK Help, 실제 입력 가능한 곳을 클릭한 뒤 [간단 작성]을 실행해 주세요.`n
+        MsgBox, 48, SSOK Help, 텍스트 입력이 가능한 곳을 클릭한 뒤 [간단 작성]을 다시 눌러주세요.`n
         return
     }
     TargetHwnd := activeHwnd

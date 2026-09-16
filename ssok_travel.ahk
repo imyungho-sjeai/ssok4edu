@@ -75,11 +75,11 @@ SSOK_Travel_Show()
 {
     global
     Gui, SSOKTravel:Destroy
-    Gui, SSOKTravel:New, +Resize +MinSize880x810 +HwndhTravelGui, % "세종특별자치시교육청 여비정산 신청"
+    Gui, SSOKTravel:New, +Resize +MinSize960x868 +HwndhTravelGui, % "세종특별자치시교육청 여비정산 신청"
     Gui, SSOKTravel:Default
     Gui, SSOKTravel:Color, F8F9FA, FFFFFF
     Gui, SSOKTravel:Margin, 16, 10
-    Gui, SSOKTravel:Font, s10 c212529, Malgun Gothic
+    Gui, SSOKTravel:Font, s9 c212529, Malgun Gothic
 
     defaultOrg := SSOK_Travel_GetDefaultOrg()
 
@@ -145,60 +145,60 @@ SSOK_Travel_Show()
     if (chkCat1 = "" && chkCat2 = "" && chkCat3 = "")
         chkCat1 := "Checked"
 
-    Gui, SSOKTravel:Font, s15 Bold c123B6D, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x24 y5 w350 h26, % "세종특별자치시교육청 여비정산 신청"
+    Gui, SSOKTravel:Font, s16 Bold c123B6D, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x24 y14 w700 h32, % "세종특별자치시교육청 여비정산 신청"
     Gui, SSOKTravel:Font, s9 Bold c6C757D, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x390 y9 w65 Right, % "출장 구분:"
+    Gui, SSOKTravel:Add, Text, x32 y52 w80 Right h20, % "출장 구분:"
     Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Radio, x460 y7 w105 vST_TravelCategory1 %chkCat1% gSSOK_Travel_OnCategoryChange, % "일반출장"
-    Gui, SSOKTravel:Add, Radio, x570 y7 w155 vST_TravelCategory2 %chkCat2% gSSOK_Travel_OnCategoryChange, % "교육훈련 (합숙·기숙사)"
-    Gui, SSOKTravel:Add, Radio, x730 y7 w135 vST_TravelCategory3 %chkCat3% gSSOK_Travel_OnCategoryChange, % "교육훈련 (비합숙)"
-    Gui, SSOKTravel:Font, s10 c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Radio, x124 y50 w132 vST_TravelCategory1 %chkCat1% gSSOK_Travel_OnCategoryChange h22, % "일반출장"
+    Gui, SSOKTravel:Add, Radio, x276 y50 w230 vST_TravelCategory2 %chkCat2% gSSOK_Travel_OnCategoryChange h22, % "교육훈련 (합숙·기숙사)"
+    Gui, SSOKTravel:Add, Radio, x526 y50 w200 vST_TravelCategory3 %chkCat3% gSSOK_Travel_OnCategoryChange h22, % "교육훈련 (비합숙)"
+    Gui, SSOKTravel:Font, s9 c212529, Malgun Gothic
 
     ; ==============================================================================
     ; [1] 출장자 정보 (폭 848, 높이 54)
     ; ==============================================================================
-    Gui, SSOKTravel:Font, s11 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, GroupBox, x16 y36 w848 h62, % " 1. 출장자 정보 "
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x32 y57 w45, % "소속:"
-    Gui, SSOKTravel:Add, Edit, x78 y53 w220 vST_Org hwndhEditOrg gSSOK_Travel_OnOrgChange, %savedOrg%
-    Gui, SSOKTravel:Add, Text, x315 y57 w45, % "직급:"
-    Gui, SSOKTravel:Add, DropDownList, x360 y53 w145 vST_Rank hwndhRankCombo gSSOK_Travel_OnRankChange, % "교사|교감|교장|주무관|사무관|장학사|장학관|기타"
-    Gui, SSOKTravel:Add, Text, x535 y57 w45, % "성명:"
-    Gui, SSOKTravel:Add, Edit, x580 y53 w160 vST_Name hwndhEditName gSSOK_Travel_AutoSave, %savedName%
+    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, GroupBox, x24 y82 w912 h62, % " 1. 출장자 정보 "
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x41 y103 w48, % "소속:"
+    Gui, SSOKTravel:Add, Edit, x91 y99 w237 vST_Org hwndhEditOrg gSSOK_Travel_OnOrgChange h26, %savedOrg%
+    Gui, SSOKTravel:Add, Text, x346 y103 w48, % "직급:"
+    Gui, SSOKTravel:Add, DropDownList, x394 y99 w156 vST_Rank hwndhRankCombo gSSOK_Travel_OnRankChange, % "교사|교감|교장|주무관|사무관|장학사|장학관|기타"
+    Gui, SSOKTravel:Add, Text, x582 y103 w48, % "성명:"
+    Gui, SSOKTravel:Add, Edit, x631 y99 w172 vST_Name hwndhEditName gSSOK_Travel_AutoSave h26, %savedName%
 
     ; ==============================================================================
     ; [2] 출장 일정 및 경로 (폭 848, 높이 88)
     ; ==============================================================================
-    Gui, SSOKTravel:Font, s11 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, GroupBox, x16 y108 w848 h96, % " 2. 출장 일정 "
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x32 y131 w55, % "출발일:"
-    Gui, SSOKTravel:Add, DateTime, x90 y127 w130 vST_StartDate Choose%startStr% gSSOK_Travel_OnDateChange, yyyy-MM-dd
-    Gui, SSOKTravel:Add, Text, x235 y131 w55, % "도착일:"
-    Gui, SSOKTravel:Add, DateTime, x290 y127 w130 vST_EndDate Choose%endStr% gSSOK_Travel_OnDateChange, yyyy-MM-dd
-    Gui, SSOKTravel:Add, Text, x440 y131 w65, % "출장일수:"
     Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x510 y131 w340 vST_DaysText, % "1일"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, GroupBox, x24 y154 w912 h96, % " 2. 출장 일정 "
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x41 y177 w59, % "출발일:"
+    Gui, SSOKTravel:Add, DateTime, x104 y173 w140 vST_StartDate Choose%startStr% gSSOK_Travel_OnDateChange, yyyy-MM-dd
+    Gui, SSOKTravel:Add, Text, x260 y177 w59, % "도착일:"
+    Gui, SSOKTravel:Add, DateTime, x319 y173 w140 vST_EndDate Choose%endStr% gSSOK_Travel_OnDateChange, yyyy-MM-dd
+    Gui, SSOKTravel:Add, Text, x480 y177 w70, % "출장일수:"
+    Gui, SSOKTravel:Font, s9 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x555 y177 w366 vST_DaysText, % "1일"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
-    Gui, SSOKTravel:Add, Text, x32 y166 w50, % "출발지:"
-    Gui, SSOKTravel:Add, Edit, x85 y162 w180 vST_Departure hwndhEditDep gSSOK_Travel_AutoSave, %savedDep%
-    Gui, SSOKTravel:Add, Text, x275 y166 w50, % "도착지:"
-    Gui, SSOKTravel:Add, Edit, x328 y162 w190 vST_Destination hwndhEditDest gSSOK_Travel_OnDestChange, %savedDest%
-    Gui, SSOKTravel:Add, Text, x528 y166 w50, % "경유지:"
-    Gui, SSOKTravel:Add, Edit, x580 y162 w180 vST_Stopover hwndhEditStopover gSSOK_Travel_AutoSave, %savedStopover%
-    Gui, SSOKTravel:Add, Text, x765 y166 w75 cADB5BD, % "(선택입력)"
+    Gui, SSOKTravel:Add, Text, x41 y212 w54, % "출발지:"
+    Gui, SSOKTravel:Add, Edit, x98 y208 w194 vST_Departure hwndhEditDep gSSOK_Travel_AutoSave h26, %savedDep%
+    Gui, SSOKTravel:Add, Text, x303 y212 w54, % "도착지:"
+    Gui, SSOKTravel:Add, Edit, x360 y208 w204 vST_Destination hwndhEditDest gSSOK_Travel_OnDestChange h26, %savedDest%
+    Gui, SSOKTravel:Add, Text, x575 y212 w54, % "경유지:"
+    Gui, SSOKTravel:Add, Edit, x631 y208 w194 vST_Stopover hwndhEditStopover gSSOK_Travel_AutoSave h26, %savedStopover%
+    Gui, SSOKTravel:Add, Text, x830 y212 w81 cADB5BD, % "(선택입력)"
 
     Gui, SSOKTravel:Add, Button, Default x-20 y-20 w1 h1 gSSOK_Travel_OnEnter, % "Enter"
 
     ; ==============================================================================
     ; [3] 교통편 및 운임
     ; ==============================================================================
-    Gui, SSOKTravel:Font, s11 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, GroupBox, x16 y214 w848 h258, % " 3. 교통비 "
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, GroupBox, x24 y260 w912 h258, % " 3. 교통비 "
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
     chk1 := (savedTransType = "1" ? "Checked" : "")
     chk2 := (savedTransType = "2" ? "Checked" : "")
@@ -207,167 +207,167 @@ SSOK_Travel_Show()
     if (chk1 = "" && chk2 = "" && chk3 = "" && chk4 = "")
         chk2 := "Checked"
 
-    Gui, SSOKTravel:Font, s10 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Radio, x32 y234 w110 vST_TransType2 %chk2% gSSOK_Travel_OnTransChange, % "대중교통"
-    Gui, SSOKTravel:Add, Radio, x150 y234 w90 vST_TransType1 hwndhRadioCar %chk1% gSSOK_Travel_OnTransChange, % "자가용"
-    Gui, SSOKTravel:Add, Radio, x250 y234 w205 vST_TransType3 %chk3% gSSOK_Travel_OnTransChange, % "관용차량·임차버스·렌트카 등"
-    Gui, SSOKTravel:Add, Radio, x465 y234 w190 vST_TransType4 %chk4% gSSOK_Travel_OnTransChange, % "타인차량 동승 등 기타"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Font, s9 Bold c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Radio, x41 y280 w118 vST_TransType2 %chk2% gSSOK_Travel_OnTransChange, % "대중교통"
+    Gui, SSOKTravel:Add, Radio, x168 y280 w97 vST_TransType1 hwndhRadioCar %chk1% gSSOK_Travel_OnTransChange, % "자가용"
+    Gui, SSOKTravel:Add, Radio, x276 y280 w220 vST_TransType3 %chk3% gSSOK_Travel_OnTransChange, % "관용차량·임차버스·렌트카 등"
+    Gui, SSOKTravel:Add, Radio, x507 y280 w204 vST_TransType4 %chk4% gSSOK_Travel_OnTransChange, % "타인차량 동승 등 기타"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
     ; 자가용 전용 컨트롤
-    Gui, SSOKTravel:Add, Text, x32 y262 w40 vST_LblFuel, % "유종:"
-    Gui, SSOKTravel:Add, DropDownList, x72 y258 w245 vST_FuelType gSSOK_Travel_OnFuelTypeChange hwndhFuelCombo, % "선택하세요||휘발유 (11.97 km/L)|경유 (12.52 km/L)|일반 하이브리드(휘발유, 15.37 km/L)|일반 하이브리드(경유, 15.37 km/L)|플러그인 하이브리드(휘발유, 10.61 km/L)|플러그인 하이브리드(전기, 2.84 km/kWh)|LPG (8.83 km/L)|전기 (5.22 km/kWh)|수소 (94.9 km/kg)"
-    Gui, SSOKTravel:Add, Text, x327 y262 w35 vST_LblDist, % "거리:"
-    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, Edit, x363 y258 w65 vST_Distance +ReadOnly, 0.0
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x433 y262 w25 vST_LblKm, % "km"
-    Gui, SSOKTravel:Add, Text, x463 y262 w35 vST_LblPrice, % "단가:"
-    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, Edit, x499 y258 w70 vST_FuelPrice gSSOK_Travel_OnFuelPriceChange, %savedFuelPrice%
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x572 y262 w40 vST_LblWon1, % "원/L"
-    Gui, SSOKTravel:Add, Button, x617 y256 w140 h30 vST_BtnRecalcCar gSSOK_Travel_RecalculateCar, % "거리·유가 재산정"
+    Gui, SSOKTravel:Add, Text, x41 y308 w43 vST_LblFuel, % "유종:"
+    Gui, SSOKTravel:Add, DropDownList, x84 y304 w263 vST_FuelType gSSOK_Travel_OnFuelTypeChange hwndhFuelCombo, % "선택하세요||휘발유 (11.97 km/L)|경유 (12.52 km/L)|일반 하이브리드(휘발유, 15.37 km/L)|일반 하이브리드(경유, 15.37 km/L)|플러그인 하이브리드(휘발유, 10.61 km/L)|플러그인 하이브리드(전기, 2.84 km/kWh)|LPG (8.83 km/L)|전기 (5.22 km/kWh)|수소 (94.9 km/kg)"
+    Gui, SSOKTravel:Add, Text, x358 y308 w38 vST_LblDist, % "거리:"
+    Gui, SSOKTravel:Font, s9 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, Edit, x397 y304 w70 vST_Distance +ReadOnly h26, 0.0
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x472 y308 w27 vST_LblKm, % "km"
+    Gui, SSOKTravel:Add, Text, x505 y308 w38 vST_LblPrice, % "단가:"
+    Gui, SSOKTravel:Font, s9 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, Edit, x543 y304 w75 vST_FuelPrice gSSOK_Travel_OnFuelPriceChange h26, %savedFuelPrice%
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x622 y308 w43 vST_LblWon1, % "원/L"
+    Gui, SSOKTravel:Add, Button, x670 y302 w151 h30 vST_BtnRecalcCar gSSOK_Travel_RecalculateCar, % "거리·유가 재산정"
     Gui, SSOKTravel:Font, s8 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Button, x762 y256 w73 h30 vST_BtnLookupCar gSSOK_Travel_OpenCarLookup, % "인터넷 조회"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Button, x826 y302 w79 h30 vST_BtnLookupCar gSSOK_Travel_OpenCarLookup, % "인터넷 조회"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
     ; 경로
-    Gui, SSOKTravel:Add, Text, x32 y292 w38 vST_LblRoute, % "경로:"
-    Gui, SSOKTravel:Font, s6 Normal c888888, Malgun Gothic
-    Gui, SSOKTravel:Add, Checkbox, x72 y290 w40 vST_GoViaCheck gSSOK_Travel_OnStopoverRouteChange, % "경유"
+    Gui, SSOKTravel:Add, Text, x41 y338 w41 vST_LblRoute, % "경로:"
+    Gui, SSOKTravel:Font, s8 Normal c888888, Malgun Gothic
+    Gui, SSOKTravel:Add, Checkbox, x84 y336 w48 vST_GoViaCheck gSSOK_Travel_OnStopoverRouteChange h22, % "경유"
     Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x114 y292 w312 vST_GoRouteLine, % "가는편: 출발지 → 도착지 (0.0 km)"
-    Gui, SSOKTravel:Font, s6 Normal c888888, Malgun Gothic
-    Gui, SSOKTravel:Add, Checkbox, x432 y290 w40 vST_BackViaCheck gSSOK_Travel_OnStopoverRouteChange, % "경유"
+    Gui, SSOKTravel:Add, Text, x134 y338 w330 vST_GoRouteLine, % "가는편: 출발지 → 도착지 (0.0 km)"
+    Gui, SSOKTravel:Font, s8 Normal c888888, Malgun Gothic
+    Gui, SSOKTravel:Add, Checkbox, x471 y336 w48 vST_BackViaCheck gSSOK_Travel_OnStopoverRouteChange h22, % "경유"
     Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x474 y292 w360 vST_BackRouteLine, % "오는편: 도착지 → 출발지 (0.0 km)"
+    Gui, SSOKTravel:Add, Text, x522 y338 w400 vST_BackRouteLine, % "오는편: 도착지 → 출발지 (0.0 km)"
 
     ; 전기차/PHEV 전기 충전단가 산정 입력란
     Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x32 y322 w105 vST_EvRateLabel, % "전기차 단가산정:"
-    Gui, SSOKTravel:Add, Text, x137 y322 w65 vST_EvChargeLabel, % "충전요금("
-    Gui, SSOKTravel:Add, Edit, x202 y318 w75 vST_ChargeAmount gSSOK_Travel_OnChargeInput, % ""
-    Gui, SSOKTravel:Add, Text, x277 y322 w105 vST_EvChargeMid, % "원) ÷ 충전량("
-    Gui, SSOKTravel:Add, Edit, x382 y318 w75 vST_ChargeKwh gSSOK_Travel_OnChargeInput, % ""
-    Gui, SSOKTravel:Add, Text, x457 y322 w65 vST_EvChargeEnd, % "kWh) ="
-    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x522 y320 w95 vST_ChargeRateResult, % "295.0 원/kWh"
-    Gui, SSOKTravel:Font, s7 Normal c777777, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x620 y318 w230 h88 vST_EvRateGuide, % "공공충전시설 출력별 기준단가`n30kW 미만: 295.0원/kWh`n30~50kW: 307.2원/kWh`n50~100kW: 325.6원/kWh`n100~200kW: 348.4원/kWh`n200kW 이상: 393.1원/kWh"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x41 y368 w113 vST_EvRateLabel, % "전기차 단가산정:"
+    Gui, SSOKTravel:Add, Text, x154 y368 w70 vST_EvChargeLabel, % "충전요금("
+    Gui, SSOKTravel:Add, Edit, x224 y364 w81 vST_ChargeAmount gSSOK_Travel_OnChargeInput h26, % ""
+    Gui, SSOKTravel:Add, Text, x305 y368 w113 vST_EvChargeMid, % "원) ÷ 충전량("
+    Gui, SSOKTravel:Add, Edit, x418 y364 w76 vST_ChargeKwh gSSOK_Travel_OnChargeInput h26, % ""
+    Gui, SSOKTravel:Add, Text, x498 y368 w70 vST_EvChargeEnd, % "kWh) ="
+    Gui, SSOKTravel:Font, s9 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x568 y366 w140 vST_ChargeRateResult, % "295.0 원/kWh"
+    Gui, SSOKTravel:Font, s8 Normal c777777, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x718 y364 w200 h88 vST_EvRateGuide, % "공공충전시설 출력별 기준단가`n30kW 미만: 295.0원/kWh`n30~50kW: 307.2원/kWh`n50~100kW: 325.6원/kWh`n100~200kW: 348.4원/kWh`n200kW 이상: 393.1원/kWh"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
-    Gui, SSOKTravel:Add, Text, x32 y412 w55 vST_LblToll, % "통행료:"
-    Gui, SSOKTravel:Add, Edit, x90 y408 w80 vST_Toll hwndhEditToll gSSOK_Travel_OnAmountEditChange, %savedToll%
-    Gui, SSOKTravel:Add, Text, x174 y412 w20 vST_LblWon2, % "원"
-    Gui, SSOKTravel:Add, Text, x205 y412 w55 vST_LblPark, % "주차료:"
-    Gui, SSOKTravel:Add, Edit, x260 y408 w80 vST_Parking hwndhEditPark gSSOK_Travel_OnAmountEditChange, %savedParking%
-    Gui, SSOKTravel:Add, Text, x344 y412 w20 vST_LblWon3, % "원"
-    Gui, SSOKTravel:Add, Text, x370 y412 w140 vST_LblParkCap cADB5BD, % "(1일 상한 10,000원)"
+    Gui, SSOKTravel:Add, Text, x41 y458 w59 vST_LblToll, % "통행료:"
+    Gui, SSOKTravel:Add, Edit, x104 y454 w86 vST_Toll hwndhEditToll gSSOK_Travel_OnAmountEditChange h26, %savedToll%
+    Gui, SSOKTravel:Add, Text, x194 y458 w22 vST_LblWon2, % "원"
+    Gui, SSOKTravel:Add, Text, x227 y458 w59 vST_LblPark, % "주차료:"
+    Gui, SSOKTravel:Add, Edit, x286 y454 w86 vST_Parking hwndhEditPark gSSOK_Travel_OnAmountEditChange h26, %savedParking%
+    Gui, SSOKTravel:Add, Text, x377 y458 w22 vST_LblWon3, % "원"
+    Gui, SSOKTravel:Add, Text, x405 y458 w151 vST_LblParkCap cADB5BD, % "(1일 상한 10,000원)"
     Gui, SSOKTravel:Font, s9 Underline c1A5AA6, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x525 y412 w315 h22 vST_HiPassLink gSSOK_Travel_OpenHiPass, % "고속도로 통행료 조회  (www.hipass.co.kr)"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x571 y458 w339 h22 vST_HiPassLink gSSOK_Travel_OpenHiPass, % "고속도로 통행료 조회  (www.hipass.co.kr)"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
-    Gui, SSOKTravel:Add, Text, x32 y440 w75 vST_LblCarReason, % "신청사유:"
+    Gui, SSOKTravel:Add, Text, x41 y486 w72 vST_LblCarReason, % "신청사유:"
     carReasonList := "선택하세요|1. 출장경로가 매우 복잡･다양하여 대중교통을 사실상 이용할 수 없는 경우|2. 자가용을 이용함으로써 운임이 적게 소요되는 경우|3. 산간오지, 도서벽지 등 대중교통수단이 없어 부득이 자가용 이용|4. 하중이 무거운 수하물을 운송해야 하는 경우|5. 공무목적상 부득이한 심야시간대 이동 또는 긴급한 사유가 있는 경우|6. 기관장 인정사유( 학생 현장실습 및 취업지원을 위한 학생 동승시 )|7. 대중교통을 이용에 어려움이 있는 장애인 공무원"
     Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, DropDownList, x105 y436 w745 vST_CarReason gSSOK_Travel_OnCarReasonChange hwndhReasonCombo, %carReasonList%
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, DropDownList, x120 y482 w801 vST_CarReason gSSOK_Travel_OnCarReasonChange hwndhReasonCombo, %carReasonList%
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
     ; 대중교통: 철도/버스/선박/항공 × 가는편/경유지/오는편
-    Gui, SSOKTravel:Add, Text, x32 y262 w80 h22 Center vST_TransitHeader, % "구분"
-    Gui, SSOKTravel:Add, Text, x115 y262 w210 h22 Center vST_TransitGoHeader, % "가는편 운임"
-    Gui, SSOKTravel:Add, Text, x335 y262 w210 h22 Center vST_TransitViaHeader, % "경유지 운임"
-    Gui, SSOKTravel:Add, Text, x555 y262 w210 h22 Center vST_TransitBackHeader, % "오는편 운임"
-    Gui, SSOKTravel:Add, Text, x32 y286 w80 h22 Center vST_LblRail, % "철도"
-    Gui, SSOKTravel:Add, Edit, x115 y282 w165 h22 vST_RailGo gSSOK_Travel_Calc, %savedRailGo%
-    Gui, SSOKTravel:Add, Edit, x335 y282 w165 h22 vST_RailVia gSSOK_Travel_Calc, %savedRailVia%
-    Gui, SSOKTravel:Add, Edit, x555 y282 w165 h22 vST_RailBack gSSOK_Travel_Calc, %savedRailBack%
-    Gui, SSOKTravel:Add, Text, x32 y312 w80 h22 Center vST_LblBus, % "버스"
-    Gui, SSOKTravel:Add, Edit, x115 y308 w165 h22 vST_BusGo gSSOK_Travel_Calc, %savedBusGo%
-    Gui, SSOKTravel:Add, Edit, x335 y308 w165 h22 vST_BusVia gSSOK_Travel_Calc, %savedBusVia%
-    Gui, SSOKTravel:Add, Edit, x555 y308 w165 h22 vST_BusBack gSSOK_Travel_Calc, %savedBusBack%
-    Gui, SSOKTravel:Add, Text, x32 y338 w80 h22 Center vST_LblShip, % "선박"
-    Gui, SSOKTravel:Add, Edit, x115 y334 w165 h22 vST_ShipGo gSSOK_Travel_Calc, %savedShipGo%
-    Gui, SSOKTravel:Add, Edit, x335 y334 w165 h22 vST_ShipVia gSSOK_Travel_Calc, %savedShipVia%
-    Gui, SSOKTravel:Add, Edit, x555 y334 w165 h22 vST_ShipBack gSSOK_Travel_Calc, %savedShipBack%
-    Gui, SSOKTravel:Add, Text, x32 y364 w80 h22 Center vST_LblAir, % "기타"
-    Gui, SSOKTravel:Add, Edit, x115 y360 w165 h22 vST_AirGo gSSOK_Travel_Calc, %savedAirGo%
-    Gui, SSOKTravel:Add, Edit, x335 y360 w165 h22 vST_AirVia gSSOK_Travel_Calc, %savedAirVia%
-    Gui, SSOKTravel:Add, Edit, x555 y360 w165 h22 vST_AirBack gSSOK_Travel_Calc, %savedAirBack%
+    Gui, SSOKTravel:Add, Text, x41 y308 w86 h22 Center vST_TransitHeader, % "구분"
+    Gui, SSOKTravel:Add, Text, x144 y308 w248 h22 Center vST_TransitGoHeader, % "가는편 운임"
+    Gui, SSOKTravel:Add, Text, x410 y308 w248 h22 Center vST_TransitViaHeader, % "경유지 운임"
+    Gui, SSOKTravel:Add, Text, x676 y308 w248 h22 Center vST_TransitBackHeader, % "오는편 운임"
+    Gui, SSOKTravel:Add, Text, x41 y334 w86 h22 Center vST_LblRail, % "철도"
+    Gui, SSOKTravel:Add, Edit, x144 y330 w248 h26 vST_RailGo gSSOK_Travel_Calc, %savedRailGo%
+    Gui, SSOKTravel:Add, Edit, x410 y330 w248 h26 vST_RailVia gSSOK_Travel_Calc, %savedRailVia%
+    Gui, SSOKTravel:Add, Edit, x676 y330 w248 h26 vST_RailBack gSSOK_Travel_Calc, %savedRailBack%
+    Gui, SSOKTravel:Add, Text, x41 y366 w86 h22 Center vST_LblBus, % "버스"
+    Gui, SSOKTravel:Add, Edit, x144 y362 w248 h26 vST_BusGo gSSOK_Travel_Calc, %savedBusGo%
+    Gui, SSOKTravel:Add, Edit, x410 y362 w248 h26 vST_BusVia gSSOK_Travel_Calc, %savedBusVia%
+    Gui, SSOKTravel:Add, Edit, x676 y362 w248 h26 vST_BusBack gSSOK_Travel_Calc, %savedBusBack%
+    Gui, SSOKTravel:Add, Text, x41 y398 w86 h22 Center vST_LblShip, % "선박"
+    Gui, SSOKTravel:Add, Edit, x144 y394 w248 h26 vST_ShipGo gSSOK_Travel_Calc, %savedShipGo%
+    Gui, SSOKTravel:Add, Edit, x410 y394 w248 h26 vST_ShipVia gSSOK_Travel_Calc, %savedShipVia%
+    Gui, SSOKTravel:Add, Edit, x676 y394 w248 h26 vST_ShipBack gSSOK_Travel_Calc, %savedShipBack%
+    Gui, SSOKTravel:Add, Text, x41 y430 w86 h22 Center vST_LblAir, % "기타"
+    Gui, SSOKTravel:Add, Edit, x144 y426 w248 h26 vST_AirGo gSSOK_Travel_Calc, %savedAirGo%
+    Gui, SSOKTravel:Add, Edit, x410 y426 w248 h26 vST_AirVia gSSOK_Travel_Calc, %savedAirVia%
+    Gui, SSOKTravel:Add, Edit, x676 y426 w248 h26 vST_AirBack gSSOK_Travel_Calc, %savedAirBack%
 
-    Gui, SSOKTravel:Font, s10 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Font, s11 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x32 y262 w790 vST_DescGov c0D6EFD, % "※ 관용차량·임차버스·렌트카 등 이용: 운임 0원 / 일비 50%"
-    Gui, SSOKTravel:Add, Text, x32 y262 w790 vST_DescCarpool c6C757D, % "※ 타인차량 동승 등 기타: 운임 0원 (동행자 차량 이용 등에 따른 운임 미지급)"
+    Gui, SSOKTravel:Font, s9 Bold c212529, Malgun Gothic
+    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x41 y308 w850 vST_DescGov c0D6EFD, % "※ 관용차량·임차버스·렌트카 등 이용: 운임 0원 / 일비 50%"
+    Gui, SSOKTravel:Add, Text, x41 y308 w850 vST_DescCarpool c6C757D, % "※ 타인차량 동승 등 기타: 운임 0원 (동행자 차량 이용 등에 따른 운임 미지급)"
 
     ; ==============================================================================
     ; [4] 식비
     ; ==============================================================================
-    Gui, SSOKTravel:Font, s11 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, GroupBox, x16 y486 w848 h72, % " 4. 식비 "
-    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x32 y510 w265 h22 vST_LblMealDesc, % "식사를 무료로 제공 받은 경우를 제외한 "
-    Gui, SSOKTravel:Font, s9 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x292 y510 w135 h22 vST_LblMealCountDesc, % "실제 지출한 식사수"
-    Gui, SSOKTravel:Font, s10 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, DropDownList, x435 y506 w70 vST_MealOption gSSOK_Travel_OnMealOptionChange, % "0식|1식|2식|3식"
-    Gui, SSOKTravel:Add, Edit, x435 y506 w70 vST_MealCount gSSOK_Travel_OnMealCountChange Number, 0
-    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x510 y510 w25 vST_LblMealClosing, % "식"
-    Gui, SSOKTravel:Add, Text, x555 y510 w75 vST_LblMealActualLabel, % "실제소요액"
     Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, Edit, x630 y506 w95 vST_MealActual hwndhEditMealAct gSSOK_Travel_OnMealActualChange ReadOnly, 0
+    Gui, SSOKTravel:Add, GroupBox, x24 y532 w912 h72, % " 4. 식비 "
     Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x730 y510 w25 vST_LblMealWon, % "원"
-    Gui, SSOKTravel:Add, Text, x770 y510 w85 vST_LblMealLimit cADB5BD, % "최대 0식"
+    Gui, SSOKTravel:Add, Text, x41 y556 w272 h22 vST_LblMealDesc, % "식사를 무료로 제공 받은 경우를 제외한 "
+    Gui, SSOKTravel:Font, s9 Bold c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x321 y556 w145 h22 vST_LblMealCountDesc, % "실제 지출한 식사수"
+    Gui, SSOKTravel:Font, s9 Bold c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, DropDownList, x475 y552 w75 vST_MealOption gSSOK_Travel_OnMealOptionChange, % "0식|1식|2식|3식"
+    Gui, SSOKTravel:Add, Edit, x475 y552 w75 vST_MealCount gSSOK_Travel_OnMealCountChange Number h26, 0
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x555 y556 w27 vST_LblMealClosing, % "식"
+    Gui, SSOKTravel:Add, Text, x604 y556 w74 vST_LblMealActualLabel, % "실제소요액"
+    Gui, SSOKTravel:Font, s9 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, Edit, x684 y552 w102 vST_MealActual hwndhEditMealAct gSSOK_Travel_OnMealActualChange ReadOnly h26, 0
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x792 y556 w27 vST_LblMealWon, % "원"
+    Gui, SSOKTravel:Add, Text, x835 y556 w91 vST_LblMealLimit cADB5BD, % "최대 0식"
 
     ; ==============================================================================
     ; [5] 숙박비
     ; ==============================================================================
-    Gui, SSOKTravel:Font, s11 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, GroupBox, x16 y572 w848 h126, % " 5. 숙박비 "
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x32 y597 w445 h22 vST_LodgingAutoText, % "해당없음 (당일 출장)"
-    Gui, SSOKTravel:Add, Text, x600 y597 w75 h22 vST_LodgingInfoText, % "실제소요액 ("
-    Gui, SSOKTravel:Add, Edit, x675 y593 w90 vST_LodgingActual hwndhEditLodgingAct gSSOK_Travel_OnAmountEditChange +Disabled, %savedLodgingActual%
-    Gui, SSOKTravel:Add, Text, x770 y597 w35 h22 vST_LodgingWon, % ")원"
+    Gui, SSOKTravel:Font, s10 Bold c0D6EFD, Malgun Gothic
+    Gui, SSOKTravel:Add, GroupBox, x24 y618 w912 h126, % " 5. 숙박비 "
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x41 y643 w560 h22 vST_LodgingAutoText, % "당일출장으로 해당없음"
+    Gui, SSOKTravel:Add, Text, x652 y643 w81 h22 vST_LodgingInfoText, % "실제소요액 ("
+    Gui, SSOKTravel:Add, Edit, x733 y639 w97 vST_LodgingActual hwndhEditLodgingAct gSSOK_Travel_OnAmountEditChange +Disabled h26, %savedLodgingActual%
+    Gui, SSOKTravel:Add, Text, x835 y643 w38 h22 vST_LodgingWon, % ")원"
 
     ; 1박 이상: 공동숙박/친지숙박 관련 글씨는 약 80% 크기 + 회색
-    Gui, SSOKTravel:Font, s7 Normal c808080, Malgun Gothic
-    Gui, SSOKTravel:Add, Checkbox, x32 y626 w75 h20 vST_SharedStayCheck gSSOK_Travel_OnSharedStayChange, % "공동숙박"
-    Gui, SSOKTravel:Add, Edit, x110 y622 w42 h22 vST_SharedStayPeople gSSOK_Travel_OnSharedStayPeopleChange Number +Disabled, %savedSharedStayPeople%
-    Gui, SSOKTravel:Add, Text, x154 y626 w24 h20 vST_LblSharedStayPeopleDesc, % "명"
-    Gui, SSOKTravel:Add, Checkbox, x650 y626 w72 h20 vST_FamilyStayCheck gSSOK_Travel_OnFamilyStayChange, % "친지숙박"
-    Gui, SSOKTravel:Add, Edit, x724 y622 w42 h22 vST_FamilyStayNights gSSOK_Travel_Calc Number +Disabled, %savedFamilyStayNights%
-    Gui, SSOKTravel:Add, Text, x768 y626 w24 h20 vST_LblFamilyStayNightsDesc, % "박"
-    Gui, SSOKTravel:Add, Text, x32 y650 w820 h42 vST_SharedStayInfo, % "공동숙박 선택 시 2명`n상한: 1박 단가 × 인원 × 숙박박수"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Font, s8 Normal c808080, Malgun Gothic
+    Gui, SSOKTravel:Add, Checkbox, x41 y672 w81 h20 vST_SharedStayCheck gSSOK_Travel_OnSharedStayChange, % "공동숙박"
+    Gui, SSOKTravel:Add, Edit, x125 y668 w45 h22 vST_SharedStayPeople gSSOK_Travel_OnSharedStayPeopleChange Number +Disabled, %savedSharedStayPeople%
+    Gui, SSOKTravel:Add, Text, x172 y672 w26 h20 vST_LblSharedStayPeopleDesc, % "명"
+    Gui, SSOKTravel:Add, Checkbox, x706 y672 w77 h20 vST_FamilyStayCheck gSSOK_Travel_OnFamilyStayChange, % "친지숙박"
+    Gui, SSOKTravel:Add, Edit, x785 y668 w45 h22 vST_FamilyStayNights gSSOK_Travel_Calc Number +Disabled, %savedFamilyStayNights%
+    Gui, SSOKTravel:Add, Text, x833 y672 w26 h20 vST_LblFamilyStayNightsDesc, % "박"
+    Gui, SSOKTravel:Add, Text, x41 y696 w882 h42 vST_SharedStayInfo, % "공동숙박 선택 시 2명`n상한: 1박 단가 × 인원 × 숙박박수"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
     ; ==============================================================================
     ; 하단 액션 바
     ; ==============================================================================
     Gui, SSOKTravel:Font, s12 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x24 y712 w125 h24, % "정산 신청 총액:"
+    Gui, SSOKTravel:Add, Text, x33 y758 w134 h24, % "정산 신청 총액:"
     Gui, SSOKTravel:Font, s16 Bold c0D6EFD, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x150 y706 w320 h32 vST_Total, % "0 원"
+    Gui, SSOKTravel:Add, Text, x168 y752 w344 h32 vST_Total, % "0 원"
     Gui, SSOKTravel:Font, s9 Normal c6C757D, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x24 y750 w430 h22 vST_TotalSummary, % "운임 0원 | 일비 0원 | 식비 0원 | 숙박비 0원"
+    Gui, SSOKTravel:Add, Text, x33 y796 w462 h22 vST_TotalSummary, % "운임 0원 | 일비 0원 | 식비 0원 | 숙박비 0원"
 
     ; 하단 버튼은 총액/요약과 분리된 독립 영역에 배치한다.
     Gui, SSOKTravel:Font, s8 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Button, x500 y744 w90 h32 vST_SaveSettingsButton gSSOK_Travel_SaveSettings, % "설정 저장"
-    Gui, SSOKTravel:Font, s10 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Button, x595 y740 w190 h42 gSSOK_Travel_PrintHtml, % "📄 여비정산서 인쇄"
+    Gui, SSOKTravel:Add, Button, x545 y790 w97 h36 vST_SaveSettingsButton gSSOK_Travel_SaveSettings, % "설정 저장"
+    Gui, SSOKTravel:Font, s9 Bold c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Button, x647 y790 w204 h36 gSSOK_Travel_PrintHtml, % "📄 여비정산서 인쇄"
     Gui, SSOKTravel:Font, s8 Bold c212529, Malgun Gothic
-    Gui, SSOKTravel:Add, Button, x790 y744 w70 h32 gSSOK_Travel_Reset, % "초기화"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Button, x856 y790 w75 h36 gSSOK_Travel_Reset, % "초기화"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
     ; 저작권 표시는 신청 화면 하단
     Gui, SSOKTravel:Font, s8 Underline c1A5AA6, Malgun Gothic
-    Gui, SSOKTravel:Add, Text, x24 y780 w832 h20 Center +0x100 vST_Copyright gSSOK_Travel_OpenCopyright, % "쏙(SSOK) for 에듀파인  |  제작: 세종특별자치시교육청 이명호  |  blog.naver.com/ssok4edu"
-    Gui, SSOKTravel:Font, s10 Normal c212529, Malgun Gothic
+    Gui, SSOKTravel:Add, Text, x24 y834 w912 h18 Center +0x100 vST_Copyright gSSOK_Travel_OpenCopyright, % "쏙(SSOK) for 에듀파인  |  제작: 세종특별자치시교육청 이명호  |  blog.naver.com/ssok4edu"
+    Gui, SSOKTravel:Font, s9 Normal c212529, Malgun Gothic
 
 
     ; UI 초기 갱신
@@ -391,8 +391,8 @@ SSOK_Travel_Show()
     Gosub, SSOK_Travel_UpdateLodgingInfo
     Gosub, SSOK_Travel_Calc
 
-    Gui, SSOKTravel:Show, w880 h810, % "세종특별자치시교육청 여비정산 신청"
-    GuiControl, MoveDraw, ST_SaveSettingsButton, x500 y744 w90 h32
+    Gui, SSOKTravel:Show, w960 h868, % "세종특별자치시교육청 여비정산 신청"
+    GuiControl, MoveDraw, ST_SaveSettingsButton, x545 y790 w97 h36
 
     ; 메인 화면의 미입력 필수 입력칸을 연노랑으로 즉시 강조
     SSOK_Travel_UpdateInputHighlights()
@@ -813,14 +813,14 @@ SSOK_Travel_UpdateCategoryUI:
 
         GuiControl, SSOKTravel:, ST_LblMealDesc, % "식사를 무료로 제공 받은 경우를 제외한 "
         GuiControl, SSOKTravel:, ST_LblMealCountDesc, % "실제 지출한 식사수"
-        GuiControl, Move, ST_LblMealDesc, x32 y510 w265 h22
-        GuiControl, Move, ST_LblMealCountDesc, x292 y510 w135 h22
-        GuiControl, Move, ST_MealOption, x435 y506 w70 h23
-        GuiControl, Move, ST_MealCount, x435 y506 w70 h23
-        GuiControl, Move, ST_LblMealClosing, x510 y510 w35 h22
-        GuiControl, Move, ST_LblMealActualLabel, x555 y510 w75 h22
-        GuiControl, Move, ST_MealActual, x630 y506 w95 h23
-        GuiControl, Move, ST_LblMealWon, x730 y510 w25 h22
+        GuiControl, Move, ST_LblMealDesc, x41 y556 w272 h22
+        GuiControl, Move, ST_LblMealCountDesc, x321 y556 w145 h22
+        GuiControl, Move, ST_MealOption, x475 y552 w75 h23
+        GuiControl, Move, ST_MealCount, x475 y552 w75 h23
+        GuiControl, Move, ST_LblMealClosing, x555 y556 w38 h22
+        GuiControl, Move, ST_LblMealActualLabel, x604 y556 w74 h22
+        GuiControl, Move, ST_MealActual, x684 y552 w102 h23
+        GuiControl, Move, ST_LblMealWon, x792 y556 w27 h22
 
         Gosub, SSOK_Travel_UpdateMealUI
     }
@@ -838,9 +838,10 @@ SSOK_Travel_UpdateCategoryUI:
         GuiControl, Show, ST_LblMealWon
 
         GuiControl, SSOKTravel:, ST_LblMealDesc, % "교육훈련기관이 청구하는 금액 또는 구내 식당 가격"
-        GuiControl, Move, ST_LblMealDesc, x32 y510 w500 h22
-        GuiControl, Move, ST_MealActual, x540 y506 w95 h23
-        GuiControl, Move, ST_LblMealWon, x640 y510 w25 h22
+        ; 긴 안내문이 한 줄로 보이도록 설명과 입력칸의 폭·간격을 확보한다.
+        GuiControl, MoveDraw, ST_LblMealDesc, x41 y556 w610 h22
+        GuiControl, MoveDraw, ST_MealActual, x660 y552 w150 h23
+        GuiControl, MoveDraw, ST_LblMealWon, x816 y556 w27 h22
         GuiControl, -ReadOnly, ST_MealActual
     }
     else ; 교육훈련(비합숙)
@@ -860,12 +861,14 @@ SSOK_Travel_UpdateCategoryUI:
         ; 교육훈련(비합숙)은 "실제 지출한 식비"로 표시한다.
         GuiControl, SSOKTravel:, ST_LblMealDesc, % "식사를 무료로 제공 받은 경우를 제외한 "
         GuiControl, SSOKTravel:, ST_LblMealCountDesc, % "실제 지출한 식비"
-        GuiControl, Move, ST_LblMealDesc, x32 y510 w265 h22
-        GuiControl, Move, ST_LblMealCountDesc, x292 y510 w135 h22
-        GuiControl, Move, ST_MealActual, x540 y506 w95 h23
-        GuiControl, Move, ST_LblMealWon, x640 y510 w25 h22
+        GuiControl, Move, ST_LblMealDesc, x41 y556 w272 h22
+        GuiControl, Move, ST_LblMealCountDesc, x321 y556 w145 h22
+        GuiControl, Move, ST_MealActual, x588 y552 w102 h23
+        GuiControl, Move, ST_LblMealWon, x695 y556 w27 h22
         GuiControl, -ReadOnly, ST_MealActual
     }
+    ; 출장 구분을 연속 전환할 때 숨긴 컨트롤의 잔상이 남지 않도록 즉시 다시 그린다.
+    WinSet, Redraw,, ahk_id %hTravelGui%
     return
 
 
@@ -1464,6 +1467,9 @@ SSOK_Travel_OnTransitTypeChange:
 SSOK_Travel_UpdateMealUI:
     Gui, SSOKTravel:Default
     Gui, SSOKTravel:Submit, NoHide
+    ; 일반출장 전용 식사수 UI가 교육훈련 화면에 다시 나타나 겹치지 않도록 한다.
+    if (!ST_TravelCategory1)
+        return
     sDate := SubStr(ST_StartDate, 1, 8)
     eDate := SubStr(ST_EndDate, 1, 8)
     diffDays := SSOK_Travel_DateDiffDays(sDate, eDate)
@@ -1584,7 +1590,7 @@ SSOK_Travel_UpdateLodgingInfo:
 
     if (nights <= 0)
     {
-        GuiControl, SSOKTravel:, ST_LodgingAutoText, % "해당없음 (당일 출장)"
+        GuiControl, SSOKTravel:, ST_LodgingAutoText, % "당일출장으로 해당없음"
         GuiControl, SSOKTravel:Disable, ST_LodgingActual
         GuiControl, SSOKTravel:, ST_LodgingActual, 0
         GuiControl, Hide, ST_LodgingInfoText
@@ -2881,7 +2887,7 @@ SSOK_Travel_SaveSettings:
     IniWrite, %ST_Name%, %SSOK_Ini%, Travel, Name
 
     ; 저장 후 버튼이 가려지지 않도록 실제 컨트롤을 다시 배치하고 즉시 그린다.
-    GuiControl, MoveDraw, ST_SaveSettingsButton, x500 y744 w90 h32
+    GuiControl, MoveDraw, ST_SaveSettingsButton, x545 y790 w97 h36
 
     ; 설정 저장 완료 안내창은 표시하지 않는다.
 return

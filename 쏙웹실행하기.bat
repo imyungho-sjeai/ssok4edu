@@ -70,6 +70,10 @@ call :GET ssok_index2.tsv
 if errorlevel 1 goto FAIL_DOWNLOAD
 call :GET ssok_travel.ahk
 if errorlevel 1 goto FAIL_DOWNLOAD
+call :GET ssok_tool.ahk
+if errorlevel 1 goto FAIL_DOWNLOAD
+call :GET ssok_tool_expense.ahk
+if errorlevel 1 goto FAIL_DOWNLOAD
 
 echo.
 echo Download complete.
