@@ -5,7 +5,7 @@
 ; ÁöÃâÇ°ÀÇ Àü¿ë Win ´ÜÃàÅ°
 ; - Win+1 : °ßÀû¼­ ÀÐ±â / ÁöÃâÇ°ÀÇ Ç°¸ñ µî·Ï
 ; - Win+2 : K-¿¡µàÆÄÀÎ È­¸éÀ» MSAA·Î ÀÐ¾î °Ë¼ö¿©ºÎ¡¤ÀüÀÚÁ¶´Þ±¸¸Å¡¤ÃÑ¿øÀÎÇàÀ§¾× Ã³¸®
-; - Win+3 : K-¿¡µàÆÄÀÎ »ç¿ëÀÚ ÁöÁ¤ Tab ¼ø¼­ ½ÇÇà
+; - Win+3 : °³¿ä ÇÑ¹æ Á¤¸® + ¿øÀÎÇàÀ§ÃÑ¾× ¹Ý¿µ / Win+4 : ±âÁ¸ Tab ¼ø¼­ ½ÇÇà
 ; Win+1 / Win+2 / Win+3¸¦ ÀÌ ÆÄÀÏ¿¡¼­ Á÷Á¢ Ã³¸®ÇÕ´Ï´Ù.
 ;
 ; º°µµ #If ÄÁÅØ½ºÆ®¸¦ »ç¿ëÇÏ¿© ±¸Çü ssok_tool.ahk¿¡ °°Àº ´ÜÃàÅ°°¡
@@ -20,7 +20,24 @@ return
 #2::
     KeyWait, LWin
     KeyWait, RWin
-    SSOK_Expense_Win2Smart()
+    SendInput, {LWin up}{RWin up}{Alt up}{Ctrl up}{Shift up}
+    SetKeyDelay, 80, 40
+    Sleep, 150
+    SendInput, {Tab 10}
+    Sleep, 120
+    SendInput, {Right}
+    Sleep, 120
+    SendInput, {Tab 1}
+    Sleep, 120
+    SendInput, {Down 4}
+    Sleep, 120
+    SendInput, {Tab 2}
+    Sleep, 120
+    SendInput, {Enter}
+    Sleep, 900
+    SendInput, 11
+    Sleep, 300
+    SendInput, {Enter}
 return
 
 #If (SSOK_ExpenseBusy)
@@ -213,21 +230,21 @@ SSOK_Expense_Preview(result)
     displayGrandTotal := SSOK_Expense_FormatPreviewNumber(result.total + result.shipping)
     Gui, SSOKExpense:Add, Text, w980, % result.source . " / »óÇ° " . result.rows.Length() . "°³ / »óÇ° " . displayTotal . "¿ø, ¹è¼Ûºñ " . displayShipping . "¿ø ÇÕ°è " . displayGrandTotal . "¿ø"
 
-    ; Ç°ÀÇ/Ç°¸ñ µî·ÏÀº ¾Õ 6Ä­À» »ç¿ëÇÏ°í, ¿øÀÎÇàÀ§´Â 8Ä­ ÀüÃ¼¸¦ »ç¿ëÇÕ´Ï´Ù.
+    ; È®ÀÎ Ç¥´Â °øÅë 6Ä­¸¸ Ç¥½ÃÇÏ°í, ¿øÇà¸ñ·Ï ÀÔ·Â ½Ã¿¡¸¸ 2Ä­À» Ãß°¡ÇÕ´Ï´Ù.
     ; °ßÀû¼­¿¡ Á¶´Þ¼ö¼ö·á/¿ëµµ °ªÀÌ ¾øÀ¸¸é µÎ Ä­Àº ºóÄ­À¸·Î Ã³¸®ÇÕ´Ï´Ù.
-    Gui, SSOKExpense:Add, ListView, w980 h280, Ç°¸í|±Ô°Ý|¼ö·®|´ÜÀ§|´Ü°¡|±Ý¾×|Á¶´Þ¼ö¼ö·á|¿ëµµ(Àû¿ä)
+    Gui, SSOKExpense:Add, ListView, w980 h280, Ç°¸í|±Ô°Ý|¼ö·®|´ÜÀ§|´Ü°¡|±Ý¾×
 
     for i, row in result.rows
     {
         displayPrice := SSOK_Expense_FormatPreviewNumber(row.price)
         displayAmount := SSOK_Expense_FormatPreviewNumber(row.amount)
-        LV_Add("", row.name, row.spec, row.qty, "°³", displayPrice, displayAmount, "", "")
+        LV_Add("", row.name, row.spec, row.qty, "°³", displayPrice, displayAmount)
     }
 
     if (result.shipping > 0)
     {
         displayShipping := SSOK_Expense_FormatPreviewNumber(result.shipping)
-        LV_Add("", "¹è¼Ûºñ", "", 1, "°³", displayShipping, displayShipping, "", "")
+        LV_Add("", "¹è¼Ûºñ", "", 1, "°³", displayShipping, displayShipping)
     }
 
     LV_ModifyCol(1, 350)
@@ -236,8 +253,7 @@ SSOK_Expense_Preview(result)
     LV_ModifyCol(4, 55)
     LV_ModifyCol(5, 85)
     LV_ModifyCol(6, 85)
-    LV_ModifyCol(7, 90)
-    LV_ModifyCol(8, 120)
+    Gui, SSOKExpense:Add, Text, w980, ±âº» ÀÔ·Â: Ç°¸í ¡¤ ±Ô°Ý ¡¤ ¼ö·® ¡¤ ´ÜÀ§ ¡¤ ´Ü°¡ ¡¤ ±Ý¾× / ¿øÇà¸ñ·Ï¸¸ Á¶´Þ¼ö¼ö·á ¡¤ ¿ëµµ(Àû¿ä) Ãß°¡
 
     ; --------------------------------------------------------
     ; ±âÁ¸ 3°³ ¸Þ´º À¯Áö + ¿ìÃø ¼ÒÇü ¿øÀÎÇàÀ§ ¸Þ´º Ãß°¡
@@ -894,17 +910,27 @@ SSOK_Expense_ParseGenericTable(text)
     if IsObject(result) && (result.rows.Length() || result.recognized)
         return result
 
-    ; 2¼øÀ§: PDF¿¡¼­ ÇÑ Ç°¸ñ ÀüÃ¼°¡ ÇÑ ÁÙ·Î º¹»çµÇ´Â ÇüÅÂ
+    ; 2¼øÀ§: PDF - ¹øÈ£/±Ô°Ý/¼ö·®/´ÜÀ§/´Ü°¡/±Ý¾×ÀÌ ÇÑ ÁÙ·Î ºÙ´Â ¾ç½Ä
+    result := SSOK_Expense_ParsePdfQtyUnitPriceAmount(text)
+    if IsObject(result) && (result.rows.Length() || result.error != "")
+        return result
+
+    ; 3¼øÀ§: PDF - No/Ç°¸ñ¸í/±Ô°Ý/´ÜÀ§/ÃÑ¼ö·®/´Ü°¡/±Ý¾×/ºñ°í ¾ç½Ä
+    result := SSOK_Expense_ParsePdfMaintenanceMixed(text)
+    if IsObject(result) && (result.rows.Length() || result.error != "")
+        return result
+
+    ; 4¼øÀ§: PDF¿¡¼­ ÇÑ Ç°¸ñ ÀüÃ¼°¡ ÇÑ ÁÙ·Î º¹»çµÇ´Â ÇüÅÂ
     result := SSOK_Expense_ParseGenericPdfCompact(text)
     if IsObject(result) && result.rows.Length()
         return result
 
-    ; 3¼øÀ§: ±âÁ¸ ÅÇ/À¥ Ç¥
+    ; 5¼øÀ§: ±âÁ¸ ÅÇ/À¥ Ç¥
     result := SSOK_Expense_ParseGenericTabbed(text)
     if IsObject(result) && result.rows.Length()
         return result
 
-    ; 4¼øÀ§: PDF¿¡¼­ ¼¿ ÇÏ³ª°¡ ÇÑ ÁÙ¾¿ ³»·Á¿À´Â ÇüÅÂ
+    ; 6¼øÀ§: PDF¿¡¼­ ¼¿ ÇÏ³ª°¡ ÇÑ ÁÙ¾¿ ³»·Á¿À´Â ÇüÅÂ
     result := SSOK_Expense_ParseGenericVertical(text)
     if IsObject(result) && result.rows.Length()
         return result
@@ -912,6 +938,255 @@ SSOK_Expense_ParseGenericTable(text)
     out := SSOK_Expense_NewGenericResult()
     out.error := "°ßÀû¼­ÀÇ Ç°¸í, ¼ö·®, ´Ü°¡, ±Ý¾×ÀÌ ¾ø½À´Ï´Ù. `n°ßÀû¼­ Ç¥¸¦ ¸ÕÀú ¹üÀ§(Block) ÁöÁ¤ÇÑ ÈÄ Ç°ÀÇ(win+1)À» ´­·¯ÁÖ¼¼¿ä."
     return out
+}
+
+
+; ============================================================================
+; PDF Ãß°¡ ¾ç½Ä 1
+;   ¹øÈ£ / (Ç°¸í) / ±Ô°Ý / ¼ö·® / ´ÜÀ§ / ´Ü°¡ / ±Ý¾×
+;
+; PDF¿¡¼­ ¼¿ °æ°è°¡ »ç¶óÁ® ¾Æ·¡Ã³·³ ÇÑ ÁÙ·Î ºÙ¾î º¹»çµÇ´Â °æ¿ì¸¦ Ã³¸®ÇÕ´Ï´Ù.
+;   1¸°½ºR(¼¼Ã´±â¸°½º) 18.7L 2Åë62,000 124,000
+;   2ÀÏÈ¸¿ë¸¶½ºÅ©/À¯ÇÑ½Ç²öÇü/50¸Å5°û9,900 49,500
+;
+; ÇàÀÇ ¿À¸¥ÂÊ ³¡ "¼ö·® + ´ÜÀ§ + ´Ü°¡ + ±Ý¾×"À» ±âÁØÀ¸·Î Ç°¸ñÀ» ºÐ¸®ÇÏ¹Ç·Î
+; ±Ô°Ý ¾ÈÀÇ ¼ýÀÚ(50¸Å, 5°³ÀÔ µî)¸¦ ¼ö·®À¸·Î ¿ÀÀÎÇÏÁö ¾Êµµ·Ï ÇÕ´Ï´Ù.
+; ============================================================================
+SSOK_Expense_ParsePdfQtyUnitPriceAmount(text)
+{
+    out := SSOK_Expense_NewGenericResult()
+    out.source := "PDF °ßÀû¼­(¼ö·®/´ÜÀ§/´Ü°¡/±Ý¾× ÀÚµ¿ÀÎ½Ä)"
+
+    flat := StrReplace(text, "`r", " ")
+    flat := StrReplace(flat, "`n", " ")
+    flat := StrReplace(flat, Chr(160), " ")
+    flat := StrReplace(flat, "¡¡", " ")
+    flat := RegExReplace(flat, "[ `t]+", " ")
+    flat := Trim(flat)
+
+    ; ÀÌ Àü¿ë ¾ç½ÄÀÇ ¸Ó¸®±ÛÀÌ ¾Æ´Ï¸é ±âÁ¸ ÆÄ¼­·Î ³Ñ±é´Ï´Ù.
+    if !RegExMatch(flat, "i)¹øÈ£\s*(?:Ç°\s*¸í\s*)?±Ô°Ý\s*¼ö·®\s*´ÜÀ§\s*´Ü°¡\s*±Ý¾×", h)
+        return out
+
+    headerPos := RegExMatch(flat, "i)¹øÈ£\s*(?:Ç°\s*¸í\s*)?±Ô°Ý\s*¼ö·®\s*´ÜÀ§\s*´Ü°¡\s*±Ý¾×", h)
+    if (!headerPos)
+        return out
+
+    data := LTrim(SubStr(flat, headerPos + StrLen(h)))
+    expected := 1
+    unitPat := "(?:Åë|°û|¹Ú½º|BOX|¹­À½|ÄÓ·¹|°³|´ë|½Ä|¼¼Æ®|SET|EA|º´|±Ç|¸Å)"
+
+    while (data != "")
+    {
+        ; ¹øÈ£ + Ç°¸í/±Ô°Ý + ¼ö·® + ´ÜÀ§ + ´Ü°¡ + ±Ý¾×
+        ; ´ÜÀ§¿Í ´Ü°¡´Â PDF¿¡¼­ ºÙ¾î¼­ º¹»çµÉ ¼ö ÀÖÀ¸¹Ç·Î »çÀÌ °ø¹éÀº ¼±ÅÃ»çÇ×ÀÔ´Ï´Ù.
+        pat := "is)^\s*" . expected . "\s*(.+?)\s*(\d+(?:\.\d+)?)\s*(" . unitPat . ")\s*([\d,]+)\s+([\d,]+)"
+        if !RegExMatch(data, pat, m)
+        {
+            if (expected = 1)
+                return SSOK_Expense_NewGenericResult()
+
+            ; PDF Ç¥ÀÇ ¸¶Áö¸· ºó Çà(¿¹: "20- 884,300")Àº ½ÇÁ¦ Ç°¸ñÀÌ ¾Æ´Õ´Ï´Ù.
+            ; ÀÌ °æ¿ì ¾Õ ¹øÈ£±îÁö Á¤»ó Ç°¸ñÀ¸·Î ÀÎÁ¤ÇÏ°í ¿©±â¼­ Á¾·áÇÕ´Ï´Ù.
+            if RegExMatch(data, "^\s*" . expected . "\s*-\s*(?:[\d,]+\s*)?$")
+                break
+
+            ; ´ÙÀ½ ¹øÈ£°¡ º¸ÀÌ´Âµ¥ ÇàÀ» ¸ø ÀÐ¾ú´Ù¸é ÀÏºÎ¸¸ ÀÔ·ÂÇÏÁö ¾Ê°í Áß´ÜÇÕ´Ï´Ù.
+            if RegExMatch(data, "^\s*" . expected . "\s*[^\d\s,]")
+                out.error := "PDF °ßÀû¼­ÀÇ " . expected . "¹ø Ç°¸ñ¿¡¼­ ¼ö·®¡¤´ÜÀ§¡¤´Ü°¡¡¤±Ý¾×À» ÀÐÁö ¸øÇß½À´Ï´Ù."
+            break
+        }
+
+        descriptor := Trim(m1)
+        qty := SSOK_Expense_Number(m2)
+        unitPrice := SSOK_Expense_Number(m4)
+        finalAmount := SSOK_Expense_Number(m5)
+
+        if (descriptor = "" || qty = "" || qty <= 0 || unitPrice = "" || finalAmount = "" || finalAmount < 0)
+        {
+            out.error := "PDF °ßÀû¼­ÀÇ " . expected . "¹ø Ç°¸ñÀ» Á¤È®È÷ ÀÐÁö ¸øÇß½À´Ï´Ù."
+            return out
+        }
+
+        ; ´Ü°¡¡¿¼ö·®°ú ±Ý¾×ÀÌ ¸ÂÁö ¾ÊÀ¸¸é Àß¸øµÈ ¼ýÀÚ¸¦ ¼ö·®À¸·Î ÀâÀº °ÍÀÌ¹Ç·Î Áß´ÜÇÕ´Ï´Ù.
+        if (Round(unitPrice * qty) != Round(finalAmount))
+        {
+            out.error := "PDF °ßÀû¼­ÀÇ " . expected . "¹ø Ç°¸ñ ±Ý¾× °ËÁõ¿¡ ½ÇÆÐÇß½À´Ï´Ù."
+            return out
+        }
+
+        SSOK_Expense_SplitPdfNameSpec(descriptor, name, spec)
+        if (name = "")
+            name := descriptor
+
+        ; ¿øº» ´Ü°¡¸¦ ±×´ë·Î »ç¿ëÇÕ´Ï´Ù. ±Ý¾×Àº ¿øº» ±Ý¾×À¸·Î º¸Á¸ÇÕ´Ï´Ù.
+        out.rows.Push({name:name, spec:spec, qty:qty, amount:finalAmount, price:unitPrice})
+        out.total += finalAmount
+
+        data := LTrim(SubStr(data, StrLen(m) + 1))
+        expected++
+    }
+
+    if (!out.rows.Length())
+        return SSOK_Expense_NewGenericResult()
+
+    return out
+}
+
+
+; ============================================================================
+; PDF Ãß°¡ ¾ç½Ä 2
+;   No / Ç°¸ñ¸í / ±Ô°Ý / ´ÜÀ§ / ÃÑ¼ö·® / ´Ü°¡ / ±Ý¾× / ºñ°í
+;
+; ÀÏºÎ PDF´Â º¹»ç ¼ø¼­°¡ ½Ã°¢ÀûÀÎ ¿­ ¼ø¼­¿Í ´Þ¶óÁ® Ã¹ ÇàÀÇ ÀÏºÎ°¡
+; ¸Ó¸®±Û "´Ü°¡/±Ý¾×/ºñ°í" ¾ÕµÚ·Î °¥¶óÁö´Â °æ¿ì°¡ ÀÖ½À´Ï´Ù.
+; Á¤»ó Çà ¼ø¼­¿Í ÀÌ ¼¯ÀÎ ¼ø¼­¸¦ ¸ðµÎ Ã³¸®ÇÕ´Ï´Ù.
+; ============================================================================
+SSOK_Expense_ParsePdfMaintenanceMixed(text)
+{
+    out := SSOK_Expense_NewGenericResult()
+    out.source := "PDF °ßÀû¼­(No/Ç°¸ñ¸í/±Ô°Ý/ÃÑ¼ö·® ÀÚµ¿ÀÎ½Ä)"
+
+    flat := StrReplace(text, "`r", " ")
+    flat := StrReplace(flat, "`n", " ")
+    flat := StrReplace(flat, Chr(160), " ")
+    flat := StrReplace(flat, "¡¡", " ")
+    flat := RegExReplace(flat, "[ `t]+", " ")
+    flat := Trim(flat)
+
+    compact := RegExReplace(flat, "\s+", "")
+    if (!RegExMatch(compact, "i)NoÇ°¸ñ¸í±Ô°Ý´ÜÀ§ÃÑ¼ö·®")
+        || !RegExMatch(compact, "i)´Ü°¡±Ý¾×ºñ°í"))
+        return out
+
+    unitPat := "(?:Åë|°û|¹Ú½º|BOX|¹­À½|ÄÓ·¹|°³|´ë|½Ä|¼¼Æ®|SET|EA|º´|±Ç|¸Å)"
+
+    ; --------------------------------------------------------
+    ; A. ¸Ó¸®±Û µÚ¿¡ °¢ ÇàÀÌ Á¤»ó ¼ø¼­·Î ÀÌ¾îÁö´Â °æ¿ì
+    ; --------------------------------------------------------
+    headerPos := RegExMatch(flat, "i)No\s*Ç°\s*¸ñ¸í\s*±Ô°Ý\s*´ÜÀ§\s*ÃÑ\s*¼ö·®\s*´Ü°¡\s*±Ý¾×\s*ºñ\s*°í", fullHeader)
+    if (headerPos)
+    {
+        data := LTrim(SubStr(flat, headerPos + StrLen(fullHeader)))
+        expected := 1
+
+        while (data != "")
+        {
+            nextNo := expected + 1
+            pat := "is)^\s*" . expected . "\s*(.+?)\s+(" . unitPat . ")\s+(\d+(?:\.\d+)?)\s+([\d,]+)\s+([\d,]+)(?:\s+(.*?))?(?=\s*" . nextNo . "\s*[^\d\s,]|\s*$)"
+            if !RegExMatch(data, pat, m)
+                break
+
+            descriptor := Trim(m1)
+            qty := SSOK_Expense_Number(m3)
+            unitPrice := SSOK_Expense_Number(m4)
+            finalAmount := SSOK_Expense_Number(m5)
+
+            if (descriptor = "" || qty = "" || qty <= 0 || unitPrice = "" || finalAmount = "")
+                break
+
+            SSOK_Expense_SplitPdfNameSpec(descriptor, name, spec)
+            if (name = "")
+                name := descriptor
+
+            out.rows.Push({name:name, spec:spec, qty:qty, amount:finalAmount, price:unitPrice})
+            out.total += finalAmount
+
+            data := LTrim(SubStr(data, StrLen(m) + 1))
+            expected++
+        }
+
+        if (out.rows.Length())
+            return out
+    }
+
+    ; --------------------------------------------------------
+    ; B. ½ÇÁ¦ È®ÀÎµÈ PDF º¹»ç ¼ø¼­:
+    ;   No/Ç°¸ñ¸í/±Ô°Ý/´ÜÀ§/ÃÑ¼ö·®
+    ;   1¹ø Ç°¸ñ¸í/±Ô°Ý
+    ;   ´Ü°¡/±Ý¾×/ºñ°í
+    ;   1¹ø ´ÜÀ§/¼ö·®
+    ;   2¹ø Ç°¸ñ¸í/±Ô°Ý
+    ;   1¹ø ´Ü°¡/±Ý¾×/ºñ°í
+    ;   2¹ø ´ÜÀ§/¼ö·®/´Ü°¡/±Ý¾×/ºñ°í
+    ; --------------------------------------------------------
+    header2Pos := RegExMatch(flat, "i)´Ü°¡\s*±Ý¾×\s*ºñ\s*°í", header2)
+    if (!header2Pos)
+        return SSOK_Expense_NewGenericResult()
+
+    left := Trim(SubStr(flat, 1, header2Pos - 1))
+    right := LTrim(SubStr(flat, header2Pos + StrLen(header2)))
+
+    if !RegExMatch(left, "is)ÃÑ\s*¼ö·®\s*1\s*(.+?)\s+(\S+)\s*$", a)
+        return SSOK_Expense_NewGenericResult()
+
+    ; ÇöÀç È®ÀÎµÈ ÀÌ PDF ¹èÄ¡¿¡¼­´Â 2°³ Ç°¸ñÀÇ ÁÂ/¿ì ¿­ÀÌ À§ ¼ø¼­·Î ¼¯¿© µé¾î¿É´Ï´Ù.
+    pat2 := "is)^\s*(" . unitPat . ")\s+(\d+(?:\.\d+)?)\s+2\s*(.+?)\s+(\S+)\s+([\d,]+)\s+([\d,]+)\s+(.*?)\s+(" . unitPat . ")\s+(\d+(?:\.\d+)?)\s+([\d,]+)\s+([\d,]+)\s*(.*)$"
+    if !RegExMatch(right, pat2, b)
+        return SSOK_Expense_NewGenericResult()
+
+    name1 := Trim(a1)
+    spec1 := Trim(a2)
+    qty1 := SSOK_Expense_Number(b2)
+    unitPrice1 := SSOK_Expense_Number(b5)
+    amount1 := SSOK_Expense_Number(b6)
+
+    name2 := Trim(b3)
+    spec2 := Trim(b4)
+    qty2 := SSOK_Expense_Number(b9)
+    unitPrice2 := SSOK_Expense_Number(b10)
+    amount2 := SSOK_Expense_Number(b11)
+
+    if (name1 = "" || name2 = "" || qty1 <= 0 || qty2 <= 0
+        || unitPrice1 = "" || unitPrice2 = "" || amount1 = "" || amount2 = "")
+    {
+        out.error := "PDF °ßÀû¼­ÀÇ Ç°¸ñ¸í¡¤¼ö·®¡¤´Ü°¡¡¤±Ý¾×À» Á¤È®È÷ ÀÐÁö ¸øÇß½À´Ï´Ù."
+        return out
+    }
+
+    out.rows.Push({name:name1, spec:spec1, qty:qty1, amount:amount1, price:unitPrice1})
+    out.rows.Push({name:name2, spec:spec2, qty:qty2, amount:amount2, price:unitPrice2})
+    out.total := amount1 + amount2
+
+    return out
+}
+
+
+; Ç°¸í°ú ±Ô°ÝÀÌ ºÙ¾î¼­ º¹»çµÈ PDF¿ë º¸Á¶ ºÐ¸®±âÀÔ´Ï´Ù.
+; È®½ÇÈ÷ ±¸ºÐµÇ´Â °æ¿ì¸¸ ±Ô°ÝÀ¸·Î ¶¼°í, ¾Ö¸ÅÇÏ¸é ÀüÃ¼¸¦ Ç°¸íÀ¸·Î º¸Á¸ÇÕ´Ï´Ù.
+SSOK_Expense_SplitPdfNameSpec(descriptor, ByRef name, ByRef spec)
+{
+    descriptor := Trim(RegExReplace(descriptor, "[ `t]+", " "))
+    name := descriptor
+    spec := ""
+
+    if (descriptor = "")
+        return
+
+    ; ¿¹: ¹°Æ¼½´100¸Å/Ä¸Çü/10°³ÀÔ, Åõ¸íºñ´ÒºÀÅõ50L*70¸ÅÀÔ
+    if RegExMatch(descriptor, "i)^([°¡-ÆRA-Za-z()]+?)(\d.*(?:¸Å|°³|ÀÔ|L|ml|mL|cm|mm|\*).*)$", m)
+    {
+        name := Trim(m1)
+        spec := Trim(m2)
+        return
+    }
+
+    ; ¿¹: ÀÏÈ¸¿ë¸¶½ºÅ©/À¯ÇÑ½Ç²öÇü/50¸Å, Ã»¼ö¼¼¹Ì/3M 5°³ÀÔ
+    slashPos := InStr(descriptor, "/")
+    spacePos := InStr(descriptor, " ")
+    if (slashPos > 1 && (spacePos = 0 || slashPos < spacePos))
+    {
+        name := Trim(SubStr(descriptor, 1, slashPos - 1))
+        spec := Trim(SubStr(descriptor, slashPos + 1))
+        return
+    }
+
+    ; ¿¹: ¸°½ºR(¼¼Ã´±â¸°½º) 18.7L, °í¹«Àå°©(ÅÂÈ­) L/ºÐÈ«
+    if RegExMatch(descriptor, "^(.+?)\s+((?:\d|[A-Za-z]).*)$", m)
+    {
+        name := Trim(m1)
+        spec := Trim(m2)
+    }
 }
 
 
@@ -2096,10 +2371,11 @@ SSOK_Expense_Write()
     if (!SSOK_Expense_AddRowsOneClick(target, remaining)
         || !SSOK_Expense_MSAA_IsFixedAddButton(SSOK_ExpenseAddButtonCache))
     {
+        SSOK_Expense_Log("row-add-stopped: " . SSOK_ExpenseLastError)
         SSOK_Expense_StopForBudget()
         ToolTip
         SSOK_ExpenseBusy := true
-        MsgBox, 64, °£Æí ÁöÃâÇ°ÀÇ, ¿¹»ê ¼±ÅÃ ÈÄ °ßÀû¼­¸¦ ´Ù½Ã ÁøÇàÇØ ÁÖ¼¼¿ä., 1
+        MsgBox, 48, °£Æí ÁöÃâÇ°ÀÇ, % "ÇàÃß°¡¸¦ Áß´ÜÇß½À´Ï´Ù.`n" . SSOK_ExpenseLastError . "`nÀÌ¹Ì »ý¼ºµÈ ÇàÀº À¯ÁöµË´Ï´Ù."
         SSOK_ExpenseBusy := false
         return
     }
@@ -2468,34 +2744,83 @@ SSOK_Expense_CountRows(target)
 ; ------------------------------------------------------------
 SSOK_Expense_AddRowsOneClick(target, count)
 {
-    global SSOK_ExpenseAddButtonCache, SSOK_ExpenseLastError
-    global SSOK_ExpenseRowsAdded
+    global SSOK_ExpenseAddButtonCache, SSOK_ExpenseLastError, SSOK_ExpenseRowsAdded
     SSOK_ExpenseRowsAdded := 0
+    before := SSOK_Expense_ItemRowSnapshot(target)
     Loop, %count%
     {
         if (!SSOK_Expense_Active(target))
-            return false
-        ; ¿¹»ê ¾È³» µîÀ¸·Î ¹öÆ°ÀÌ »ç¶óÁö¸é ÀçÅ½»ö/ÀçÅ¬¸¯ÇÏÁö ¾Ê°í ´ÙÀ½ Win+1À» ±â´Ù¸³´Ï´Ù.
-        if (!SSOK_Expense_MSAA_IsFixedAddButton(SSOK_ExpenseAddButtonCache))
         {
-            SSOK_Expense_Log("row-button-unavailable-await-win1 completed=" . SSOK_ExpenseRowsAdded)
+            SSOK_ExpenseLastError := "È­¸é ÀüÈ¯ ¶Ç´Â Ãë¼Ò·Î ÇàÃß°¡¸¦ Áß´ÜÇß½À´Ï´Ù."
+            return false
+        }
+        ; Å¬¸¯ Àü ÀÏ½ÃÀûÀÎ °´Ã¼ ±³Ã¼¸¸ º¹±¸ÇÕ´Ï´Ù. Å¬¸¯ ÈÄ ºÒÈ®½ÇÇÑ °á°ú´Â ÀçÅ¬¸¯ÇÏÁö ¾Ê½À´Ï´Ù.
+        if (!SSOK_Expense_MSAA_IsFixedAddButton(SSOK_ExpenseAddButtonCache)
+            && !SSOK_Expense_RefreshAddAtKnownPath(target))
+        {
+            SSOK_ExpenseLastError := "ÇàÃß°¡ ¹öÆ°ÀÌ ºñÈ°¼ºÈ­µÇ¾ú°Å³ª È­¸éÀÌ º¯°æµÇ¾ú½À´Ï´Ù. ¿¹»ê ¾È³» ¶Ç´Â ÆË¾÷À» È®ÀÎÇØ ÁÖ¼¼¿ä."
             return false
         }
         if (!SSOK_Expense_Active(target))
             return false
-        if (!SSOK_Expense_MSAA_DoAction(SSOK_ExpenseAddButtonCache))
+        if (!SSOK_Expense_ClickVisibleAddButton(SSOK_ExpenseAddButtonCache, target))
         {
-            ; ¿¹¿Ü°¡ ³ªµµ ½ÇÁ¦ Å¬¸¯Àº Ã³¸®µÆÀ» ¼ö ÀÖÀ¸¹Ç·Î ¹«Á¶°Ç ÀçÅ¬¸¯ÇÏÁö ¾Ê½À´Ï´Ù.
-            SSOK_ExpenseLastError := "ÇàÃß°¡ ½ÇÇà °á°ú¸¦ È®ÀÎÇÒ ¼ö ¾ø½À´Ï´Ù."
+            SSOK_ExpenseLastError := "ÇàÃß°¡ Å¬¸¯ °á°ú°¡ ºÒÈ®½ÇÇÏ¿© Áßº¹ Å¬¸¯À» Áß´ÜÇß½À´Ï´Ù."
             SSOK_Expense_Log("add-action-uncertain completed=" . SSOK_ExpenseRowsAdded)
             return false
         }
+        Sleep, 220
+        if (before >= 0)
+        {
+            after := -1
+            Loop, 3
+            {
+                if (!SSOK_Expense_Active(target))
+                    return false
+                after := SSOK_Expense_ItemRowSnapshot(target)
+                if (after = before + 1)
+                    break
+                if (after > before + 1)
+                    break
+                Sleep, 180
+            }
+            if (after != before + 1)
+            {
+                SSOK_ExpenseLastError := "Çà Áõ°¡¸¦ È®ÀÎÇÏÁö ¸øÇØ Áß´ÜÇß½À´Ï´Ù. ÇöÀç Çà ¼ö¸¦ È®ÀÎÇÑ µÚ Ç°ÀÇ¸ñ·Ï ÀÔ·ÂÇÏ±â¸¦ »ç¿ëÇØ ÁÖ¼¼¿ä."
+                SSOK_Expense_Log("row-growth-unconfirmed before=" . before . " after=" . after)
+                return false
+            }
+            before := after
+        }
         SSOK_ExpenseRowsAdded++
         ToolTip, % "ÇàÃß°¡ ½ÇÇà Áß... " . SSOK_ExpenseRowsAdded . "/" . count
-        Sleep, 140
     }
-    SSOK_Expense_Log("add-actions-completed=" . SSOK_ExpenseRowsAdded)
+    SSOK_Expense_Log("add-actions-completed=" . SSOK_ExpenseRowsAdded . " rowCountVerified=" . (before >= 0 ? 1 : 0))
     return SSOK_Expense_Active(target)
+}
+
+SSOK_Expense_RefreshAddAtKnownPath(target)
+{
+    global SSOK_ExpenseResolvedRowPath, SSOK_ExpenseAddButtonCache
+    if (SSOK_ExpenseResolvedRowPath = "")
+        return false
+    Loop, 3
+    {
+        if (!SSOK_Expense_Active(target))
+            return false
+        Sleep, 180
+        root := SSOK_Expense_MSAA_GetEdufineRoot(target, true)
+        if (!IsObject(root))
+            continue
+        candidate := {acc:SSOK_Expense_MSAA_FollowFixedPath(root, SSOK_ExpenseResolvedRowPath),child:0,path:SSOK_ExpenseResolvedRowPath}
+        if (SSOK_Expense_MSAA_IsFixedAddButton(candidate))
+        {
+            SSOK_ExpenseAddButtonCache := candidate
+            SSOK_Expense_Log("row-button-refreshed-before-click")
+            return true
+        }
+    }
+    return false
 }
 
 SSOK_Expense_MSAA_IsFixedAddButton(btn)
@@ -2531,11 +2856,11 @@ SSOK_Expense_MSAA_PrepareAddButtonOnly(target, force := false)
         SSOK_ExpenseResolvedRowPath := SSOK_Expense_LoadRowPath()
     ; ¸ÕÀú ÀúÀåµÈ °æ·Î¸¦ È®ÀÎÇÏ°í, ¼ø¼­°¡ ¹Ù²î¾úÀ¸¸é ÀÌ¸§/¿ªÇÒ·Î ÀçÅ½»öÇÕ´Ï´Ù.
     oldPath := "/obj[1]/obj[1]/obj[1]/obj[1]/obj[3]/obj[1]/obj[3]/obj[1]/obj[1]/obj[1]/obj[55]/obj[1]/obj[1]/obj[1]/obj[1]/obj[11]/obj[1]/obj[3]/obj[1]/obj[6]/obj[1]/obj[1]/obj[1]/obj[8]"
-    Loop, 3
+    Loop, 5
     {
         if (!SSOK_Expense_Active(target))
             return false
-        ToolTip, % "K-¿¡µàÆÄÀÎ ÇàÃß°¡ ¹öÆ° È®ÀÎ Áß... (" . A_Index . "/3)"
+        ToolTip, % "K-¿¡µàÆÄÀÎ ÇàÃß°¡ ¹öÆ° È®ÀÎ Áß... (" . A_Index . "/5)"
         root := SSOK_Expense_MSAA_GetEdufineRoot(target, force || A_Index > 1)
         if IsObject(root)
         {
@@ -2565,7 +2890,8 @@ SSOK_Expense_MSAA_PrepareAddButtonOnly(target, force := false)
         else
             SSOK_ExpenseLastError := "K-¿¡µàÆÄÀÎ Á¢±Ù¼º È­¸éÀ» ÀÐÁö ¸øÇß½À´Ï´Ù."
         ; ÀçºÎÆÃ Á÷ÈÄ ºê¶ó¿ìÀú°¡ Á¢±Ù¼º Æ®¸®¸¦ ÁØºñÇÒ ½Ã°£À» ÁÝ´Ï´Ù.
-        Sleep, 600
+        if (A_Index < 5)
+            Sleep, % 600 * A_Index
     }
     SSOK_Expense_Log("button-not-found: " . SSOK_ExpenseLastError)
     return false
@@ -2957,14 +3283,20 @@ SSOK_Expense_Tab(target, count := 1)
     return SSOK_Expense_Active(target)
 }
 
-SSOK_Expense_Unit(target)
+SSOK_Expense_Unit(target, mode := "all")
 {
     if (!SSOK_Expense_Active(target))
         return false
 
+    ; ¿øÇà¸ñ·ÏÀº Ã¹ Ç×¸ñÀÌ '°³', Ç°ÀÇ´Â '¼±ÅÃ' ´ÙÀ½ Ç×¸ñÀÌ '°³'ÀÔ´Ï´Ù.
     SendInput, {Home}
     Sleep, 55
-    SendInput, {Down}
+    if (mode != "cause")
+    {
+        if (!SSOK_Expense_Active(target))
+            return false
+        SendInput, {Down}
+    }
     Sleep, 80
     return SSOK_Expense_Active(target)
 }
@@ -3070,11 +3402,22 @@ SSOK_Expense_MSAA_WalkNamed(acc, depth, path, kind, state)
 {
     if (state.stopped)
         return
-    if (depth > 70 || state.nodes >= state.limit || A_TickCount > state.deadline
+    if (depth > 160 || state.nodes >= state.limit || A_TickCount > state.deadline
         || (state.target && !SSOK_Expense_Active(state.target)))
     {
         state.stopped := true
         return
+    }
+    ; °°Àº COM °´Ã¼°¡ ¿©·¯ °æ·Î·Î ³ëÃâµÇ¾îµµ ÇÑ ¹ø¸¸ ÀÐ½À´Ï´Ù.
+    identity := SSOK_Expense_MSAA_Identity({acc:acc, child:0})
+    if (identity != "")
+    {
+        if (state.seen.HasKey(identity))
+        {
+            state.duplicates++
+            return
+        }
+        state.seen[identity] := acc
     }
     state.nodes++
     status := SSOK_Expense_MSAA_Get(acc, "State", 0)
@@ -3357,67 +3700,54 @@ SSOK_Expense_SaveRowPath(path)
     return !ErrorLevel
 }
 
+SSOK_Expense_RowFields(row, mode)
+{
+    fields := [row.name, row.spec, row.qty, "°³", row.price, row.amount]
+    if (mode = "cause")
+    {
+        fields.Push(row.HasKey("procurementFee") ? row.procurementFee : "")
+        fields.Push(row.HasKey("purpose") ? row.purpose : "")
+    }
+    return fields
+}
+
 SSOK_Expense_InputRows(target)
 {
     global SSOK_ExpenseRows, SSOK_ExpenseMode
     saved := ClipboardAll
-    ok := true
+    ; ½ÃÀÛ ½Ã ¼±ÅÃÇÑ ¸Þ´º¸¦ °íÁ¤: Ç°ÀÇ 6Ä­, ¿øÇà 8Ä­.
+    mode := SSOK_ExpenseMode
     try
     {
         for i, row in SSOK_ExpenseRows
         {
-            ; °øÅë 6Ä­:
-            ; Ç°¸í -> ±Ô°Ý -> ¼ö·® -> ´ÜÀ§ -> ´Ü°¡ -> ±Ý¾×
-            if (!SSOK_Expense_Field(row.name, target) || !SSOK_Expense_Tab(target)
-                || !SSOK_Expense_Field(row.spec, target) || !SSOK_Expense_Tab(target)
-                || !SSOK_Expense_Field(row.qty, target) || !SSOK_Expense_Tab(target)
-                || !SSOK_Expense_Unit(target) || !SSOK_Expense_Tab(target)
-                || !SSOK_Expense_Field(row.price, target) || !SSOK_Expense_Tab(target)
-                || !SSOK_Expense_Field(row.amount, target))
+            fields := SSOK_Expense_RowFields(row, mode)
+            for column, value in fields
             {
-                ok := false
-                break
-            }
-
-            if (SSOK_ExpenseMode = "cause")
-            {
-                ; ¿øÀÎÇàÀ§´Â 8Ä­ ÀüÃ¼ »ç¿ë:
-                ; ... ±Ý¾× -> Á¶´Þ¼ö¼ö·á -> ¿ëµµ(Àû¿ä)
-                procurementFee := row.HasKey("procurementFee") ? row.procurementFee : ""
-                purposeText := row.HasKey("purpose") ? row.purpose : ""
-
-                if (!SSOK_Expense_Tab(target)
-                    || !SSOK_Expense_Field(procurementFee, target)
-                    || !SSOK_Expense_Tab(target)
-                    || !SSOK_Expense_Field(purposeText, target))
+                if (column = 4)
+                    ok := SSOK_Expense_Unit(target, mode)
+                else
+                    ok := SSOK_Expense_Field(value, target)
+                if (!ok)
+                    return false
+                ; Ç°ÀÇ È­¸éÀº ±Ý¾× µÚ µÎ Tab À§Ä¡¸¦ °Ç³Ê¾ß ´ÙÀ½ Çà Ç°¸íÀÔ´Ï´Ù.
+                ; ¿øÇà¸ñ·ÏÀº ¿ëµµ(Àû¿ä)¿¡¼­ ´ÙÀ½ Çà Ç°¸í±îÁö Tab 2È¸ÀÔ´Ï´Ù.
+                ; °Ç³Ê°¡´Â À§Ä¡¿¡´Â °ªÀ» ¾²°Å³ª Áö¿ìÁö ¾Ê½À´Ï´Ù.
+                if (column < fields.Length())
                 {
-                    ok := false
-                    break
+                    if (!SSOK_Expense_Tab(target))
+                        return false
                 }
-
-                ; 8¹øÂ° Ä­(¿ëµµ)¿¡¼­ ´ÙÀ½ Çà Ç°¸íÀ¸·Î 1Ä­ ÀÌµ¿
-                if (i < SSOK_ExpenseRows.Length() && !SSOK_Expense_Tab(target))
+                else if (i < SSOK_ExpenseRows.Length())
                 {
-                    ok := false
-                    break
+                    if (!SSOK_Expense_Tab(target, mode = "cause" ? 2 : 3))
+                        return false
                 }
             }
-            else
-            {
-                ; Ç°ÀÇ ÀÚµ¿ µî·Ï / Ç°¸ñ¸¸ µî·ÏÀº 6Ä­ Ç¥ ±âÁØ.
-                ; ±Ý¾×¿¡¼­ ´ÙÀ½ Çà Ç°¸íÀ¸·Î 1Ä­ ÀÌµ¿.
-                if (i < SSOK_ExpenseRows.Length() && !SSOK_Expense_Tab(target))
-                {
-                    ok := false
-                    break
-                }
-            }
-
             if (i < SSOK_ExpenseRows.Length())
                 Sleep, 85
         }
-
-        return ok && SSOK_Expense_Active(target)
+        return SSOK_Expense_Active(target)
     }
     finally
     {
@@ -3498,6 +3828,18 @@ SSOKExpenseModeNoticeClose:
     Gui, SSOKExpenseModeNotice:Destroy
 return
 
+SSOK_Expense_DetailIsEmpty(field)
+{
+    if (!IsObject(field) || !IsObject(field.acc))
+        return false
+    try
+    {
+        value := field.acc.accValue(field.child)
+        return StrLen(Trim(value, " `t`r`n" . Chr(160))) = 0
+    }
+    catch
+        return false
+}
 SSOK_Expense_WriteDetailOnce(target, kind, value)
 {
     global SSOK_ExpenseMode, SSOK_ExpenseDetailSent
@@ -3511,8 +3853,24 @@ SSOK_Expense_WriteDetailOnce(target, kind, value)
         return true
     }
     field := SSOK_Expense_MSAA_ResolveField(target, kind)
+    if (!IsObject(field))
+        return false
+    ; ÀÐ±â ½ÇÆÐ¸¦ ºóÄ­À¸·Î °£ÁÖÇÏÁö ¾Ê½À´Ï´Ù. ±âÁ¸ ³»¿ëÀº ±×´ë·Î º¸Á¸ÇÕ´Ï´Ù.
+    if (!SSOK_Expense_DetailIsEmpty(field))
+    {
+        SSOK_ExpenseDetailSent[kind] := true
+        SSOK_Expense_Log("detail-skip-existing-or-unreadable kind=" . kind)
+        return true
+    }
     if (!SSOK_Expense_MSAA_FocusField(field, target))
         return false
+    ; Æ÷Ä¿½º¸¦ ¾ò´Â µ¿¾È °ªÀÌ ¹Ù²î¾úÀ» ¼ö ÀÖ¾î ºÙ¿©³Ö±â Á÷Àü¿¡ ´Ù½Ã È®ÀÎÇÕ´Ï´Ù.
+    if (!SSOK_Expense_DetailIsEmpty(field))
+    {
+        SSOK_ExpenseDetailSent[kind] := true
+        SSOK_Expense_Log("detail-skip-changed kind=" . kind)
+        return true
+    }
     ; È­¸é °ªÀÇ °ø¹é ¿©ºÎ¿Í ¹«°üÇÏ°Ô ÇÑ¹ø ½ÃµµÇÑ °³¿ä/Á¦¸ñÀº ÀçÀÔ·ÂÇÏÁö ¾Ê½À´Ï´Ù.
     ; ÀüºÎ »èÁ¦ÇÏ°Å³ª ¼öÁ¤ÇÑ »ç¿ëÀÚ ³»¿ëÀ» ±×´ë·Î À¯ÁöÇÕ´Ï´Ù.
     SSOK_ExpenseDetailSent[kind] := true
@@ -3521,7 +3879,7 @@ SSOK_Expense_WriteDetailOnce(target, kind, value)
     return ok
 }
 
-SSOK_Expense_PasteDetailText(target, value)
+SSOK_Expense_PasteDetailText(target, value, leaveField := true)
 {
     saved := ClipboardAll
     try
@@ -3539,9 +3897,12 @@ SSOK_Expense_PasteDetailText(target, value)
         Sleep, 120
         if (!SSOK_Expense_Active(target))
             return false
-        ; ºÙ¿©³ÖÀº µÚ ÀÔ·Â¶õÀ» ¹þ¾î³ª È­¸éÀÇ ÆíÁý°ªÀ» È®Á¤ÇÕ´Ï´Ù. ÀçºÙ¿©³Ö±â´Â ¾ø½À´Ï´Ù.
-        SendInput, {Tab}
-        Sleep, 70
+        ; Win+3Àº °°Àº ÀÔ·ÂÄ­¿¡¼­ Win+F2·Î ÀÌ¾îÁö¹Ç·Î TabÀ» º¸³»Áö ¾Ê½À´Ï´Ù.
+        if (leaveField)
+        {
+            SendInput, {Tab}
+            Sleep, 70
+        }
         return SSOK_Expense_Active(target)
     }
     finally
@@ -3582,7 +3943,7 @@ SSOK_Expense_ItemRowSnapshot(target)
     panel := SSOK_Expense_MSAA_FollowFixedPath(root, path)
     if (!IsObject(panel))
         return -1
-    state := {nodes:0, mask:0, selects:0, stopped:false, deadline:A_TickCount + 3000, target:target}
+    state := {seen:{}, duplicates:0, nodes:0, mask:0, selects:0, stopped:false, deadline:A_TickCount + 3000, target:target}
     SSOK_Expense_ScanItemRows(panel, 0, state)
     if (state.stopped || !SSOK_Expense_MSAA_IsItemHeaderMask(state.mask) || Mod(state.selects, 2))
         return -1
@@ -3599,6 +3960,17 @@ SSOK_Expense_ScanItemRows(acc, depth, state)
     {
         state.stopped := true
         return
+    }
+    ; °°Àº COM °´Ã¼°¡ ¿©·¯ °æ·Î·Î ³ëÃâµÇ¾îµµ ÇÑ ¹ø¸¸ ÀÐ½À´Ï´Ù.
+    identity := SSOK_Expense_MSAA_Identity({acc:acc, child:0})
+    if (identity != "")
+    {
+        if (state.seen.HasKey(identity))
+        {
+            state.duplicates++
+            return
+        }
+        state.seen[identity] := acc
     }
     state.nodes++
     status := SSOK_Expense_MSAA_Get(acc, "State", 0)
@@ -3670,7 +4042,8 @@ SSOK_Expense_Win2Smart()
     if (!IsObject(scan) || scan.stopped)
     {
         ToolTip
-        MsgBox, 0x40030, °£Æí ¿øÀÎÇàÀ§ Win+2, K-¿¡µàÆÄÀÎ È­¸é Ç×¸ñÀ» ³¡±îÁö ÀÐÁö ¸øÇß½À´Ï´Ù.`nÈ­¸éÀÌ ¿ÏÀüÈ÷ ¿­¸° µÚ ´Ù½Ã Win+2¸¦ ´­·¯ ÁÖ¼¼¿ä.
+        reasonText := scan.reason = "timeout" ? "È­¸é Å½»ö ½Ã°£ ÃÊ°ú(30ÃÊ)" : scan.reason = "inactive-or-cancelled" ? "È­¸é ÀüÈ¯ ¶Ç´Â Ãë¼Ò" : scan.reason
+        MsgBox, 0x40030, °£Æí ¿øÀÎÇàÀ§ Win+2, % "Win+2 È­¸é Å½»ö Áß´Ü [°³¼± v3]`n»çÀ¯: " . reasonText . "`nÀÐÀº Ç×¸ñ: " . scan.nodes . " / Áßº¹ Á¦¿Ü: " . scan.duplicates
         return false
     }
 
@@ -3703,10 +4076,14 @@ SSOK_Expense_Win2Smart()
 
     ToolTip
 
+    ; °è¾à¼³Á¤Àº ÆË¾÷À» ¿­ ¼ö ÀÖÀ¸¹Ç·Î °³¿ä °»½Å ÈÄ ¸¶Áö¸·¿¡ ½ÇÇàÇÕ´Ï´Ù.
+    okContract := SSOK_Expense_Win2_OpenContract(target)
+
     ; 6. Ã³¸® °á°ú¸¦ ¾à 3ÃÊ Ç¥½Ã
     msg := "Win+2 Ã³¸® °á°ú"
     msg .= "`n°Ë¼ö¿©ºÎ ¡æ ¾Æ´Ï¿À: " . (okInspect ? "¿Ï·á" : "È®ÀÎ ÇÊ¿ä")
     msg .= "`nÀüÀÚÁ¶´Þ±¸¸Å ¡æ ÀÚÃ¼: " . (okProcure ? "¿Ï·á" : "È®ÀÎ ÇÊ¿ä")
+    msg .= "`n°è¾à¼³Á¤ Å¬¸¯: " . (okContract ? "½ÇÇà" : "È®ÀÎ ÇÊ¿ä")
 
     if (totalCauseAmount = "")
     {
@@ -3726,7 +4103,7 @@ SSOK_Expense_Win2Smart()
         . " totalCauseFound=" . (totalCauseAmount != "" ? 1 : 0)
         . " overviewAmountSet=" . (okOverviewAmount ? 1 : 0))
 
-    return okInspect || okProcure || okOverviewAmount
+    return okInspect || okProcure || okOverviewAmount || okContract
 }
 
 ; ------------------------------------------------------------
@@ -3735,78 +4112,60 @@ SSOK_Expense_Win2Smart()
 ; ------------------------------------------------------------
 SSOK_Expense_Win2_ReadTotalCauseAmount(items)
 {
-    if !IsObject(items)
-        return ""
-
-    label := ""
-
-    ; 1Â÷: ÃÑ¿øÀÎÇàÀ§¾× ÀÌ¸§/°ªÀ» °¡Áø °´Ã¼ ÀÚÃ¼¿¡¼­ ±Ý¾× È®ÀÎ
+    labels := []
+    direct := ""
     for _, node in items
     {
         n := SSOK_Expense_Win2_Normalize(node.name)
-        v := SSOK_Expense_Win2_Normalize(node.value)
-
-        if (!InStr(n, "ÃÑ¿øÀÎÇàÀ§¾×") && !InStr(v, "ÃÑ¿øÀÎÇàÀ§¾×"))
+        if (!RegExMatch(n, "^(ÃÑ¿øÀÎÇàÀ§¾×|¿øÀÎÇàÀ§ÃÑ¾×)(\(¿ø\))?$"))
             continue
-
-        if !IsObject(label)
-            label := node
-
-        amount := SSOK_Expense_Win2_ExtractNumericAmount(node.value)
-
-        if (amount = "")
-            amount := SSOK_Expense_Win2_ExtractNumericAmount(node.name)
-
-        if (amount != "")
-            return amount
-
-        if (!IsObject(label) || (IsObject(node.rect) && !IsObject(label.rect)))
-            label := node
-    }
-
-    ; 2Â÷: Á¤È®ÇÑ ¶óº§ Å½»ö
-    if !IsObject(label)
-        label := SSOK_Expense_Win2_FindLabel(items, ["ÃÑ¿øÀÎÇàÀ§¾×", "ÃÑ ¿øÀÎÇàÀ§¾×"])
-
-    if !IsObject(label) || !IsObject(label.rect)
-        return ""
-
-    ; 3Â÷: ¶óº§°ú °°Àº Çà, ¿À¸¥ÂÊ¿¡ ÀÖ´Â ¼ýÀÚ/±Ý¾× °´Ã¼ Áß °¡Àå °¡±î¿î °Í
-    bestAmount := ""
-    bestScore := 2147483647
-
-    for _, node in items
-    {
-        if !IsObject(node.rect)
-            continue
-
-        dy := Abs(node.rect.cy - label.rect.cy)
-        if (dy > 70)
-            continue
-
-        dx := node.rect.cx - label.rect.cx
-        if (dx < 10)
-            continue
-
-        amount := SSOK_Expense_Win2_ExtractNumericAmount(node.value)
-
-        if (amount = "")
-            amount := SSOK_Expense_Win2_ExtractNumericAmount(node.name)
-
-        if (amount = "")
-            continue
-
-        ; °°Àº Çà + ¶óº§ ¹Ù·Î ¿À¸¥ÂÊÀ» ¿ì¼±
-        score := dy * 15 + Abs(dx - 180)
-
-        if (score < bestScore)
+        labels.Push(node)
+        value := SSOK_Expense_StrictAmount(node.value)
+        if (value != "")
         {
-            bestScore := score
-            bestAmount := amount
+            if (direct != "" && direct != value)
+                return ""
+            direct := value
         }
     }
+    if (direct != "")
+        return direct
+    if (labels.Length() != 1 || !IsObject(labels[1].rect))
+        return ""
+    label := labels[1].rect
+    best := ""
+    bestGap := 100000
+    for _, node in items
+    {
+        if (!IsObject(node.rect))
+            continue
+        r := node.rect
+        ; °°Àº ÁÙ¿¡¼­ ¶óº§ ¹Ù·Î ¿À¸¥ÂÊ °ª¸¸ Çã¿ëÇÕ´Ï´Ù. ³¯Â¥/¹®Àå ¼ýÀÚ´Â Á¦¿ÜÇÕ´Ï´Ù.
+        gap := r.x - (label.x + label.w)
+        if (Abs(r.cy - label.cy) > 8 || gap < -2 || gap > 120)
+            continue
+        value := SSOK_Expense_StrictAmount(node.value)
+        if (value = "")
+            value := SSOK_Expense_StrictAmount(node.name)
+        if (value = "")
+            continue
+        if (gap < bestGap)
+        {
+            bestGap := gap
+            best := value
+        }
+        else if (gap = bestGap && best != value)
+            return ""
+    }
+    return best
+}
 
-    return bestAmount
+SSOK_Expense_StrictAmount(text)
+{
+    text := Trim(text, " `t`r`n" . Chr(160))
+    if (!RegExMatch(text, "^([0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)\s*¿ø?$", m))
+        return ""
+    return StrReplace(m1, ",") + 0
 }
 
 SSOK_Expense_Win2_ExtractNumericAmount(text)
@@ -3907,10 +4266,35 @@ SSOK_Expense_Win2_ReplaceOverviewAmount(target, amount)
 }
 
 
-SSOK_Expense_Win2_Scan(root, target)
+SSOK_Expense_Win2_OpenContract(target)
 {
-    state := {items:[], nodes:0, limit:26000, deadline:A_TickCount + 9000, target:target, stopped:false}
+    if (!SSOK_Expense_Active(target))
+        return false
+    root := SSOK_Expense_MSAA_GetEdufineRoot(target, true)
+    if (!IsObject(root))
+        return false
+    scan := SSOK_Expense_Win2_Scan(root, target)
+    if (scan.stopped)
+        return false
+    hits := SSOK_Expense_Win2_FindExact(scan.items, ["°è¾à¼³Á¤"], "43")
+    if (hits.Length() != 1)
+        return false
+    ; Æ÷Ä¿½º¸¸ ¿Å±â´Â µ¿ÀÛÀ» Å¬¸¯ ¼º°øÀ¸·Î Ã³¸®ÇÏÁö ¾Ê½À´Ï´Ù.
+    try
+    {
+        hits[1].acc.accDoDefaultAction(hits[1].child)
+        SSOK_Expense_Log("win2-contract-action")
+        return true
+    }
+    catch
+        return false
+}
+SSOK_Expense_Win2_Scan(root, target, overviewOnly := false)
+{
+    state := {overviewOnly:overviewOnly, items:[], seen:{}, duplicates:0, nodes:0, limit:40000, deadline:A_TickCount + 30000, target:target, stopped:false}
+    started := A_TickCount
     SSOK_Expense_Win2_Walk(root, 0, state)
+    SSOK_Expense_Log("win2-scan-v3 duplicates=" . state.duplicates . " nodes=" . state.nodes . " items=" . state.items.Length() . " stopped=" . state.stopped . " reason=" . state.reason . " elapsedMs=" . (A_TickCount - started))
     return state
 }
 
@@ -3918,19 +4302,32 @@ SSOK_Expense_Win2_Walk(acc, depth, state)
 {
     if (state.stopped)
         return
-    if (depth > 70 || state.nodes >= state.limit || A_TickCount > state.deadline
-        || !WinActive("ahk_id " . state.target))
+    if (depth > 160 || state.nodes >= state.limit || A_TickCount > state.deadline
+        || !SSOK_Expense_Active(state.target))
     {
+        state.reason := depth > 160 ? "depth" : state.nodes >= state.limit ? "node-limit" : A_TickCount > state.deadline ? "timeout" : "inactive-or-cancelled"
         state.stopped := true
         return
     }
 
+    ; °°Àº COM °´Ã¼°¡ ¿©·¯ °æ·Î·Î ³ëÃâµÇ¾îµµ ÇÑ ¹ø¸¸ ÀÐ½À´Ï´Ù.
+    identity := SSOK_Expense_MSAA_Identity({acc:acc, child:0})
+    if (identity != "")
+    {
+        if (state.seen.HasKey(identity))
+        {
+            state.duplicates++
+            return
+        }
+        state.seen[identity] := acc
+    }
     state.nodes++
     status := SSOK_Expense_MSAA_Get(acc, "State", 0)
-    if (status != "" && (status & 0x8000))
+    ; ·çÆ® ¾Æ·¡ ¼û±è/È­¸é ¹Û ºÐ±â´Â ÇöÀç Ç¥½ÃµÈ Ç×¸ñ Å½»ö¿¡¼­ Á¦¿ÜÇÕ´Ï´Ù.
+    if (status != "" && ((status & 0x8000) || (depth > 0 && (status & 0x10000))))
         return
 
-    SSOK_Expense_Win2_Record(acc, 0, state)
+    SSOK_Expense_Win2_Record(acc, 0, state, status)
     children := SSOK_Expense_MSAA_GetChildren(acc)
     if !IsObject(children)
         return
@@ -3946,8 +4343,9 @@ SSOK_Expense_Win2_Walk(acc, depth, state)
         {
             state.nodes++
             if (state.nodes >= state.limit || A_TickCount > state.deadline
-                || !WinActive("ahk_id " . state.target))
+                || !SSOK_Expense_Active(state.target))
             {
+                state.reason := state.nodes >= state.limit ? "node-limit" : A_TickCount > state.deadline ? "timeout" : "inactive-or-cancelled"
                 state.stopped := true
                 return
             }
@@ -3956,17 +4354,34 @@ SSOK_Expense_Win2_Walk(acc, depth, state)
     }
 }
 
-SSOK_Expense_Win2_Record(acc, child, state)
+SSOK_Expense_Win2_Record(acc, child, state, status := "")
 {
+    role := SSOK_Expense_MSAA_Get(acc, "Role", child)
+    ; ±¸Á¶¿ë ÄÁÅ×ÀÌ³ÊÀÇ ÀÌ¸§/°ª/ÁÂÇ¥´Â ÀÔ·Â Ç×¸ñ ¸ÅÄª¿¡ »ç¿ëÇÏÁö ¾Ê½À´Ï´Ù.
+    if (InStr(",9,10,15,16,18,20,24,25,26,", "," . role . ","))
+        return
     name := Trim(SSOK_Expense_MSAA_Get(acc, "Name", child))
     value := Trim(SSOK_Expense_MSAA_Get(acc, "Value", child))
-    role := SSOK_Expense_MSAA_Get(acc, "Role", child)
-    status := SSOK_Expense_MSAA_Get(acc, "State", child)
+    if (status = "")
+        status := SSOK_Expense_MSAA_Get(acc, "State", child)
+    if (status != "" && (status & 0x8000))
+        return
 
     ; ÅØ½ºÆ®°¡ ¾ø´Â ÀÔ·Â/ÄÞº¸/¶óµð¿Àµµ ¶óº§ ±ÙÁ¢ Å½»ö¿¡ ÇÊ¿äÇÕ´Ï´Ù.
     if (name = "" && value = "" && role != 42 && role != 43 && role != 44 && role != 45 && role != 46)
         return
 
+    ; Win+3Àº ÃÑ¾×/°³¿ä ÈÄº¸¿¡¸¸ ÁÂÇ¥¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+    ; ÀüÃ¼ ÄÁÆ®·ÑÀÇ accLocation È£ÃâÀ» ÇÇÇÏµÇ Å½»ö ÀÚÃ¼´Â ³¡±îÁö ¼öÇàÇÕ´Ï´Ù.
+    if (state.overviewOnly)
+    {
+        n := SSOK_Expense_Win2_Normalize(name)
+        relevant := RegExMatch(n, "^(ÃÑ¿øÀÎÇàÀ§¾×|¿øÀÎÇàÀ§ÃÑ¾×)(\(¿ø\))?$")
+            || (role = 42 && RegExMatch(value, "¼Ò¿ä¿¹»ê\s*[:£º]"))
+            || SSOK_Expense_StrictAmount(value) != "" || SSOK_Expense_StrictAmount(name) != ""
+        if (!relevant)
+            return
+    }
     rect := SSOK_Expense_Win2_GetRect(acc, child)
     state.items.Push({acc:acc, child:child, name:name, value:value, role:role, state:status, rect:rect})
 }
@@ -4124,11 +4539,11 @@ SSOK_Expense_Win2_SetInspectionNo(target, items)
     noNode := ""
 
     if IsObject(label)
-        noNode := SSOK_Expense_Win2_FindNear(items, label, "45,44,43,42", ["¾Æ´Ï¿À"], 80)
+        noNode := SSOK_Expense_Win2_FindNear(items, label, "45,44,43,42", ["¾Æ´Ï¿À", "¾Æ´Ï¿ä"], 80)
 
     if !IsObject(noNode)
     {
-        hits := SSOK_Expense_Win2_FindExact(items, ["¾Æ´Ï¿À"], "45,44,43")
+        hits := SSOK_Expense_Win2_FindExact(items, ["¾Æ´Ï¿À", "¾Æ´Ï¿ä"], "45,44,43")
         if (hits.Length() = 1)
             noNode := hits[1]
     }
@@ -4143,6 +4558,29 @@ SSOK_Expense_Win2_SetInspectionNo(target, items)
     return SSOK_Expense_Win2_ActivateNode(noNode, target)
 }
 
+SSOK_Expense_Win2_SelectOwnKeys(target)
+{
+    if (!SSOK_Expense_Active(target))
+        return false
+    SendInput, !{Down}
+    Sleep, 150
+    if (!SSOK_Expense_Active(target))
+        return false
+    SendInput, {Home}
+    Sleep, 80
+    Loop, 4
+    {
+        if (!SSOK_Expense_Active(target))
+            return false
+        SendInput, {Down}
+        Sleep, 80
+    }
+    if (!SSOK_Expense_Active(target))
+        return false
+    SendInput, {Enter}
+    Sleep, 180
+    return SSOK_Expense_Active(target)
+}
 SSOK_Expense_Win2_SetProcurementOwn(target, items)
 {
     labelNames := ["ÀüÀÚÁ¶´Þ±¸¸Å", "ÀüÀÚµµ´Þ±¸¸Å"]
@@ -4173,43 +4611,30 @@ SSOK_Expense_Win2_SetProcurementOwn(target, items)
         || SSOK_Expense_Win2_Normalize(combo.name) = "ÀÚÃ¼")
         return true
 
-    ; ½ÇÁ¦ ÀüÀÚÁ¶´Þ±¸¸Å ÄÁÆ®·ÑÀ» Ã£¾Æ¼­ ¸ñ·ÏÀ» ¿±´Ï´Ù.
-    if (!SSOK_Expense_Win2_ActivateNode(combo, target))
-        return false
-    Sleep, 260
-
-    root := SSOK_Expense_MSAA_GetEdufineRoot(target, true)
-    if !IsObject(root)
-        return false
-    scan := SSOK_Expense_Win2_Scan(root, target)
-    if (!IsObject(scan) || scan.stopped)
-        return false
-
-    ownHits := SSOK_Expense_Win2_FindExact(scan.items, ["ÀÚÃ¼"])
-    if (!ownHits.Length())
-        return false
-
-    ; ÆîÃÄÁø ¸ñ·Ï¿¡¼­ ¿ø·¡ ÄÞº¸¹Ú½º¿Í °¡Àå °¡±î¿î 'ÀÚÃ¼' Ç×¸ñÀ» ¼±ÅÃÇÕ´Ï´Ù.
-    own := ""
-    best := 2147483647
-    for _, node in ownHits
+    ; ¸ñ·Ï: ¼±ÅÃ / G2B(Áß¾ÓÁ¶´Þ) / S2B / eaT / ÀÚÃ¼ / G2B(ÀÚÃ¼Á¶´Þ)
+    ; ±âº»µ¿ÀÛÀÌ Æ÷Ä¿½º¸¸ ¿Å±â´Â Nexacro ÄÞº¸µµ ¸í½ÃÀûÀ¸·Î ÆîÄ¨´Ï´Ù.
+    if (!SSOK_Expense_MSAA_FocusField(combo, target))
     {
-        if (!IsObject(node.rect))
-            continue
-        if (IsObject(combo.rect))
-            score := Abs(node.rect.cx - combo.rect.cx) + Abs(node.rect.cy - combo.rect.cy)
-        else
-            score := 0
-        if (score < best)
-        {
-            best := score
-            own := node
-        }
+        SSOK_Expense_Log("win2-procurement-focus-failed")
+        return false
     }
-    if (!IsObject(own))
-        own := ownHits[1]
-
-    return SSOK_Expense_Win2_ActivateNode(own, target)
+    if (!SSOK_Expense_Win2_SelectOwnKeys(target))
+        return false
+    ; Å° Àü¼Û ¼º°ø¸¸À¸·Î ¿Ï·á·Î º¸°íÇÏÁö ¾Ê½À´Ï´Ù.
+    Loop, 4
+    {
+        if (!SSOK_Expense_Active(target))
+            return false
+        current := SSOK_Expense_MSAA_Get(combo.acc, "Value", combo.child)
+        if (SSOK_Expense_Win2_Normalize(current) = "ÀÚÃ¼")
+        {
+            SSOK_Expense_Log("win2-procurement-own-verified")
+            return true
+        }
+        Sleep, 150
+    }
+    SSOK_Expense_Log("win2-procurement-selection-not-verified")
+    return false
 }
 
 SSOK_Expense_Win2_ReadOverviewAmount(target, items := "")
@@ -4320,13 +4745,19 @@ SSOK_Expense_Win2_SetCauseAmount(target, items, amount)
 ; - Win+1 / Win+2 / Win+3 °ü·Ã ±â´ÉÀ» expense ¸ðµâ¿¡¼­ ÀÏ°ý °ü¸®
 ; =========================================================
 ; =========================================================
-; Win + 3 : K-¿¡µàÆÄÀÎ »ç¿ëÀÚ ÁöÁ¤ Tab ¼ø¼­ ½ÇÇà
+; Win + 4 : K-¿¡µàÆÄÀÎ »ç¿ëÀÚ ÁöÁ¤ Tab ¼ø¼­ ½ÇÇà
 ; ---------------------------------------------------------
 ; ¼ø¼­: Tab 12 ¡æ Left 1 ¡æ Tab 7 ¡æ Space ¡æ Tab 1 ¡æ Space ¡æ Tab 16 ¡æ Down 1
 ; =========================================================
 #If SSOK_Expense_HotkeyContext()
 #3::
-    Gosub, SSOK_Expense_DoWin3_KEdufine_TabSeq
+    KeyWait, LWin
+    KeyWait, RWin
+    SSOK_Expense_Win3Overview()
+return
+
+#4::
+    Gosub, SSOK_Expense_DoWin4_KEdufine_TabSeq
 return
 #If
 
@@ -4368,7 +4799,7 @@ SSOK_Expense_Win1_AutoAfterTypeConfirm_Run:
     SSOK_Expense_Win1_AutoAfterTypeConfirmPending := 0
 return
 
-SSOK_Expense_DoWin3_KEdufine_TabSeq:
+SSOK_Expense_DoWin4_KEdufine_TabSeq:
     KeyWait, LWin
     KeyWait, RWin
     SendInput, {LWin up}{RWin up}{Alt up}{Ctrl up}{Shift up}
@@ -4464,3 +4895,548 @@ SSOK_Expense_IsCauseTypeWindowActive()
 SSOK_Expense_Win1_TabSeq_ClearTip:
     ToolTip
 return
+
+
+SSOK_Expense_Win3AmountText(text, amount)
+{
+    ; Win+3¿¡¼­´Â ¼ýÀÚ ÃÑ±Ý¾×¸¸ ¹Ù²Ù°í, ÇÑ±Û ±Ý¾× ÀÛ¼ºÀº ¸¶Áö¸· Win+F2¿¡ ¸Ã±é´Ï´Ù.
+    replacement := "±Ý" . SSOK_Expense_FormatNumber(amount) . "¿ø"
+
+    ; Win+F2ÀÇ ±Ý¾× ÀÎ½Ä ¿ë¾î¸¦ ±âÁØÀ¸·Î ÃÑ±Ý¾× ¼º°ÝÀÇ Ç×¸ñ¸¸ ±³Ã¼ÇÕ´Ï´Ù.
+    ; ´Ü°¡/°³´ç ±Ý¾×Àº ´ë»ó¿¡ Æ÷ÇÔÇÏÁö ¾Ê½À´Ï´Ù.
+    labels := "ÃÑ±Ý¾×|ÃÑ¾×|ÇÕ°è±Ý¾×|ÇÕ°è¾×|ÇÕ°è|±¸¸Å±Ý¾×|±¸¸Å¾×|±¸ÀÔ±Ý¾×|±¸ÀÔ¾×|Áö±Þ±Ý¾×|Áö±Þ¾×|ÁýÇà±Ý¾×|ÁýÇà¾×|°è¾à±Ý¾×|¿øÀÎÇàÀ§±Ý¾×|¼Ò¿ä±Ý¾×|¼Ò¿ä¾×|¼Ò¿ä¿¹»ê|¿¹»ê±Ý¾×|¿¹»ê¾×|¿¹»ê|°­»çºñ|°­»ç·á|¿©ºñ|±Ý¾×"
+
+    ; ±âÁ¸ ¼ýÀÚ µÚ¿¡ ºÙÀº ÇÑ±Û ±Ý¾×Àº ¸ðµÎ Áö¿ó´Ï´Ù.
+    ; ¿¹: ±Ý207,000¿ø(±ÝÀÌ½Ê¸¸Ä¥Ãµ¿ø)(ÀÌ½Ê¸¸Ä¥Ãµ¿øÁ¤) -> ±Ý151,560¿ø
+    ; ÀÌÈÄ Win+F2°¡ ¼±ÅÃµÈ °³¿ä ÀüÃ¼¸¦ ´Ù½Ã Á¤¸®ÇÏ¸é¼­ »õ ¼ýÀÚ ±âÁØ ÇÑ±Û±Ý¾×À» ÀÛ¼ºÇÕ´Ï´Ù.
+    oldKoreanAmount := "(?:±Ý[ `t]*[¿µÀÏÀÌ»ï»ç¿ÀÀ°Ä¥ÆÈ±¸½Ê¹éÃµ¸¸¾ïÁ¶°æ0-9, `t]+[ `t]*¿ø(?:Á¤)?|[¿µÀÏÀÌ»ï»ç¿ÀÀ°Ä¥ÆÈ±¸½Ê¹éÃµ¸¸¾ïÁ¶°æ0-9, `t]+[ `t]*¿ø(?:Á¤)?)"
+    pattern := "(?<![°¡-ÆRA-Za-z0-9])(" . labels . "[ `t]*[:£º]?[ `t]*)±Ý?[ `t]*[0-9][0-9,]*[ `t]*¿ø?(?:[ `t]*\(" . oldKoreanAmount . "\))*"
+
+    pos := RegExMatch(text, pattern, m)
+    if (!pos)
+        return ""
+
+    return SubStr(text, 1, pos - 1) . m1 . replacement . SubStr(text, pos + StrLen(m))
+}
+
+SSOK_Expense_Win3Overview()
+{
+    global SSOK_ExpenseBusy, SSOK_ExpenseCancel
+    if (SSOK_ExpenseBusy)
+        return false
+    target := WinExist("A")
+    SSOK_ExpenseCancel := false
+    SSOK_ExpenseBusy := true
+    try
+    {
+        SSOK_Expense_Win3Progress(target)
+
+        ; 1¼øÀ§: ÀÌÀü¿¡ Ã£Àº ¿øÀÎÇàÀ§ÃÑ¾× ¶óº§ À§Ä¡¸¦ ¹Ù·Î ÀÐ½À´Ï´Ù.
+        ; MSAA Æ®¸® ÀüÃ¼¸¦ ´Ù½Ã ÈÈÁö ¾ÊÀ¸¹Ç·Î ¹Ýº¹ ½ÇÇà ½Ã °¡Àå ºü¸¨´Ï´Ù.
+        amount := SSOK_Expense_Win3_ReadTotalCauseCached(target)
+
+        ; ÀúÀå À§Ä¡°¡ ¾ø°Å³ª È­¸é À§Ä¡°¡ ´Þ¶óÁ³À» ¶§¸¸ ±âÁ¸ Fast Å½»öÀ» 1È¸ »ç¿ëÇÕ´Ï´Ù.
+        ; ¼º°øÇÏ¸é À§Ä¡¸¦ ´Ù½Ã ÀúÀåÇÏ¿© ´ÙÀ½ Win+3ºÎÅÍ Áï½Ã ÀÐ½À´Ï´Ù.
+        if (amount = "")
+            amount := SSOK_Expense_Win3_FindTotalCauseFast(target)
+
+        ; ±âÁ¸ ÀüÃ¼ MSAA ½ºÄµÀº »èÁ¦ÇÏÁö ¾Ê°í º¸·ùÇÕ´Ï´Ù.
+        ; Win+3¿¡¼­´Â ¼Óµµ ¶§¹®¿¡ ½ÇÇàÇÏÁö ¾Ê½À´Ï´Ù.
+        if (amount = "")
+        {
+            root := SSOK_Expense_MSAA_GetEdufineRoot(target, true)
+            if (!IsObject(root))
+                throw Exception("K-¿¡µàÆÄÀÎ È­¸éÀ» Ã£Áö ¸øÇß½À´Ï´Ù.")
+            scan := SSOK_Expense_Win2_Scan(root, target, true)
+            if (scan.stopped)
+                throw Exception("È­¸é Å½»öÀÌ Áß´ÜµÇ¾ú½À´Ï´Ù. ¿øÀÎÇàÀ§ÃÑ¾×ÀÌ º¸ÀÌ°Ô ÇÑ µÚ ´Ù½Ã ½ÇÇàÇØ ÁÖ¼¼¿ä.")
+            amount := SSOK_Expense_Win2_ReadTotalCauseAmount(scan.items)
+            if (amount != "")
+                SSOK_Expense_Win3_RememberTotal(scan.items, target)
+        }
+
+        if (amount = "")
+            throw Exception("¿øÀÎÇàÀ§ÃÑ¾×À» Ã£Áö ¸øÇß½À´Ï´Ù.")
+
+        ; °³¿ä ÀÔ·Â¶õÀº Ã£Áö ¾Ê½À´Ï´Ù. »ç¿ëÀÚ°¡ ÇöÀç Ä¿¼­¸¦ µÐ ÀÔ·ÂÄ­À» ±×´ë·Î »ç¿ëÇÕ´Ï´Ù.
+        if (!SSOK_Expense_Active(target))
+            return false
+
+        saved := ClipboardAll
+        try
+        {
+            Clipboard := ""
+            SendInput, ^a
+            Sleep, 40
+            SendInput, ^c
+            ClipWait, 0.5
+            if (ErrorLevel)
+                throw Exception("ÇöÀç ÀÔ·Â¶õÀÇ ³»¿ëÀ» ÀÐÁö ¸øÇß½À´Ï´Ù.")
+            current := Clipboard
+
+            if (Trim(current) = "")
+                throw Exception("ÇöÀç ÀÔ·Â¶õÀÌ ºñ¾î ÀÖ¾î Á¤¸®ÇÒ ³»¿ëÀÌ ¾ø½À´Ï´Ù.")
+            if (DOC_FindTableStartLine(current) > 0)
+                throw Exception("ÇöÀç ÀÔ·Â¶õ¿¡ Ç¥°¡ ÀÖ¾î ÀÚµ¿ Á¤¸®¸¦ Áß´ÜÇß½À´Ï´Ù.")
+
+            changed := SSOK_Expense_Win3AmountText(current, amount)
+            if (changed = "")
+                throw Exception("ÇöÀç ÀÔ·Â¶õ¿¡¼­ ÃÑ¾×¡¤±Ý¾×¡¤±¸¸Å¾×¡¤Áö±Þ¾× µî ÃÑ±Ý¾× Ç×¸ñÀ» Ã£Áö ¸øÇß½À´Ï´Ù. ±âÁ¸ ³»¿ëÀº À¯ÁöµË´Ï´Ù.")
+
+            Clipboard := ""
+            Clipboard := changed
+            ClipWait, 0.5
+            if (ErrorLevel || !SSOK_Expense_Active(target))
+                throw Exception("±Ý¾×À» ÀÔ·ÂÇÒ ÁØºñ¸¦ ÇÏÁö ¸øÇß½À´Ï´Ù.")
+
+            SendInput, ^a
+            Sleep, 30
+            SendInput, ^v
+            Sleep, 120
+        }
+        finally
+        {
+            Clipboard := saved
+            saved := ""
+        }
+
+        ; ¼ø¼­ °íÁ¤:
+        ; 1) ¼ýÀÚ ÃÑ±Ý¾× ±³Ã¼  2) ±âÁ¸ ÇÑ±Û±Ý¾× »èÁ¦  3) °³¿ä ÀüÃ¼ ¼±ÅÃ  4) ¸¶Áö¸·¿¡ ±âÁ¸ Win+F2 ½ÇÇà
+        if (!SSOK_Expense_Active(target))
+            return false
+        SendInput, ^a
+        Sleep, 120
+        SSOK_Expense_Win3Progress(0)
+
+        ; Win+3 ÇÔ¼ö ³»ºÎ¿¡¼­ ¹Ù·Î SSOK_DoF2¸¦ È£ÃâÇÏÁö ¾Ê½À´Ï´Ù.
+        ; ÇÔ¼ö°¡ ¿ÏÀüÈ÷ Á¾·áµÈ µÚ º°µµ Å¸ÀÌ¸Ó¿¡¼­ ÇöÀç °³¿ä¸¦ ´Ù½Ã ÀüÃ¼ ¼±ÅÃÇÏ°í
+        ; ±âÁ¸ Win+F2 ·çÆ¾(SSOK_DoF2)À» ½ÇÇàÇÕ´Ï´Ù.
+        SetTimer, SSOK_Expense_Win3_RunFinalF2, -180
+        return true
+    }
+    catch error
+    {
+        SSOK_Expense_Win3Progress(0)
+        MsgBox, 48, °£Æí ¿øÀÎÇàÀ§ Win+3, % error.Message
+        return false
+    }
+    finally
+    {
+        SSOK_Expense_Win3Progress(0)
+        SSOK_ExpenseBusy := false
+    }
+}
+
+; ------------------------------------------------------------
+; Win+3 ¸¶Áö¸· Win+F2 ½ÇÇà
+; - Win+3 ÇÔ¼ö°¡ ¿ÏÀüÈ÷ ³¡³­ µÚ º°µµ ½º·¹µå¿¡¼­ ½ÇÇà
+; - ÇöÀç °³¿ä ÀÔ·ÂÄ­À» ´Ù½Ã ÀüÃ¼ ¼±ÅÃÇÑ ÈÄ ±âÁ¸ SSOK_DoF2¸¦ ±×´ë·Î È£Ãâ
+; ------------------------------------------------------------
+SSOK_Expense_Win3_RunFinalF2:
+    SendInput, {End}
+    Sleep, 120
+    Gosub, SSOK_DoF2
+return
+
+
+; ------------------------------------------------------------
+; Win+3 ¿øÀÎÇàÀ§ÃÑ¾× À§Ä¡ Ä³½Ã
+; - ÇÑ ¹ø Ã£Àº ¶óº§ À§Ä¡¸¦ Ã¢ ±âÁØ »ó´ëÁÂÇ¥·Î ÀúÀåÇÕ´Ï´Ù.
+; - ´ÙÀ½ ½ÇÇàºÎÅÍ´Â Æ®¸® Å½»ö ¾øÀÌ ÇØ´ç À§Ä¡¸¸ Á÷Á¢ È®ÀÎÇÕ´Ï´Ù.
+; - È­¸é ¹èÄ¡°¡ ´Þ¶óÁ® ÀÐ±â¿¡ ½ÇÆÐÇÏ¸é ±âÁ¸ Fast Å½»öÀ¸·Î ÀÚµ¿ ÀçÇÐ½ÀÇÕ´Ï´Ù.
+; ------------------------------------------------------------
+SSOK_Expense_Win3_ReadTotalCauseCached(target)
+{
+    if (!SSOK_Expense_Active(target))
+        return ""
+
+    file := SSOK_Expense_PathCacheFile()
+    IniRead, rx, %file%, ExpenseMSAA, TotalLabelX, ERROR
+    IniRead, ry, %file%, ExpenseMSAA, TotalLabelY, ERROR
+    IniRead, rw, %file%, ExpenseMSAA, TotalLabelW, ERROR
+    IniRead, rh, %file%, ExpenseMSAA, TotalLabelH, ERROR
+
+    if (rx = "ERROR" || ry = "ERROR" || rw = "ERROR" || rh = "ERROR")
+        return ""
+
+    WinGetPos, wx, wy,,, ahk_id %target%
+    if (wx = "" || wy = "")
+        return ""
+
+    rect := {x:wx + rx + 0, y:wy + ry + 0, w:rw + 0, h:rh + 0}
+    rect.cx := rect.x + rect.w/2
+    rect.cy := rect.y + rect.h/2
+
+    ; ¶óº§ °´Ã¼ ÀÚÃ¼¿¡ ±Ý¾×ÀÌ °°ÀÌ ³ëÃâµÇ´Â È¯°æÀ» ¸ÕÀú 1È¸ Á¡ Á¶È¸ÇÕ´Ï´Ù.
+    hit := SSOK_Expense_Win3ProgressPoint(Round(rect.cx), Round(rect.cy))
+    if (!SSOK_Expense_Win3_IsTotalLabel(hit))
+        return ""
+    if (IsObject(hit))
+    {
+        amount := SSOK_Expense_StrictAmount(SSOK_Expense_MSAA_Get(hit.acc, "Value", hit.child))
+        if (amount = "")
+            amount := SSOK_Expense_StrictAmount(SSOK_Expense_MSAA_Get(hit.acc, "Name", hit.child))
+        if (amount != "")
+            return amount
+    }
+
+    ; ÀÏ¹Ý Nexacro È­¸éÀº ÀúÀåµÈ ¶óº§ ¹Ù·Î ¿À¸¥ÂÊÀÇ ±Ý¾×¸¸ È®ÀÎÇÕ´Ï´Ù.
+    return SSOK_Expense_Win3_AmountRightOfLabel(rect, target)
+}
+
+SSOK_Expense_Win3_SaveTotalCauseCache(rect, target)
+{
+    if (!IsObject(rect) || !SSOK_Expense_Active(target))
+        return false
+
+    WinGetPos, wx, wy,,, ahk_id %target%
+    if (wx = "" || wy = "")
+        return false
+
+    rx := Round(rect.x - wx)
+    ry := Round(rect.y - wy)
+    rw := Round(rect.w)
+    rh := Round(rect.h)
+
+    file := SSOK_Expense_PathCacheFile()
+    IniWrite, %rx%, %file%, ExpenseMSAA, TotalLabelX
+    IniWrite, %ry%, %file%, ExpenseMSAA, TotalLabelY
+    IniWrite, %rw%, %file%, ExpenseMSAA, TotalLabelW
+    IniWrite, %rh%, %file%, ExpenseMSAA, TotalLabelH
+    return true
+}
+
+; ------------------------------------------------------------
+; Win+3 Àü¿ë ¿øÀÎÇàÀ§ÃÑ¾× ºü¸¥ Å½»ö
+; - ±âÁ¸ Win+2 ÀüÃ¼ ½ºÄµ ÇÔ¼ö´Â ¼öÁ¤/»èÁ¦ÇÏÁö ¾Ê½À´Ï´Ù.
+; - Name/Value¸¸ ÃÖ¼Ò Á¶È¸ÇÏ°í ¶óº§ ¹ß°ß Áï½Ã Áß´ÜÇÕ´Ï´Ù.
+; - ¶óº§ ¿À¸¥ÂÊ 120px ¹üÀ§¸¦ AccessibleObjectFromPoint·Î È®ÀÎÇÕ´Ï´Ù.
+; - ½ÇÆÐÇÏ¸é È£ÃâºÎ¿¡¼­ ±âÁ¸ ÀüÃ¼ MSAA ½ºÄµÀ¸·Î ÀÚµ¿ fallback ÇÕ´Ï´Ù.
+; ------------------------------------------------------------
+SSOK_Expense_Win3_FindTotalCauseFast(target)
+{
+    if (!SSOK_Expense_Active(target))
+        return ""
+
+    started := A_TickCount
+    root := SSOK_Expense_MSAA_GetEdufineRoot(target, false)
+    if (!IsObject(root))
+        root := SSOK_Expense_MSAA_GetEdufineRoot(target, true)
+    if (!IsObject(root))
+        return ""
+
+    ; ºü¸¥ °Ë»öµµ ±âÁ¸ ÀüÃ¼ °Ë»ö°ú µ¿ÀÏÇÏ°Ô Áßº¹ °´Ã¼¸¦ Á¦°ÅÇÏ°í ¼û±è/È­¸é ¹Û °¡Áö¸¦ °Ç³Ê¶Ý´Ï´Ù.
+    ; ºÒÇÊ¿äÇÑ ¹Ýº¹ Å½»öÀ» Å©°Ô ÁÙÀÌµÇ, ´À¸° PC¿¡¼­µµ ³Ê¹« ÀÏÂï Á¾·áµÇÁö ¾Êµµ·Ï ÃÖ´ë 6ÃÊ¸¸ Çã¿ëÇÕ´Ï´Ù.
+    state := {target:target, nodes:0, limit:30000, deadline:A_TickCount + 6000
+        , found:"", stopped:false, seen:{}, duplicates:0}
+    SSOK_Expense_Win3_WalkTotalFast(root, 0, state)
+
+    if (!IsObject(state.found))
+    {
+        SSOK_Expense_Log("win3-fast-total miss nodes=" . state.nodes . " duplicates=" . state.duplicates . " elapsedMs=" . (A_TickCount - started))
+        return ""
+    }
+
+    ; ¶óº§ °´Ã¼ ÀÚÃ¼ Value¿¡ ±Ý¾×ÀÌ °°ÀÌ ³ëÃâµÇ´Â °æ¿ì°¡ °¡Àå ºü¸¨´Ï´Ù.
+    amount := SSOK_Expense_StrictAmount(state.found.value)
+    if (amount = "")
+        amount := SSOK_Expense_StrictAmount(state.found.name)
+    if (amount != "")
+    {
+        if (IsObject(state.found.rect))
+            SSOK_Expense_Win3_SaveTotalCauseCache(state.found.rect, target)
+        SSOK_Expense_Log("win3-fast-total direct nodes=" . state.nodes . " duplicates=" . state.duplicates . " elapsedMs=" . (A_TickCount - started))
+        return amount
+    }
+
+    ; ÀÏ¹ÝÀûÀÎ Nexacro È­¸é: ¶óº§ ¹Ù·Î ¿À¸¥ÂÊÀÇ ±Ý¾× ÄÁÆ®·ÑÀ» Á¡ Á¶È¸ÇÕ´Ï´Ù.
+    if (IsObject(state.found.rect))
+    {
+        amount := SSOK_Expense_Win3_AmountRightOfLabel(state.found.rect, target)
+        if (amount != "")
+        {
+            SSOK_Expense_Win3_SaveTotalCauseCache(state.found.rect, target)
+            SSOK_Expense_Log("win3-fast-total point nodes=" . state.nodes . " duplicates=" . state.duplicates . " elapsedMs=" . (A_TickCount - started))
+            return amount
+        }
+    }
+
+    SSOK_Expense_Log("win3-fast-total label-only nodes=" . state.nodes . " duplicates=" . state.duplicates . " elapsedMs=" . (A_TickCount - started))
+    return ""
+}
+
+SSOK_Expense_Win3_WalkTotalFast(acc, depth, state)
+{
+    if (state.stopped || IsObject(state.found))
+        return
+
+    if (depth > 160 || state.nodes >= state.limit || A_TickCount > state.deadline
+        || !SSOK_Expense_Active(state.target))
+    {
+        state.stopped := true
+        return
+    }
+
+    ; °°Àº COM/MSAA °´Ã¼°¡ ¿©·¯ °æ·Î·Î ¹Ýº¹ ³ëÃâµÇ´Â °æ¿ì ÇÑ ¹ø¸¸ Å½»öÇÕ´Ï´Ù.
+    identity := SSOK_Expense_MSAA_Identity({acc:acc, child:0})
+    if (identity != "")
+    {
+        if (state.seen.HasKey(identity))
+        {
+            state.duplicates++
+            return
+        }
+        state.seen[identity] := true
+    }
+
+    ; ¼û±è ¶Ç´Â È­¸é ¹ÛÀÇ Å« °¡Áö´Â ³»·Á°¡Áö ¾Ê½À´Ï´Ù.
+    status := SSOK_Expense_MSAA_Get(acc, "State", 0)
+    if (status != "" && ((status & 0x8000) || (depth > 0 && (status & 0x10000))))
+        return
+
+    state.nodes++
+    SSOK_Expense_Win3_CheckTotalNode(acc, 0, state)
+    if (IsObject(state.found) || state.stopped)
+        return
+
+    children := SSOK_Expense_MSAA_GetChildren(acc)
+    if (!IsObject(children))
+        return
+
+    for _, item in children
+    {
+        if (state.stopped || IsObject(state.found))
+            return
+
+        if (state.nodes >= state.limit || A_TickCount > state.deadline
+            || !SSOK_Expense_Active(state.target))
+        {
+            state.stopped := true
+            return
+        }
+
+        if (item.kind = 2)
+            SSOK_Expense_Win3_WalkTotalFast(item.acc, depth + 1, state)
+        else
+        {
+            state.nodes++
+            SSOK_Expense_Win3_CheckTotalNode(acc, item.id, state)
+        }
+    }
+}
+
+SSOK_Expense_Win3_CheckTotalNode(acc, child, state)
+{
+    ; ¼û±è child´Â ÀÌ¸§/°ª Á¶È¸ ÀÚÃ¼¸¦ »ý·«ÇÕ´Ï´Ù.
+    childState := SSOK_Expense_MSAA_Get(acc, "State", child)
+    if (childState != "" && (childState & 0x8000))
+        return
+
+    ; ´ëºÎºÐÀÇ ¶óº§Àº Name¿¡ ÀÖÀ¸¹Ç·Î NameÀ» ¸ÕÀú º¸°í,
+    ; NameÀÌ ÀÏÄ¡ÇÏÁö ¾ÊÀ» ¶§¸¸ Value¸¦ Ãß°¡ Á¶È¸ÇÕ´Ï´Ù.
+    name := Trim(SSOK_Expense_MSAA_Get(acc, "Name", child))
+    n := SSOK_Expense_Win2_Normalize(name)
+    value := ""
+
+    if (!RegExMatch(n, "^(ÃÑ¿øÀÎÇàÀ§¾×|¿øÀÎÇàÀ§ÃÑ¾×)(\(¿ø\))?$"))
+    {
+        value := Trim(SSOK_Expense_MSAA_Get(acc, "Value", child))
+        v := SSOK_Expense_Win2_Normalize(value)
+        if (!RegExMatch(v, "^(ÃÑ¿øÀÎÇàÀ§¾×|¿øÀÎÇàÀ§ÃÑ¾×)(\(¿ø\))?$"))
+            return
+    }
+    else
+        value := Trim(SSOK_Expense_MSAA_Get(acc, "Value", child))
+
+    rect := SSOK_Expense_Win2_GetRect(acc, child)
+
+    ; È­¸é ¹Û/¼û±è º¹Á¦ °´Ã¼°¡ ¸ÕÀú ÀâÈ÷¸é ½ÇÁ¦ Ç¥½Ã ¶óº§À» °è¼Ó Ã£½À´Ï´Ù.
+    if (!IsObject(rect) && SSOK_Expense_StrictAmount(value) = "")
+        return
+
+    state.found := {acc:acc, child:child, name:name, value:value, rect:rect}
+}
+
+SSOK_Expense_Win3_AmountRightOfLabel(labelRect, target)
+{
+    global SSOK_ExpenseTotalValueCache
+    if (!IsObject(labelRect) || !SSOK_Expense_Active(target))
+        return ""
+
+    cache := SSOK_ExpenseTotalValueCache
+    if (IsObject(cache) && cache.target = target)
+    {
+        r := SSOK_Expense_Win2_GetRect(cache.hit.acc, cache.hit.child)
+        if (IsObject(r) && Abs(r.cy - labelRect.cy) <= 8
+            && r.x >= labelRect.x + labelRect.w - 2 && r.x <= labelRect.x + labelRect.w + 120)
+        {
+            value := SSOK_Expense_StrictAmount(SSOK_Expense_MSAA_Get(cache.hit.acc, "Value", cache.hit.child))
+            if (value != "")
+            {
+
+                return value
+            }
+        }
+        SSOK_ExpenseTotalValueCache := ""
+    }
+    ; ±âÁ¸ ÆÇÁ¤°ú µ¿ÀÏÇÏ°Ô '°°Àº ÁÙ + ¶óº§ ¿À¸¥ÂÊ 120px ÀÌ³»'¸¸ Çã¿ëÇÕ´Ï´Ù.
+    startX := Round(labelRect.x + labelRect.w + 2)
+    centerY := Round(labelRect.cy)
+    yOffsets := [0, -4, 4]
+    seen := {}
+
+    Loop, 16
+    {
+        x := startX + (A_Index - 1) * 8
+        for _, dy in yOffsets
+        {
+            if (!SSOK_Expense_Active(target))
+                return ""
+
+            hit := SSOK_Expense_Win3ProgressPoint(x, centerY + dy)
+            if (!IsObject(hit))
+                continue
+
+            key := SSOK_Expense_MSAA_Identity(hit)
+            if (key != "" && seen.HasKey(key))
+                continue
+            if (key != "")
+                seen[key] := true
+
+            value := SSOK_Expense_StrictAmount(SSOK_Expense_MSAA_Get(hit.acc, "Value", hit.child))
+            if (value = "")
+                value := SSOK_Expense_StrictAmount(SSOK_Expense_MSAA_Get(hit.acc, "Name", hit.child))
+            if (value != "")
+            {
+                SSOK_ExpenseTotalValueCache := {target:target, hit:hit}
+                return value
+            }
+        }
+    }
+
+    return ""
+}
+
+
+SSOK_Expense_Win3FindOverview(items)
+{
+    ; Nexacro´Â '°³¿ä' ¶óº§°ú ÀÌ¸§ ¾ø´Â ½ÇÁ¦ ÆíÁýÄ­À» º°µµ·Î ³ëÃâÇÕ´Ï´Ù.
+    ; ¼Ò¿ä¿¹»ê ¹®ÀåÀÌ ´ã±ä À¯ÀÏÇÑ ÆíÁýÄ­À» Ã£°í, º¹¼öÀÌ¸é ÃßÃøÇÏÁö ¾Ê½À´Ï´Ù.
+    found := ""
+    seen := {}
+    for _, node in items
+    {
+        if (node.role != 42 || !RegExMatch(node.value, "¼Ò¿ä¿¹»ê\s*[:£º]"))
+            continue
+        if (!SSOK_Expense_MSAA_Usable(node.acc, node.child, true))
+            continue
+        key := SSOK_Expense_MSAA_Identity(node)
+        if (key != "" && seen.HasKey(key))
+            continue
+        if (key != "")
+            seen[key] := true
+        if (IsObject(found))
+            return ""
+        found := node
+    }
+    return found
+}
+SSOK_Expense_Win3_IsTotalLabel(hit)
+{
+    if (!IsObject(hit))
+        return false
+    name := SSOK_Expense_Win2_Normalize(SSOK_Expense_MSAA_Get(hit.acc, "Name", hit.child))
+    value := SSOK_Expense_Win2_Normalize(SSOK_Expense_MSAA_Get(hit.acc, "Value", hit.child))
+    return RegExMatch(name, "^(ÃÑ¿øÀÎÇàÀ§¾×|¿øÀÎÇàÀ§ÃÑ¾×)(\(¿ø\))?$")
+        || RegExMatch(value, "^(ÃÑ¿øÀÎÇàÀ§¾×|¿øÀÎÇàÀ§ÃÑ¾×)(\(¿ø\))?$")
+}
+
+SSOK_Expense_Win3_RememberTotal(items, target)
+{
+    hits := []
+    for _, node in items
+    {
+        if (SSOK_Expense_Win3_IsTotalLabel(node) && IsObject(node.rect))
+            hits.Push(node)
+    }
+    if (hits.Length() = 1)
+        SSOK_Expense_Win3_SaveTotalCauseCache(hits[1].rect, target)
+}
+
+SSOK_Expense_Win3Progress(target)
+{
+    global SSOK_ExpenseProgressVisible
+    Gui, SSOKExpenseProgress:Destroy
+    SSOK_ExpenseProgressVisible := false
+    if (!target)
+        return
+    Gui, SSOKExpenseProgress:New, +AlwaysOnTop -Caption +ToolWindow +E0x20
+    Gui, SSOKExpenseProgress:Color, FFE066
+    Gui, SSOKExpenseProgress:Margin, 36, 26
+    Gui, SSOKExpenseProgress:Font, s28 Bold c202020, Malgun Gothic
+    Gui, SSOKExpenseProgress:Add, Text, w360 h58 Center +0x200, win 3 ÀÛ¾÷Áß
+    Gui, SSOKExpenseProgress:Font, s11 Norm c404040, Malgun Gothic
+    Gui, SSOKExpenseProgress:Add, Text, y+6 w360 h24 Center, ¸¶¿ì½º¸¦ ¿òÁ÷ÀÌÁö ¸¶¼¼¿ä.
+    WinGetPos, x, y, w, h, ahk_id %target%
+    px := Round(x + (w - 432)/2)
+    py := Round(y + (h - 140)/2)
+    Gui, SSOKExpenseProgress:Show, x%px% y%py% w432 h140 NoActivate
+    SSOK_ExpenseProgressVisible := true
+}
+
+SSOK_Expense_Win3ProgressPoint(x, y)
+{
+    global SSOK_ExpenseProgressVisible
+    visible := SSOK_ExpenseProgressVisible
+    if (visible)
+        Gui, SSOKExpenseProgress:Hide
+    try
+        return SSOK_Expense_MSAA_FromPointFast(x, y)
+    finally
+    {
+        if (visible)
+            Gui, SSOKExpenseProgress:Show, NoActivate
+    }
+}
+SSOK_Expense_ClickVisibleAddButton(button, target)
+{
+    if (!SSOK_Expense_Active(target) || !SSOK_Expense_MSAA_IsFixedAddButton(button))
+        return false
+    rect := SSOK_Expense_Win2_GetRect(button.acc, button.child)
+    if (!IsObject(rect))
+    {
+        SSOK_Expense_Log("row-click-no-visible-rect")
+        return false
+    }
+    x := Round(rect.cx)
+    y := Round(rect.cy)
+    ; ´Ù¸¥ Ã¢ÀÌ³ª ÆË¾÷ÀÌ µ¤°í ÀÖÀ¸¸é Å¬¸¯ÇÏÁö ¾Ê½À´Ï´Ù.
+    packed := (x & 0xFFFFFFFF) | ((y & 0xFFFFFFFF) << 32)
+    hwnd := DllCall("WindowFromPoint", "Int64", packed, "Ptr")
+    root := DllCall("GetAncestor", "Ptr", hwnd, "UInt", 2, "Ptr")
+    if (root != target)
+    {
+        SSOK_Expense_Log("row-click-covered")
+        return false
+    }
+    hit := SSOK_Expense_MSAA_FromPointFast(x, y)
+    if (!SSOK_Expense_MSAA_IsFixedAddButton(hit))
+    {
+        SSOK_Expense_Log("row-click-point-not-add-button")
+        return false
+    }
+    if (!SSOK_Expense_Active(target))
+        return false
+    previousMode := A_CoordModeMouse
+    try
+    {
+        CoordMode, Mouse, Screen
+        Click, %x%, %y%
+        SSOK_Expense_Log("row-visible-click-sent")
+        return true
+    }
+    finally
+    {
+        CoordMode, Mouse, %previousMode%
+    }
+}

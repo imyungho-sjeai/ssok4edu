@@ -5272,7 +5272,7 @@ SSOK_ShowWorkToolsGui:
     Gui, SSOKWorkTools:Add, Button, x8 y380 w166 h25 vSSOK_WorkTools_Exit gSSOK_Sidebar_Delete, 종료
     Gui, SSOKWorkTools:Add, Button, x8 y411 w166 h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
     Gui, SSOKWorkTools:Add, Button, x8 y442 w166 h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
-    Gui, SSOKWorkTools:Add, Button, x8 y473 w166 h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+3)
+    Gui, SSOKWorkTools:Add, Button, x8 y473 w166 h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
 
     Gui, SSOKWorkTools:Add, Button, x8 y504 w166 h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
 
@@ -5387,7 +5387,7 @@ SSOK_Sidebar_Advanced:
     Gui, SSOKAdvanced:Color, F7FBFF
     Gui, SSOKAdvanced:Font, s8 bold, Malgun Gothic
     Gui, SSOKAdvanced:Add, Button, x8 y8 w166 h25 gSSOK_Advanced_Win1, 간편 원인행위(win+2)
-    Gui, SSOKAdvanced:Add, Button, x8 y39 w166 h25 gSSOK_Advanced_Win2, 간편 원인행위(win+3)
+    Gui, SSOKAdvanced:Add, Button, x8 y39 w166 h25 gSSOK_Advanced_Win2, 간편 원인행위(win+4)
     Gui, SSOKAdvanced:Add, Button, x8 y70 w166 h25 gSSOK_Advanced_ExpenseDraft, 간편 지출품의(win+1)
     SSOK_AdvancedW := 182
     SSOK_AdvancedH := 107
@@ -5436,7 +5436,7 @@ return
 SSOK_Advanced_Win2:
     Gosub, SSOK_Advanced_SaveMovedPos
     Gosub, SSOK_Sidebar_PrepareAction
-    Gosub, SSOK_Expense_DoWin3_KEdufine_TabSeq
+    Gosub, SSOK_Expense_DoWin4_KEdufine_TabSeq
 return
 
 SSOK_Advanced_ExpenseDraft:
