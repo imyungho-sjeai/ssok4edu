@@ -59,10 +59,49 @@ SSOK_Expense_Run()
     SSOK_Expense_Capture()
 }
 
+SSOK_Expense_GetClipboardHtml()
+{
+    format := DllCall("RegisterClipboardFormat", "Str", "HTML Format", "UInt")
+    if (!format)
+        return ""
+
+    ; 복사 직후 Chrome이 잠깐 클립보드를 잡고 있을 수 있어 짧게 재시도합니다.
+    Loop, 4
+    {
+        if DllCall("OpenClipboard", "Ptr", 0)
+            break
+        Sleep, 25
+    }
+
+    if !DllCall("IsClipboardFormatAvailable", "UInt", format)
+    {
+        try DllCall("CloseClipboard")
+        return ""
+    }
+
+    html := ""
+    hData := DllCall("GetClipboardData", "UInt", format, "Ptr")
+    if (hData)
+    {
+        pData := DllCall("GlobalLock", "Ptr", hData, "Ptr")
+        if (pData)
+        {
+            size := DllCall("GlobalSize", "Ptr", hData, "UPtr")
+            if (size > 0)
+                html := StrGet(pData, size, "UTF-8")
+            DllCall("GlobalUnlock", "Ptr", hData)
+        }
+    }
+
+    DllCall("CloseClipboard")
+    return html
+}
+
 SSOK_Expense_Capture()
 {
     global SSOK_ExpenseRows, SSOK_ExpenseReady, SSOK_ExpenseSource
     global SSOK_ExpenseSourceWindow, SSOK_ExpenseBusy, SSOK_ExpenseStage
+    global SSOK_ExpenseCopiedHtml
     SSOK_ExpenseBusy := true
     SSOK_ExpenseSourceWindow := WinExist("A")
     saved := ClipboardAll
@@ -70,6 +109,11 @@ SSOK_Expense_Capture()
     SendInput, ^c
     ClipWait, 2
     copied := Clipboard
+
+    ; Chrome/Edge 웹표는 일반 텍스트가 깨져도 CF_HTML에는 원래 표 구조가 남아 있습니다.
+    ; S2B 전용 최종 fallback에서만 사용합니다.
+    SSOK_ExpenseCopiedHtml := SSOK_Expense_GetClipboardHtml()
+
     Clipboard := saved
     saved := ""
     SSOK_ExpenseBusy := false
@@ -109,7 +153,7 @@ SSOK_Expense_Capture()
 ; - 큰 글씨 / 굵게
 ; - 가운데 정렬
 ; - 확인 버튼 없음
-; - 2초 후 자동 종료
+; - 3초 후 자동 종료
 ; ------------------------------------------------------------
 SSOK_Expense_ShowParseMissingNotice()
 {
@@ -905,6 +949,17 @@ SSOK_Expense_IsWonLine(s)
 ; ============================================================================
 SSOK_Expense_ParseGenericTable(text)
 {
+    ; 0순위: S2B 웹복사 견적/물품 표
+    result := SSOK_Expense_ParseS2BPaste(text)
+    if IsObject(result) && (result.rows.Length() || result.recognized)
+        return result
+
+    ; 1순위: YES24 웹 견적서 붙여넣기 표
+    ; 번호 / 내용 / 규격 / 수량 / 예상단가 / 예상금액(참고용)
+    result := SSOK_Expense_ParseYes24Paste(text)
+    if IsObject(result) && (result.rows.Length() || result.recognized)
+        return result
+
     ; 1순위: Excel/스프레드시트 표
     result := SSOK_Expense_ParseExcelTable(text)
     if IsObject(result) && (result.rows.Length() || result.recognized)
@@ -1316,6 +1371,1019 @@ SSOK_Expense_ParseGenericPdfCompact(text)
         return SSOK_Expense_NewGenericResult()
 
     return out
+}
+
+
+
+; ============================================================================
+; S2B 웹복사 견적/물품 표 전용 파서
+;
+; 웹에서 복사한 S2B 표는 HTML의 rowspan/colspan 때문에 한 품목이
+; 여러 개의 Markdown 표/행으로 분리되어 들어올 수 있습니다.
+;
+; 인식 기준
+;   물품명(첫 번째 fnGoodsInfo 링크) -> 품명
+;   모델명(같은 줄 <br> 뒤 두 번째 링크) -> 규격
+;   제시금액 -> 단가
+;   총제시금액 -> 금액
+;   수량 -> 웹복사에서 값이 없으면 총제시금액 / 제시금액으로 복원
+;
+; 요청자/유효기간/배송비/공급업체/수의시담은 품목 입력에서 제외합니다.
+; ============================================================================
+; ============================================================================
+; S2B 웹복사 전용 파서
+;
+; 핵심 원칙
+; 1) 품목은 fnGoodsInfo의 "상품 ID" 단위로 묶습니다.
+;    - 모델명이 없으면 링크 1개: 품명만 사용
+;    - 모델명이 있으면 같은 상품 ID 링크 2개: 첫 링크=품명, 둘째=규격
+; 2) 금액 행은 열 위치 기준으로 읽습니다.
+;    날짜 다음 칸 = 수량, 그 다음 = 제시금액, 그 다음 = 총제시금액
+; 3) 수량이 비어 있으면 총제시금액 / 제시금액으로만 복원합니다.
+;    배송비 등 뒤쪽 숫자는 수량/단가로 사용하지 않습니다.
+; ============================================================================
+SSOK_Expense_ParseS2BPaste(text)
+{
+    global SSOK_ExpenseCopiedHtml
+
+    out := {rows: [], source: "S2B 웹복사", total: 0, shipping: 0, quoteTotal: 0, grandTotal: 0, fractional: false, error: "", recognized: false}
+
+    compact := RegExReplace(text, "[\s" . Chr(160) . "　|/·ㆍ_\-().]+", "")
+
+    if !(InStr(compact, "S2B")
+        && InStr(compact, "물품용역명모델명")
+        && InStr(compact, "제시금액"))
+        return out
+
+    out.recognized := true
+
+    ; 각 방식은 독립적으로 끝까지 읽고, 가장 많은 품목을 읽은 결과를 사용합니다.
+    best := {rows: [], total: 0}
+
+    md := {rows: [], total: 0}
+    SSOK_Expense_S2B_ParseMarkdown(text, md)
+    if (md.rows.Length() > best.rows.Length())
+        best := md
+
+    plain := {rows: [], total: 0}
+    SSOK_Expense_S2B_ParsePlain(text, plain)
+    if (plain.rows.Length() > best.rows.Length())
+        best := plain
+
+    ; 행/열 구조가 깨진 실제 브라우저 Clipboard용 토큰 스트림 파서
+    token := {rows: [], total: 0}
+    SSOK_Expense_S2B_ParseTokenStream(text, token)
+    if (token.rows.Length() > best.rows.Length())
+        best := token
+
+    if (SSOK_ExpenseCopiedHtml != "")
+    {
+        html := {rows: [], total: 0}
+        SSOK_Expense_S2B_ParseHtml(SSOK_ExpenseCopiedHtml, html)
+        if (html.rows.Length() > best.rows.Length())
+            best := html
+    }
+
+    out.rows := best.rows
+    out.total := best.total
+
+    SSOK_Expense_Log("s2b-scan md=" . md.rows.Length()
+        . " plain=" . plain.rows.Length()
+        . " token=" . token.rows.Length()
+        . " html=" . (IsObject(html) ? html.rows.Length() : 0)
+        . " tabs=" . (InStr(text, "`t") ? 1 : 0)
+        . " textLen=" . StrLen(text)
+        . " htmlLen=" . StrLen(SSOK_ExpenseCopiedHtml))
+
+    if (!out.rows.Length())
+    {
+        out.error := "S2B 표는 확인했지만 품목을 읽지 못했습니다.`n물품(용역)명/모델명과 수량·제시금액이 포함되도록 표를 복사해 주세요."
+        return out
+    }
+
+    SSOK_Expense_Log("s2b-items-ok rows=" . out.rows.Length())
+    return out
+}
+
+; ------------------------------------------------------------
+; Markdown 형식
+; 한 상품 줄 안에서 같은 상품 ID의 fnGoodsInfo 링크를 묶습니다.
+; ------------------------------------------------------------
+SSOK_Expense_S2B_ParseMarkdown(text, out)
+{
+    groups := []
+    lines := StrSplit(text, "`n")
+
+    for lineNo, rawLine in lines
+    {
+        line := Trim(rawLine, " `t`r" . Chr(160))
+        if (!InStr(line, "fnGoodsInfo"))
+            continue
+
+        links := []
+        pos := 1
+
+        ; javascript\:fnGoodsInfo / javascript:fnGoodsInfo 둘 다 허용
+        while (pos := RegExMatch(line, "\[([^\]]+)\]\((?:<)?javascript\\?:fnGoodsInfo\('([0-9]+)'", m, pos))
+        {
+            label := Trim(m1, " `t`r`n" . Chr(160))
+            id := m2
+
+            if (label != "" && id != "")
+                links.Push({id:id, text:label})
+
+            pos += Max(1, StrLen(m))
+        }
+
+        if (!links.Length())
+            continue
+
+        ; 한 품목 줄의 첫 링크는 품명.
+        ; 두 번째 링크가 있고 상품 ID가 같을 때만 규격으로 사용합니다.
+        group := {line:lineNo, id:links[1].id, name:links[1].text, spec:""}
+
+        if (links.Length() >= 2 && links[2].id = group.id)
+            group.spec := links[2].text
+
+        groups.Push(group)
+    }
+
+    if (!groups.Length())
+        return false
+
+    for gi, g in groups
+    {
+        nextLine := (gi < groups.Length()) ? groups[gi + 1].line : lines.Length() + 1
+
+        Loop, % nextLine - g.line - 1
+        {
+            lineNo := g.line + A_Index
+            line := lines[lineNo]
+
+            if !RegExMatch(line, "\b\d{4}-\d{2}-\d{2}\b")
+                continue
+
+            if (SSOK_Expense_S2B_ParseMarkdownAmountRow(line, qty, unitPrice, amount))
+            {
+                out.rows.Push({name:g.name, spec:g.spec, qty:qty, amount:amount, price:unitPrice})
+                out.total += amount
+                break
+            }
+        }
+    }
+
+    return out.rows.Length() > 0
+}
+
+SSOK_Expense_S2B_ParseMarkdownAmountRow(line, ByRef qty, ByRef unitPrice, ByRef amount)
+{
+    qty := ""
+    unitPrice := ""
+    amount := ""
+
+    cells := StrSplit(line, "|")
+    datePos := 0
+
+    for ci, rawCell in cells
+    {
+        cell := SSOK_Expense_S2B_CleanCell(rawCell)
+        if RegExMatch(cell, "^\d{4}-\d{2}-\d{2}$")
+        {
+            datePos := ci
+            break
+        }
+    }
+
+    if (!datePos)
+        return false
+
+    nums := []
+
+    ; 날짜 뒤에서 링크/업체명이 나오기 전의 앞쪽 숫자만 수집합니다.
+    Loop, % cells.Length() - datePos
+    {
+        ci := datePos + A_Index
+        raw := cells[ci]
+        cell := SSOK_Expense_S2B_CleanCell(raw)
+
+        if (InStr(raw, "javascript") || InStr(raw, "http")
+            || InStr(raw, "[image]") || InStr(raw, "fnSupplyInfo")
+            || InStr(raw, "fnBagain"))
+            break
+
+        n := SSOK_Expense_S2B_Number(cell)
+        if (n != "")
+        {
+            nums.Push(n)
+            if (nums.Length() >= 3)
+                break
+        }
+    }
+
+    return SSOK_Expense_S2B_ResolveLeadingNumbers(nums, qty, unitPrice, amount)
+}
+
+; ------------------------------------------------------------
+; 일반 텍스트/탭 클립보드
+; S2B 행을 만나면 새 품목 시작으로 보고 그 다음 품명/규격을 수집합니다.
+; ------------------------------------------------------------
+SSOK_Expense_S2B_ParsePlain(text, out)
+{
+    table := SSOK_Expense_ExcelBuildRows(text)
+    if !IsObject(table) || !table.Length()
+        return false
+
+    active := false
+    pendingName := ""
+    pendingSpec := ""
+
+    for _, row in table
+    {
+        if !IsObject(row)
+            continue
+
+        hasS2B := false
+        datePos := 0
+
+        for ci, rawCell in row
+        {
+            cell := SSOK_Expense_S2B_CleanCell(rawCell)
+
+            if (cell = "S2B")
+                hasS2B := true
+
+            if RegExMatch(cell, "^\d{4}-\d{2}-\d{2}$")
+                datePos := ci
+        }
+
+        ; 요청자/S2B/이미지 행은 품목 데이터가 아니며 다음 품목의 시작점입니다.
+        if (hasS2B)
+        {
+            active := true
+            pendingName := ""
+            pendingSpec := ""
+            continue
+        }
+
+        if (!active)
+            continue
+
+        if (datePos)
+        {
+            if (pendingName != "")
+            {
+                nums := []
+                Loop, % row.Length() - datePos
+                {
+                    ci2 := datePos + A_Index
+                    raw2 := row[ci2]
+                    cell2 := SSOK_Expense_S2B_CleanCell(raw2)
+
+                    if (InStr(raw2, "javascript") || InStr(raw2, "http")
+                        || InStr(raw2, "image") || InStr(raw2, "fnSupplyInfo")
+                        || InStr(raw2, "fnBagain"))
+                        break
+
+                    n2 := SSOK_Expense_S2B_Number(cell2)
+                    if (n2 != "")
+                    {
+                        nums.Push(n2)
+                        if (nums.Length() >= 3)
+                            break
+                    }
+                }
+
+                if (SSOK_Expense_S2B_ResolveLeadingNumbers(nums, qty, unitPrice, amount))
+                {
+                    out.rows.Push({name:pendingName, spec:pendingSpec, qty:qty, amount:amount, price:unitPrice})
+                    out.total += amount
+                }
+            }
+
+            active := false
+            pendingName := ""
+            pendingSpec := ""
+            continue
+        }
+
+        ; S2B 시작행 다음부터 날짜행 전까지 보이는 텍스트 중
+        ; 첫 번째를 품명, 두 번째를 규격으로 사용합니다.
+        for _, rawCell in row
+        {
+            cell := SSOK_Expense_S2B_CleanCell(rawCell)
+
+            if !SSOK_Expense_S2B_IsProductText(cell)
+                continue
+
+            if (pendingName = "")
+                pendingName := cell
+            else if (pendingSpec = "" && cell != pendingName)
+                pendingSpec := cell
+        }
+    }
+
+    return out.rows.Length() > 0
+}
+
+; ------------------------------------------------------------
+; CF_HTML 클립보드
+; fnGoodsInfo 링크를 상품 ID로 그룹화합니다.
+; 모델명이 없는 품목도 1개의 링크만으로 정상 품목 처리합니다.
+; ------------------------------------------------------------
+SSOK_Expense_S2B_ParseTokenStream(text, out)
+{
+    ; 탭/줄바꿈을 모두 동일한 토큰 경계로 봅니다.
+    normalized := StrReplace(text, "`r`n", "`n")
+    normalized := StrReplace(normalized, "`r", "`n")
+    normalized := StrReplace(normalized, "`t", "`n")
+
+    tokens := []
+    for _, raw in StrSplit(normalized, "`n")
+    {
+        t := SSOK_Expense_S2B_CleanCell(raw)
+        if (t != "")
+            tokens.Push(t)
+    }
+
+    if (!tokens.Length())
+        return false
+
+    active := false
+    skipRequester := false
+    name := ""
+    spec := ""
+    i := 1
+
+    while (i <= tokens.Length())
+    {
+        tok := tokens[i]
+        compact := RegExReplace(tok, "[\s" . Chr(160) . "　|]", "")
+
+        ; S2B 표의 새 품목 시작
+        if (compact = "S2B")
+        {
+            active := true
+            skipRequester := true
+            name := ""
+            spec := ""
+            i++
+            continue
+        }
+
+        if (!active)
+        {
+            i++
+            continue
+        }
+
+        ; 날짜를 만나면 그 뒤 앞쪽 숫자들로 수량/단가/총액을 확정
+        if RegExMatch(tok, "^\d{4}-\d{2}-\d{2}$")
+        {
+            nums := []
+            j := i + 1
+
+            while (j <= tokens.Length() && nums.Length() < 3)
+            {
+                t2 := tokens[j]
+                c2 := RegExReplace(t2, "[\s" . Chr(160) . "　]", "")
+
+                if (c2 = "S2B" || c2 = "Y" || c2 = "N")
+                    break
+
+                if (InStr(t2, "javascript") || InStr(t2, "http")
+                    || InStr(t2, "image") || InStr(t2, "fnSupplyInfo")
+                    || InStr(t2, "fnBagain"))
+                    break
+
+                n := SSOK_Expense_S2B_Number(t2)
+                if (n != "")
+                    nums.Push(n)
+                else if (nums.Length() >= 2)
+                    break
+
+                j++
+            }
+
+            if (name != "" && SSOK_Expense_S2B_ResolveLeadingNumbers(nums, qty, unitPrice, amount))
+            {
+                out.rows.Push({name:name, spec:spec, qty:qty, amount:amount, price:unitPrice})
+                out.total += amount
+            }
+
+            active := false
+            name := ""
+            spec := ""
+            i := j
+            continue
+        }
+
+        ; 첫 번째 텍스트는 요청자이므로 건너뜁니다.
+        if (skipRequester)
+        {
+            if (SSOK_Expense_S2B_IsProductText(tok))
+            {
+                skipRequester := false
+                i++
+                continue
+            }
+        }
+        else if (SSOK_Expense_S2B_IsProductText(tok))
+        {
+            if (name = "")
+                name := SSOK_Expense_S2B_ExtractVisibleLabel(tok)
+            else if (spec = "")
+            {
+                candidate := SSOK_Expense_S2B_ExtractVisibleLabel(tok)
+                if (candidate != "" && candidate != name)
+                    spec := candidate
+            }
+        }
+
+        i++
+    }
+
+    return out.rows.Length() > 0
+}
+
+SSOK_Expense_S2B_ExtractVisibleLabel(s)
+{
+    ; Markdown 링크면 [] 안의 보이는 글자만 사용
+    if RegExMatch(s, "^\[([^\]]+)\]", m)
+        return Trim(m1)
+
+    ; <br> 뒤 모델명이 함께 붙은 경우 2개로 나누는 것은 Plain 파서가 처리하며,
+    ; 여기서는 전체 보이는 문자열을 품명 후보로 둡니다.
+    return Trim(s)
+}
+
+SSOK_Expense_S2B_ResolveLeadingNumbers(nums, ByRef qty, ByRef unitPrice, ByRef amount)
+{
+    qty := ""
+    unitPrice := ""
+    amount := ""
+
+    count := nums.Length()
+    if (count < 2)
+        return false
+
+    a := nums[1]
+    b := nums[2]
+
+    ; 수량이 실제로 복사된 경우:
+    ; 예) 8, 21,000, 168,000  => 8 × 21,000 = 168,000
+    if (count >= 3)
+    {
+        c := nums[3]
+
+        if (a >= 1 && a = Round(a) && a <= 9999
+            && b > 0 && c > 0
+            && Abs((a * b) - c) < 0.000001)
+        {
+            qty := Round(a)
+            unitPrice := b
+            amount := c
+            return true
+        }
+    }
+
+    ; S2B 웹복사에서 수량 칸이 빈 경우:
+    ; 앞의 두 숫자가 제시금액 / 총제시금액입니다.
+    ; 뒤의 세 번째 숫자가 배송비여도 무시합니다.
+    if (a > 0 && b > 0)
+    {
+        ratio := b / a
+        inferred := Round(ratio)
+
+        if (inferred >= 1 && Abs(ratio - inferred) < 0.000001)
+        {
+            qty := inferred
+            unitPrice := a
+            amount := b
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_S2B_ParseHtml(html, out)
+{
+    if (html = "")
+        return false
+
+    anchors := []
+    pos := 1
+
+    while (pos := RegExMatch(html, "is)<a\b([^>]*)>(.*?)</a>", m, pos))
+    {
+        attrs := m1
+        body := m2
+
+        if InStr(attrs, "fnGoodsInfo")
+        {
+            id := ""
+            if RegExMatch(attrs, "([0-9]{10,})", im)
+                id := im1
+
+            label := SSOK_Expense_S2B_HtmlText(body)
+
+            if (id != "" && label != "")
+                anchors.Push({id:id, text:label, pos:pos, len:StrLen(m)})
+        }
+
+        pos += Max(1, StrLen(m))
+    }
+
+    if (!anchors.Length())
+        return false
+
+    groups := []
+    current := ""
+
+    for _, a in anchors
+    {
+        if !IsObject(current) || current.id != a.id
+        {
+            if IsObject(current)
+                groups.Push(current)
+
+            current := {id:a.id, name:a.text, spec:"", pos:a.pos, endPos:a.pos + a.len}
+        }
+        else
+        {
+            if (current.spec = "" && a.text != current.name)
+                current.spec := a.text
+            current.endPos := a.pos + a.len
+        }
+    }
+
+    if IsObject(current)
+        groups.Push(current)
+
+    for gi, g in groups
+    {
+        segStart := g.endPos
+
+        if (gi < groups.Length())
+            segLen := groups[gi + 1].pos - segStart
+        else
+            segLen := StrLen(html) - segStart + 1
+
+        if (segLen < 0)
+            segLen := 0
+
+        segment := SubStr(html, segStart, segLen)
+
+        if (SSOK_Expense_S2B_ParseHtmlAmountRow(segment, qty, unitPrice, amount))
+        {
+            out.rows.Push({name:g.name, spec:g.spec, qty:qty, amount:amount, price:unitPrice})
+            out.total += amount
+        }
+    }
+
+    return out.rows.Length() > 0
+}
+
+SSOK_Expense_S2B_ParseHtmlAmountRow(segment, ByRef qty, ByRef unitPrice, ByRef amount)
+{
+    qty := ""
+    unitPrice := ""
+    amount := ""
+
+    ; 태그/URL/자바스크립트 속성을 제거한 "화면에 보이는 글자"만 사용합니다.
+    visible := SSOK_Expense_S2B_HtmlText(segment)
+
+    datePos := RegExMatch(visible, "\b\d{4}-\d{2}-\d{2}\b", dm)
+    if (!datePos)
+        return false
+
+    tail := SubStr(visible, datePos + StrLen(dm))
+    nums := []
+    pos := 1
+
+    ; 날짜 뒤에서 처음 나타나는 숫자 최대 3개만 사용합니다.
+    ; 이후 공급업체명/기타 숫자는 보지 않습니다.
+    while (pos := RegExMatch(tail, "(?<![\d,])(\d[\d,]*(?:\.\d+)?)(?![\d,])", nm, pos))
+    {
+        val := StrReplace(nm1, ",") + 0
+        nums.Push(val)
+
+        if (nums.Length() >= 3)
+            break
+
+        pos += Max(1, StrLen(nm))
+    }
+
+    return SSOK_Expense_S2B_ResolveLeadingNumbers(nums, qty, unitPrice, amount)
+}
+
+; ------------------------------------------------------------
+; 수량/단가/총액 확정
+; q = 수량, p = 제시금액, t = 총제시금액
+; ------------------------------------------------------------
+SSOK_Expense_S2B_ResolveQPT(q, p, t, ByRef qty, ByRef unitPrice, ByRef amount)
+{
+    qty := ""
+    unitPrice := ""
+    amount := ""
+
+    if (p = "" || p <= 0)
+        return false
+
+    unitPrice := p
+
+    ; 수량이 화면에서 정상 복사된 경우
+    if (q != "" && q > 0 && q = Round(q))
+    {
+        qty := Round(q)
+
+        if (t != "" && t > 0)
+            amount := t
+        else
+            amount := qty * unitPrice
+
+        return true
+    }
+
+    ; 수량이 비어 있으면 총제시금액/제시금액으로만 복원합니다.
+    if (t != "" && t > 0)
+    {
+        ratio := t / unitPrice
+        inferred := Round(ratio)
+
+        if (inferred >= 1 && Abs(ratio - inferred) < 0.000001)
+        {
+            qty := inferred
+            amount := t
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_S2B_NumberAt(cells, index)
+{
+    if !IsObject(cells) || index < 1 || index > cells.Length()
+        return ""
+
+    return SSOK_Expense_S2B_Number(cells[index])
+}
+
+SSOK_Expense_S2B_Number(s)
+{
+    s := SSOK_Expense_S2B_CleanCell(s)
+    s := RegExReplace(s, "[\s" . Chr(160) . "　]", "")
+
+    if RegExMatch(s, "^\d[\d,]*(?:\.\d+)?$")
+        return StrReplace(s, ",") + 0
+
+    return ""
+}
+
+SSOK_Expense_S2B_CleanCell(s)
+{
+    s := s . ""
+    s := StrReplace(s, "`r", " ")
+    s := StrReplace(s, "`n", " ")
+    s := StrReplace(s, Chr(160), " ")
+    s := StrReplace(s, "　", " ")
+    s := RegExReplace(s, "i)<br\s*/?>", " ")
+    s := RegExReplace(s, "[ `t]+", " ")
+    return Trim(s, " |")
+}
+
+SSOK_Expense_S2B_IsProductText(s)
+{
+    if (s = "")
+        return false
+
+    compact := RegExReplace(s, "[\s" . Chr(160) . "　]", "")
+
+    if (compact = "S2B" || compact = "Y" || compact = "N")
+        return false
+
+    if (compact = "구분" || compact = "요청자" || compact = "물품(용역)명/모델명"
+        || compact = "유효기간" || compact = "수량" || compact = "제시금액"
+        || compact = "총제시금액" || compact = "배송비묶음배송"
+        || compact = "공급업체" || compact = "수의시담"
+        || InStr(compact, "총계약금액"))
+        return false
+
+    if (InStr(compact, "javascript") || InStr(compact, "http")
+        || InStr(compact, "[image]") || InStr(compact, "image")
+        || InStr(compact, "fnSearch") || InStr(compact, "fnSupplyInfo")
+        || InStr(compact, "fnBagain"))
+        return false
+
+    if RegExMatch(compact, "^\d{4}-\d{2}-\d{2}$")
+        return false
+
+    if RegExMatch(compact, "^\d[\d,]*(?:\.\d+)?$")
+        return false
+
+    if RegExMatch(compact, "^:?-{2,}:?$")
+        return false
+
+    return true
+}
+
+SSOK_Expense_S2B_HtmlText(html)
+{
+    if (html = "")
+        return ""
+
+    s := html
+    s := RegExReplace(s, "is)<script\b[^>]*>.*?</script>", " ")
+    s := RegExReplace(s, "is)<style\b[^>]*>.*?</style>", " ")
+    s := RegExReplace(s, "is)<br\s*/?>", " ")
+    s := RegExReplace(s, "is)</(?:td|th|tr|div|p|li)>", " ")
+    s := RegExReplace(s, "is)<[^>]+>", " ")
+
+    s := StrReplace(s, "&nbsp;", " ")
+    s := StrReplace(s, "&#160;", " ")
+    s := StrReplace(s, "&amp;", "&")
+    s := StrReplace(s, "&lt;", "<")
+    s := StrReplace(s, "&gt;", ">")
+    s := StrReplace(s, "&quot;", """")
+    s := StrReplace(s, "&#39;", "'")
+
+    s := StrReplace(s, "`r", " ")
+    s := StrReplace(s, "`n", " ")
+    s := RegExReplace(s, "[ `t" . Chr(160) . "　]+", " ")
+
+    return Trim(s)
+}
+
+; ============================================================================
+; YES24 견적서 붙여넣기 전용 파서
+;   번호 / 내용 / 규격 / 수량 / 예상단가 / 예상금액(참고용)
+;
+; 브라우저에서 표를 복사하면 실제 클립보드가 TSV(탭) 또는
+; Markdown/파이프 표 형태로 들어올 수 있으므로 둘 다 처리합니다.
+; 각 셀 뒤에 따라오는 "복사" 링크/문구는 입력 데이터에서 제거합니다.
+; ============================================================================
+SSOK_Expense_ParseYes24Paste(text)
+{
+    out := {rows: [], source: "YES24 견적서(붙여넣기)", total: 0, shipping: 0, quoteTotal: 0, grandTotal: 0, fractional: false, error: "", recognized: false}
+
+    compactAll := RegExReplace(text, "[\s" . Chr(160) . "　|/·ㆍ_\-().]+", "")
+
+    ; YES24 형식 A
+    ; 번호 / 내용 / 규격 / 수량 / 예상단가 / 예상금액(참고용)
+    isSimple := (InStr(compactAll, "번호") && InStr(compactAll, "내용")
+        && InStr(compactAll, "규격") && InStr(compactAll, "수량")
+        && InStr(compactAll, "예상단가") && InStr(compactAll, "예상금액"))
+
+    ; YES24 도서 견적 형식 B
+    ; NO. / 유형 / 서명 / 출판사 / ISBN / 수량 / 정가 / 정가총액 / 공급단가 / 공급총액
+    isBook := (InStr(compactAll, "서명") && InStr(compactAll, "출판사")
+        && InStr(compactAll, "ISBN") && InStr(compactAll, "수량")
+        && InStr(compactAll, "공급단가") && InStr(compactAll, "공급총액"))
+
+    if (!isSimple && !isBook)
+        return out
+
+    table := SSOK_Expense_ExcelBuildRows(text)
+    if !IsObject(table) || !table.Length()
+        return out
+
+    headerRow := 0
+    bookMap := ""
+
+    ; ------------------------------------------------------------
+    ; 형식 B: YES24 도서 견적서
+    ; 서명=품목, 출판사=규격, 공급단가=단가, 공급총액=금액
+    ; 유형/ISBN/정가/정가총액은 K-에듀파인 입력에서 제외
+    ; ------------------------------------------------------------
+    if (isBook)
+    {
+        for ri, row in table
+        {
+            if !IsObject(row)
+                continue
+
+            m := {no:0, title:0, publisher:0, qty:0, supplyPrice:0, supplyTotal:0}
+
+            for ci, raw in row
+            {
+                cell := SSOK_Expense_Yes24CleanCell(raw)
+                key := RegExReplace(cell, "[\s" . Chr(160) . "　.()]+", "")
+                lower := key
+                StringLower, lower, lower
+
+                if (lower = "no" || key = "번호")
+                    m.no := ci
+                else if (key = "서명")
+                    m.title := ci
+                else if (key = "출판사")
+                    m.publisher := ci
+                else if (key = "수량")
+                    m.qty := ci
+                else if (key = "공급단가")
+                    m.supplyPrice := ci
+                else if (key = "공급총액")
+                    m.supplyTotal := ci
+            }
+
+            if (m.title && m.publisher && m.qty && m.supplyPrice && m.supplyTotal)
+            {
+                headerRow := ri
+                bookMap := m
+                break
+            }
+        }
+
+        if (!headerRow || !IsObject(bookMap))
+            return out
+
+        out.recognized := true
+        out.source := "YES24 도서 견적서"
+
+        expected := 1
+
+        Loop, % table.Length()
+        {
+            ri := A_Index
+            if (ri <= headerRow)
+                continue
+
+            row := table[ri]
+            if !IsObject(row)
+                continue
+
+            ; 번호 열이 있으면 1번부터 연속된 실제 도서 행만 인식
+            if (bookMap.no)
+            {
+                noText := SSOK_Expense_Yes24CleanCell(SSOK_Expense_ExcelCell(row, bookMap.no))
+                if !RegExMatch(noText, "^\d+$")
+                    continue
+
+                rowNo := noText + 0
+                if (rowNo != expected)
+                {
+                    ; 합계/설명 행 또는 표 종료로 판단
+                    if (rowNo < expected)
+                        continue
+
+                    out.error := "YES24 도서 견적서의 번호가 연속되지 않습니다. 문제 번호: " . rowNo
+                    return out
+                }
+            }
+
+            nameText := SSOK_Expense_Yes24CleanCell(SSOK_Expense_ExcelCell(row, bookMap.title))
+            specText := SSOK_Expense_Yes24CleanCell(SSOK_Expense_ExcelCell(row, bookMap.publisher))
+            qtyText := SSOK_Expense_Yes24CleanCell(SSOK_Expense_ExcelCell(row, bookMap.qty))
+            priceText := SSOK_Expense_Yes24CleanCell(SSOK_Expense_ExcelCell(row, bookMap.supplyPrice))
+            amountText := SSOK_Expense_Yes24CleanCell(SSOK_Expense_ExcelCell(row, bookMap.supplyTotal))
+
+            qty := SSOK_Expense_Yes24Number(qtyText)
+            unitPrice := SSOK_Expense_Yes24Number(priceText)
+            amount := SSOK_Expense_Yes24Number(amountText)
+
+            if (nameText = "" || qty = "" || qty <= 0)
+                continue
+
+            if (unitPrice = "" && amount = "")
+                continue
+
+            if (unitPrice = "")
+                unitPrice := SSOK_Expense_CalcExpectedPrice(amount, qty, out)
+
+            if (amount = "")
+                amount := unitPrice * qty
+
+            out.rows.Push({name:nameText, spec:specText, qty:qty, amount:amount, price:unitPrice})
+            out.total += amount
+            expected++
+        }
+
+        if (!out.rows.Length())
+        {
+            out.error := "YES24 도서 견적서 표는 확인했지만 도서 품목을 읽지 못했습니다.`nNO.부터 공급총액까지 표 전체를 선택하여 다시 복사해 주세요."
+            return out
+        }
+
+        return out
+    }
+
+    ; ------------------------------------------------------------
+    ; 형식 A: 기존 YES24 웹 견적서 붙여넣기
+    ; ------------------------------------------------------------
+    for ri, row in table
+    {
+        if !IsObject(row)
+            continue
+
+        joined := ""
+        for _, cell in row
+            joined .= SSOK_Expense_Yes24CleanCell(cell)
+
+        h := RegExReplace(joined, "[\s" . Chr(160) . "　|/·ㆍ_\-().]+", "")
+        if (InStr(h, "번호") && InStr(h, "내용") && InStr(h, "규격")
+            && InStr(h, "수량") && InStr(h, "예상단가") && InStr(h, "예상금액"))
+        {
+            headerRow := ri
+            break
+        }
+    }
+
+    if (!headerRow)
+        return out
+
+    out.recognized := true
+
+    ; 기본 YES24 데이터 열:
+    ; 1 번호 / 2 내용 / 3 규격 / 4 수량 / 5 예상단가 / 6 예상금액(참고용)
+    Loop, % table.Length()
+    {
+        ri := A_Index
+        if (ri <= headerRow)
+            continue
+
+        row := table[ri]
+        if !IsObject(row) || row.Length() < 5
+            continue
+
+        noText := SSOK_Expense_Yes24CleanCell(row[1])
+        if !RegExMatch(noText, "^\d+$")
+            continue
+
+        ; 6열 정상형을 우선 사용합니다.
+        if (row.Length() >= 6)
+        {
+            nameText := SSOK_Expense_Yes24CleanCell(row[2])
+            specText := SSOK_Expense_Yes24CleanCell(row[3])
+            qtyText := SSOK_Expense_Yes24CleanCell(row[4])
+            priceText := SSOK_Expense_Yes24CleanCell(row[5])
+            amountText := SSOK_Expense_Yes24CleanCell(row[6])
+        }
+        else
+        {
+            ; 규격 빈 셀이 복사 과정에서 사라져 5열이 된 경우도 허용합니다.
+            nameText := SSOK_Expense_Yes24CleanCell(row[2])
+            specText := ""
+            qtyText := SSOK_Expense_Yes24CleanCell(row[3])
+            priceText := SSOK_Expense_Yes24CleanCell(row[4])
+            amountText := SSOK_Expense_Yes24CleanCell(row[5])
+        }
+
+        qty := SSOK_Expense_Yes24Number(qtyText)
+        unitPrice := SSOK_Expense_Yes24Number(priceText)
+        amount := SSOK_Expense_Yes24Number(amountText)
+
+        if (nameText = "" || qty = "" || qty <= 0)
+            continue
+
+        if (unitPrice = "" && amount = "")
+            continue
+
+        if (unitPrice = "")
+            unitPrice := SSOK_Expense_CalcExpectedPrice(amount, qty, out)
+
+        if (amount = "")
+            amount := unitPrice * qty
+
+        out.rows.Push({name:nameText, spec:specText, qty:qty, amount:amount, price:unitPrice})
+        out.total += amount
+    }
+
+    if (!out.rows.Length())
+    {
+        out.error := "YES24 견적서 표는 확인했지만 품목을 읽지 못했습니다.`n번호부터 예상금액(참고용)까지 표 전체를 선택하여 다시 복사해 주세요."
+        return out
+    }
+
+    return out
+}
+
+SSOK_Expense_Yes24CleanCell(s)
+{
+    s := SSOK_Expense_ExcelCleanCell(s)
+
+    ; ChatGPT/Markdown 형태로 전달된 복사 링크
+    ; 예: [*복사*](javascript:void(0))
+    s := RegExReplace(s, "i)\[\*{0,2}복사\*{0,2}\]\([^`r`n]*\)\s*$", "")
+
+    ; 브라우저의 일반 텍스트 복사 버튼이 셀 끝에 남은 경우
+    s := RegExReplace(s, "\s+\*{0,2}복사\*{0,2}\s*$", "")
+
+    ; Markdown 이스케이프가 남은 경우 정리
+    s := StrReplace(s, "\(", "(")
+    s := StrReplace(s, "\)", ")")
+    s := StrReplace(s, "\:", ":")
+
+    return Trim(s)
+}
+
+SSOK_Expense_Yes24Number(s)
+{
+    s := SSOK_Expense_Yes24CleanCell(s)
+
+    if RegExMatch(s, "-?\d[\d,]*(?:\.\d+)?", m)
+        return StrReplace(m, ",") + 0
+
+    return ""
 }
 
 ; ============================================================================
@@ -2283,6 +3351,63 @@ SSOK_Expense_Number(s)
 
 SSOK_Expense_Write()
 {
+    global SSOK_ExpenseMode
+
+    showProgress := (SSOK_ExpenseMode = "all")
+
+    if (showProgress)
+        SSOK_Expense_ShowRegisterProgress()
+
+    try
+    {
+        return SSOK_Expense_Write_Impl()
+    }
+    finally
+    {
+        if (showProgress)
+            SSOK_Expense_HideRegisterProgress()
+    }
+}
+
+SSOK_Expense_ShowRegisterProgress()
+{
+    global SSOK_ExpenseRegisterProgressVisible
+
+    Gui, SSOKExpenseRegisterProgress:Destroy
+    Gui, SSOKExpenseRegisterProgress:New, +AlwaysOnTop -Caption +ToolWindow +Border +E0x20
+    Gui, SSOKExpenseRegisterProgress:Color, FFE066
+    Gui, SSOKExpenseRegisterProgress:Margin, 34, 24
+    Gui, SSOKExpenseRegisterProgress:Font, s26 Bold c202020, Malgun Gothic
+
+    ; 실제 Text 컨트롤 2개로 분리하여 확실히 두 줄 표시
+    Gui, SSOKExpenseRegisterProgress:Add, Text, w500 h52 Center c202020, 등록 작업중
+    Gui, SSOKExpenseRegisterProgress:Add, Text, y+4 w500 h44 Center c202020, 마우스를 움직이지 마세요
+
+    Gui, SSOKExpenseRegisterProgress:Show, AutoSize Center NoActivate
+    SSOK_ExpenseRegisterProgressVisible := true
+}
+
+SSOK_Expense_HideRegisterProgress()
+{
+    global SSOK_ExpenseRegisterProgressVisible
+    Gui, SSOKExpenseRegisterProgress:Destroy
+    SSOK_ExpenseRegisterProgressVisible := false
+}
+
+SSOK_Expense_ShowBudgetNotice()
+{
+    Gui, SSOKExpenseBudgetNotice:Destroy
+    Gui, SSOKExpenseBudgetNotice:New, +AlwaysOnTop -Caption +ToolWindow +Border +E0x20
+    Gui, SSOKExpenseBudgetNotice:Color, FFE066
+    Gui, SSOKExpenseBudgetNotice:Margin, 28, 24
+    Gui, SSOKExpenseBudgetNotice:Font, s20 Bold c202020, Malgun Gothic
+    Gui, SSOKExpenseBudgetNotice:Add, Text, w760 h74 Center +0x200, K-에듀파인 품의등록 메뉴에서 예산선택을 먼저 진행해주세요
+    Gui, SSOKExpenseBudgetNotice:Show, AutoSize Center NoActivate
+    SetTimer, SSOKExpenseBudgetNoticeClose, -3000
+}
+
+SSOK_Expense_Write_Impl()
+{
     global SSOK_ExpenseBusy, SSOK_ExpenseCancel, SSOK_ExpenseReady, SSOK_ExpenseRows
     global SSOK_ExpenseStage, SSOK_ExpenseMode, SSOK_ExpensePendingAdd
     global SSOK_ExpenseAddButtonCache
@@ -2298,7 +3423,8 @@ SSOK_Expense_Write()
 
     if (IsObject(SSOK_ExpensePendingAdd) && SSOK_ExpensePendingAdd.target != target)
     {
-        MsgBox, 48, 간편 지출품의, 견적서는 보관 중입니다. 입력을 시작했던 K-에듀파인 창에서 예산 선택 후 Win+1을 눌러 주세요.
+        SSOK_Expense_HideRegisterProgress()
+        SSOK_Expense_ShowBudgetNotice()
         return
     }
     SSOK_ExpenseBusy := true
@@ -2347,7 +3473,8 @@ SSOK_Expense_Write()
 
     ; --------------------------------------------------------
     ; 행추가와 품목 입력을 마친 다음 개요, 제목 순으로 입력합니다.
-    ToolTip, % needRows . "개 행 생성 중..."
+    if (!SSOK_ExpenseRegisterProgressVisible)
+        ToolTip, % needRows . "개 행 생성 중..."
 
     currentRows := SSOK_Expense_ItemRowSnapshot(target)
     remaining := needRows
@@ -2374,9 +3501,8 @@ SSOK_Expense_Write()
         SSOK_Expense_Log("row-add-stopped: " . SSOK_ExpenseLastError)
         SSOK_Expense_StopForBudget()
         ToolTip
-        SSOK_ExpenseBusy := true
-        MsgBox, 48, 간편 지출품의, % "행추가를 중단했습니다.`n" . SSOK_ExpenseLastError . "`n이미 생성된 행은 유지됩니다."
-        SSOK_ExpenseBusy := false
+        SSOK_Expense_HideRegisterProgress()
+        SSOK_Expense_ShowBudgetNotice()
         return
     }
     SSOK_ExpensePendingAdd := ""
@@ -2793,7 +3919,8 @@ SSOK_Expense_AddRowsOneClick(target, count)
             before := after
         }
         SSOK_ExpenseRowsAdded++
-        ToolTip, % "행추가 실행 중... " . SSOK_ExpenseRowsAdded . "/" . count
+        if (!SSOK_ExpenseRegisterProgressVisible)
+            ToolTip, % "행추가 실행 중... " . SSOK_ExpenseRowsAdded . "/" . count
     }
     SSOK_Expense_Log("add-actions-completed=" . SSOK_ExpenseRowsAdded . " rowCountVerified=" . (before >= 0 ? 1 : 0))
     return SSOK_Expense_Active(target)
@@ -2860,7 +3987,8 @@ SSOK_Expense_MSAA_PrepareAddButtonOnly(target, force := false)
     {
         if (!SSOK_Expense_Active(target))
             return false
-        ToolTip, % "K-에듀파인 행추가 버튼 확인 중... (" . A_Index . "/5)"
+        if (!SSOK_ExpenseRegisterProgressVisible)
+            ToolTip, % "K-에듀파인 행추가 버튼 확인 중... (" . A_Index . "/5)"
         root := SSOK_Expense_MSAA_GetEdufineRoot(target, force || A_Index > 1)
         if IsObject(root)
         {
@@ -3669,9 +4797,63 @@ SSOK_Expense_MSAA_PreferRowPath(selected, aliases)
 }
 SSOK_Expense_PathCacheFile()
 {
+    global SSOK_ConfigDir, SSOK_IniFile
+    static migrated := false
+
+    ; 지출품의 전용 별도 INI를 만들지 않고 SSOK 공용 ssok.ini를 사용합니다.
+    if (SSOK_IniFile != "")
+        file := SSOK_IniFile
+    else
+    {
+        dir := SSOK_ConfigDir != "" ? SSOK_ConfigDir : A_ScriptDir
+        file := dir . "\ssok.ini"
+    }
+
+    ; 예전 ssok_expense_path.ini가 있으면 최초 1회 기존 캐시를 ssok.ini로 옮깁니다.
+    ; 기존 파일은 안전을 위해 자동 삭제하지 않습니다.
+    if (!migrated)
+    {
+        migrated := true
+        SSOK_Expense_MigratePathCacheToMainIni(file)
+    }
+
+    return file
+}
+
+SSOK_Expense_MigratePathCacheToMainIni(mainFile)
+{
     global SSOK_ConfigDir
+
     dir := SSOK_ConfigDir != "" ? SSOK_ConfigDir : A_ScriptDir
-    return dir . "\ssok_expense_path.ini"
+    oldFile := dir . "\ssok_expense_path.ini"
+
+    if (!FileExist(oldFile) || oldFile = mainFile)
+        return
+
+    keys := ["RowPath", "TotalLabelX", "TotalLabelY", "TotalLabelW", "TotalLabelH"]
+
+    for _, key in keys
+    {
+        ; ssok.ini에 이미 값이 있으면 기존 값을 우선합니다.
+        IniRead, current, %mainFile%, ExpenseMSAA, %key%, ERROR
+        if (current != "ERROR" && current != "")
+            continue
+
+        IniRead, oldValue, %oldFile%, ExpenseMSAA, %key%, ERROR
+        if (oldValue = "ERROR" || oldValue = "")
+            continue
+
+        ; RowPath는 형식까지 검증하고, 좌표값은 숫자만 옮깁니다.
+        if (key = "RowPath")
+        {
+            if (!SSOK_Expense_IsRowPath(oldValue))
+                continue
+        }
+        else if !RegExMatch(oldValue, "^-?\d+(?:\.\d+)?$")
+            continue
+
+        IniWrite, %oldValue%, %mainFile%, ExpenseMSAA, %key%
+    }
 }
 
 SSOK_Expense_IsRowPath(path)
@@ -3780,7 +4962,7 @@ SSOK_Expense_Arm(mode)
     SSOK_ExpenseStage := SSOK_ExpenseMode
     Gui, SSOKExpense:Destroy
 
-    ; 작은 ToolTip 대신 큰 중앙 안내창을 2초만 표시
+    ; 작은 ToolTip 대신 큰 중앙 안내창을 3초 표시
     SSOK_Expense_ShowModeNotice(SSOK_ExpenseMode)
 }
 
@@ -3798,34 +4980,33 @@ SSOK_Expense_ShowModeNotice(mode)
     Gui, SSOKExpenseModeNotice:+AlwaysOnTop -Caption +ToolWindow +Border
     Gui, SSOKExpenseModeNotice:Color, FFFBEA
     Gui, SSOKExpenseModeNotice:Margin, 18, 16
+    Gui, SSOKExpenseModeNotice:Font, s14 Bold, Malgun Gothic
 
-    if (mode = "items")
+    if (mode = "items" || mode = "cause")
     {
-        noticeText := "K-에듀파인에서 필요한 빈 행을 준비한 뒤`n"
-        noticeText .= "입력을 시작할 행의 '품명' 칸을 클릭하고 Win+1을 누르세요.`n"
-        noticeText .= "품명 · 규격 · 수량 · 단위 · 단가 · 금액 6칸을 입력합니다."
-    }
-    else if (mode = "cause")
-    {
-        noticeText := "K-에듀파인 원인행위 화면에서 필요한 빈 행을 준비한 뒤`n"
-        noticeText .= "입력을 시작할 행의 '품명' 칸을 클릭하고 Win+1을 누르세요.`n"
-        noticeText .= "품명 · 규격 · 수량 · 단위 · 단가 · 금액 · 조달수수료 · 용도를 입력합니다."
+        ; 한 Text 안의 `n 대신 두 개의 Text 컨트롤로 확실하게 2줄 표시
+        Gui, SSOKExpenseModeNotice:Add, Text, w720 h36 Center c222222, 먼저 품목내역에서 행추가로 빈 칸을 만든 후
+        Gui, SSOKExpenseModeNotice:Add, Text, y+2 w720 h36 Center c222222, Win + 1을 다시 눌러 주세요
     }
     else
     {
-        noticeText := "K-에듀파인 품의등록 화면으로 이동한 뒤`n"
-        noticeText .= "품목 입력 테이블이 보이는 상태에서 Win+1을 눌러주세요."
+        noticeText := "K에듀파인 품목등록 창에서`n"
+        noticeText .= "예산내역을 선택 후`n"
+        noticeText .= "다시 WIN + 1 을 눌러주세요"
+
+        Gui, SSOKExpenseModeNotice:Add, Text, w720 h100 +0x200 Center c222222, %noticeText%
     }
 
-    Gui, SSOKExpenseModeNotice:Font, s14 Bold, Malgun Gothic
-    Gui, SSOKExpenseModeNotice:Add, Text, w720 h100 +0x200 Center c222222, %noticeText%
     Gui, SSOKExpenseModeNotice:Show, AutoSize Center NoActivate
-
-    SetTimer, SSOKExpenseModeNoticeClose, -2000
+    SetTimer, SSOKExpenseModeNoticeClose, -3000
 }
 
 SSOKExpenseModeNoticeClose:
     Gui, SSOKExpenseModeNotice:Destroy
+return
+
+SSOKExpenseBudgetNoticeClose:
+    Gui, SSOKExpenseBudgetNotice:Destroy
 return
 
 SSOK_Expense_DetailIsEmpty(field)
@@ -4904,7 +6085,7 @@ SSOK_Expense_Win3AmountText(text, amount)
 
     ; Win+F2의 금액 인식 용어를 기준으로 총금액 성격의 항목만 교체합니다.
     ; 단가/개당 금액은 대상에 포함하지 않습니다.
-    labels := "총금액|총액|합계금액|합계액|합계|구매금액|구매액|구입금액|구입액|지급금액|지급액|집행금액|집행액|계약금액|원인행위금액|소요금액|소요액|소요예산|예산금액|예산액|예산|강사비|강사료|여비|금액"
+    labels := "총소요예산액|총구매액|총금액|총액|합계금액|합계액|합계|구매금액|구매액|구입금액|구입액|지급금액|지급액|집행금액|집행액|계약금액|원인행위금액|소요금액|소요액|소요예산|예산금액|예산액|예산|강사비|강사료|여비|금액"
 
     ; 기존 숫자 뒤에 붙은 한글 금액은 모두 지웁니다.
     ; 예: 금207,000원(금이십만칠천원)(이십만칠천원정) -> 금151,560원
@@ -5398,40 +6579,118 @@ SSOK_Expense_Win3ProgressPoint(x, y)
             Gui, SSOKExpenseProgress:Show, NoActivate
     }
 }
+SSOK_Expense_MSAA_PointBelongsToAddButton(hit)
+{
+    if !IsObject(hit)
+        return false
+
+    if (SSOK_Expense_MSAA_IsFixedAddButton(hit))
+        return true
+
+    current := hit.acc
+
+    if (hit.child)
+    {
+        parentCandidate := {acc:current, child:0}
+        if (SSOK_Expense_MSAA_IsFixedAddButton(parentCandidate))
+            return true
+    }
+
+    Loop, 5
+    {
+        try
+            parent := current.accParent
+        catch
+            break
+
+        if !IsObject(parent)
+            break
+
+        parentCandidate := {acc:parent, child:0}
+        if (SSOK_Expense_MSAA_IsFixedAddButton(parentCandidate))
+            return true
+
+        current := parent
+    }
+
+    return false
+}
+
 SSOK_Expense_ClickVisibleAddButton(button, target)
 {
     if (!SSOK_Expense_Active(target) || !SSOK_Expense_MSAA_IsFixedAddButton(button))
         return false
+
     rect := SSOK_Expense_Win2_GetRect(button.acc, button.child)
     if (!IsObject(rect))
     {
         SSOK_Expense_Log("row-click-no-visible-rect")
         return false
     }
-    x := Round(rect.cx)
-    y := Round(rect.cy)
-    ; 다른 창이나 팝업이 덮고 있으면 클릭하지 않습니다.
-    packed := (x & 0xFFFFFFFF) | ((y & 0xFFFFFFFF) << 32)
-    hwnd := DllCall("WindowFromPoint", "Int64", packed, "Ptr")
-    root := DllCall("GetAncestor", "Ptr", hwnd, "UInt", 2, "Ptr")
-    if (root != target)
+
+    ; Nexacro에서 버튼 중앙점이 내부 텍스트/자식 객체로 반환되는 경우가 있어
+    ; 정중앙 1점 대신 버튼 내부의 5개 안전 지점을 확인합니다.
+    points := []
+    points.Push({x:Round(rect.x + rect.w*0.50), y:Round(rect.y + rect.h*0.50)})
+    points.Push({x:Round(rect.x + rect.w*0.30), y:Round(rect.y + rect.h*0.50)})
+    points.Push({x:Round(rect.x + rect.w*0.70), y:Round(rect.y + rect.h*0.50)})
+    points.Push({x:Round(rect.x + rect.w*0.50), y:Round(rect.y + rect.h*0.35)})
+    points.Push({x:Round(rect.x + rect.w*0.50), y:Round(rect.y + rect.h*0.65)})
+
+    clickX := ""
+    clickY := ""
+    coveredSeen := false
+    targetPointSeen := false
+
+    for idx, p in points
     {
-        SSOK_Expense_Log("row-click-covered")
+        if (!SSOK_Expense_Active(target))
+            return false
+
+        x := p.x
+        y := p.y
+
+        packed := (x & 0xFFFFFFFF) | ((y & 0xFFFFFFFF) << 32)
+        hwnd := DllCall("WindowFromPoint", "Int64", packed, "Ptr")
+        root := DllCall("GetAncestor", "Ptr", hwnd, "UInt", 2, "Ptr")
+
+        if (root != target)
+        {
+            coveredSeen := true
+            continue
+        }
+
+        targetPointSeen := true
+        hit := SSOK_Expense_MSAA_FromPointFast(x, y)
+
+        ; 점 조회 결과가 행추가 버튼 자체이거나 그 자식/내부 객체이면 인정합니다.
+        if (SSOK_Expense_MSAA_PointBelongsToAddButton(hit))
+        {
+            clickX := x
+            clickY := y
+            SSOK_Expense_Log("row-click-point-verified index=" . idx)
+            break
+        }
+    }
+
+    ; 안전성 유지: 5개 지점 모두 행추가 버튼으로 확인되지 않으면 클릭하지 않습니다.
+    if (clickX = "")
+    {
+        if (!targetPointSeen && coveredSeen)
+            SSOK_Expense_Log("row-click-covered")
+        else
+            SSOK_Expense_Log("row-click-point-not-add-button")
         return false
     }
-    hit := SSOK_Expense_MSAA_FromPointFast(x, y)
-    if (!SSOK_Expense_MSAA_IsFixedAddButton(hit))
-    {
-        SSOK_Expense_Log("row-click-point-not-add-button")
-        return false
-    }
+
     if (!SSOK_Expense_Active(target))
         return false
+
     previousMode := A_CoordModeMouse
     try
     {
         CoordMode, Mouse, Screen
-        Click, %x%, %y%
+        Click, %clickX%, %clickY%
         SSOK_Expense_Log("row-visible-click-sent")
         return true
     }
