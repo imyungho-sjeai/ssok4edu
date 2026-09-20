@@ -1,4 +1,21 @@
 ; =========================================================
+; ssok_tool.ahk 단독 실행 지원
+; - ssok.ahk에서 #Include될 때: 기존 동작 그대로
+; - ssok_tool.ahk를 직접 실행할 때만: 기존 SSOK 계산기 자동 표시
+; =========================================================
+global SSOK_ToolStandalone := (A_LineFile = A_ScriptFullPath)
+
+if (SSOK_ToolStandalone)
+{
+    ; 계산기의 경력기간 탭에서 사용하는 배열만 단독 실행 시 초기화
+    if !IsObject(SSOK_CareerSelected)
+        SSOK_CareerSelected := []
+
+    ; 스크립트 로드가 끝난 뒤 기존 계산기 GUI를 호출
+    SetTimer, SSOK_Tool_StandaloneOpenCalculator, -50
+    SetTimer, SSOK_AdminCalendar_StandaloneInit, -150
+}
+; =========================================================
 ; Win + F10 : 개인정보 정리
 ; - 블록 선택이 있으면 선택 영역만 가림 처리
 ; - 블록 선택이 없으면 Ctrl+A로 전체 문서를 선택하여 문서 전체에서 찾아 가림 처리
@@ -17,7 +34,7 @@ SSOK_DoPrivacyMask:
     SSOK_PrivacySelectionMode := false
 
     ; 1. 먼저 블록 지정된 선택 영역이 있는지 확인
-    if (SSOK_CopyClipboardText(originalText, 0.35, 2, true) && originalText != "")
+    if (SSOK_Tool_CopyClipboardText(originalText, 0.35, 2, true) && originalText != "")
         SSOK_PrivacySelectionMode := true
 
     ; 2. 선택 영역이 없으면 현재 줄이 아니라 문서 전체를 대상으로 처리
@@ -26,11 +43,11 @@ SSOK_DoPrivacyMask:
         SSOK_PrivacySelectionMode := false
         SendInput, ^a
         Sleep, 100
-        if (!SSOK_CopyClipboardText(originalText, 0.8, 3, true))
+        if (!SSOK_Tool_CopyClipboardText(originalText, 0.8, 3, true))
         {
             Clipboard := SavedClipboard
             ToolTip, 클립보드에서 문서 내용을 가져오지 못했습니다.
-            SetTimer, RemoveToolTip, -1800
+            SetTimer, SSOK_Tool_RemoveToolTip, -1800
             return
         }
     }
@@ -39,18 +56,18 @@ SSOK_DoPrivacyMask:
     {
         Clipboard := SavedClipboard
         ToolTip, 선택 영역 또는 전체 문서에서 처리할 텍스트를 찾지 못했습니다.
-        SetTimer, RemoveToolTip, -1800
+        SetTimer, SSOK_Tool_RemoveToolTip, -1800
         return
     }
 
     maskedText := SSOK_MaskPrivateInfo(originalText, SSOK_PrivacySelectionMode)
 
     ; 선택 영역 또는 Ctrl+A로 잡힌 전체 문서를 가림 처리 결과로 교체
-    if (!SSOK_SetClipboardTextWithWait(maskedText, 0.7, 3))
+    if (!SSOK_Tool_SetClipboardTextWithWait(maskedText, 0.7, 3))
     {
         Clipboard := SavedClipboard
         ToolTip, 클립보드에 가림 처리 결과를 담지 못했습니다.
-        SetTimer, RemoveToolTip, -1800
+        SetTimer, SSOK_Tool_RemoveToolTip, -1800
         return
     }
     Sleep, 50
@@ -425,7 +442,9 @@ SSOK_RepeatStar(n)
 ; Win + F3 : Gemini AI 도우미
 ; =========================================================
 #F3::
-    Gosub, SSOK_WinHelp_CancelDirect
+    SSOK_ToolDynamicLabel := "SSOK_WinHelp_CancelDirect"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     Gosub, SSOK_DoF3
 return
 
@@ -776,11 +795,15 @@ QI_WriteIniFile:
     ; QI 저장 시에도 F5QuickFiles 섹션을 지우지 않도록 통합 저장합니다.
     ; 기존 ssok.ini의 F5 한글 키워드가 깨져 있으면 기본 키워드로 자동 복구됩니다.
     if FileExist(QIIni)
-        Gosub, SSOK_QF_LoadKeywords
+        SSOK_ToolDynamicLabel := "SSOK_QF_LoadKeywords"
+        if IsLabel(SSOK_ToolDynamicLabel)
+            Gosub, %SSOK_ToolDynamicLabel%
     else
-        Gosub, SSOK_QF_SetDefaults
+        SSOK_ToolDynamicLabel := "SSOK_QF_SetDefaults"
+        if IsLabel(SSOK_ToolDynamicLabel)
+            Gosub, %SSOK_ToolDynamicLabel%
 
-    SSOK_SaveUnifiedIni()
+    SSOK_Tool_SaveUnifiedIni()
 return
 
 
@@ -921,7 +944,7 @@ QI_ShowGui:
     Gui, QIQuick:Add, Text, x345 y770 w315 h20 Right, 저작권: 세종특별자치시교육청 주무관 이명호
 
     ; 기존 960px에서 약 30% 축소
-    SSOK_GetSidebarAttachedGuiPos(680, 805, QIQuickX, QIQuickY)
+    SSOK_Tool_GetSidebarAttachedGuiPos(680, 805, QIQuickX, QIQuickY)
     Gui, QIQuick:Show, x%QIQuickX% y%QIQuickY% w680 h805, 쏘옥 빠른 입력 도우미
 
     Gosub, QI_UpdatePinButtons
@@ -2108,7 +2131,7 @@ return
 QI_RunDateTool:
     QIOldClip := ClipboardAll
     ; 블록 지정 여부 확인
-    SSOK_CopyClipboardText(QISelectedDateRaw, 0.25, 2)
+    SSOK_Tool_CopyClipboardText(QISelectedDateRaw, 0.25, 2)
     QISelectedDate := Trim(QISelectedDateRaw)
 
     if (QISelectedDate != "")
@@ -2254,7 +2277,7 @@ QI_PasteText:
     }
 
     QIOldClip := ClipboardAll
-    if (!SSOK_SetClipboardTextWithWait(QIInputText, 0.7, 3))
+    if (!SSOK_Tool_SetClipboardTextWithWait(QIInputText, 0.7, 3))
     {
         Clipboard := QIOldClip
         ToolTip, 클립보드에 입력 문구를 담지 못했습니다.
@@ -2363,12 +2386,235 @@ QI_DecodeText(QIValue)
 ; --- 비밀번호 핫키는 보안상 제거됨 ---
 ; 개인 비밀번호/주소는 ssok.ini [PersonalHotstrings]에 별도 관리하세요.
 
+SSOK_Tool_RemoveToolTip:
+    ToolTip
+return
+SSOK_Tool_StandaloneOpenCalculator:
+    if (!SSOK_ToolStandalone)
+        return
+    Gosub, SSOK_ShowCalculator
+return
+
 SSOK_Sidebar_Calc:
     Gosub, SSOK_ShowCalculator
 return
 
+SSOK_Tool_CopyClipboardText(ByRef outText, timeoutSeconds := 0.3, retries := 2, useInput := false)
+{
+    outText := ""
+    Loop, %retries%
+    {
+        Clipboard := ""
+        Sleep, 40
+        if (useInput)
+            SendInput, ^c
+        else
+            Send, ^c
+        ClipWait, %timeoutSeconds%
+        if (!ErrorLevel)
+        {
+            outText := Clipboard
+            return true
+        }
+        Sleep, 80
+    }
+    return false
+}
+
+SSOK_Tool_SetClipboardTextWithWait(value, timeoutSeconds := 0.7, retries := 3)
+{
+    Loop, %retries%
+    {
+        Clipboard := ""
+        Sleep, 30
+        Clipboard := value
+        ClipWait, %timeoutSeconds%
+        if (!ErrorLevel)
+            return true
+        Sleep, 80
+    }
+    return false
+}
+
+SSOK_Tool_SaveUnifiedIni()
+{
+    if IsFunc("SSOK_SaveUnifiedIni")
+        return Func("SSOK_SaveUnifiedIni").Call()
+    return true
+}
+
+SSOK_Tool_GetSidebarAttachedGuiPos(guiW, guiH, ByRef outX, ByRef outY, forceLeft := false)
+{
+    global SSOK_SidebarHwnd, SSOK_SidebarMiniHwnd, SSOK_SidebarSavedY
+    SysGet, SSOK_AttachWork, MonitorWorkArea
+    gap := 8
+    sideX := ""
+    sideY := ""
+    sideW := 112
+    sideH := 650
+    if (SSOK_SidebarHwnd != "")
+        WinGetPos, sideX, sideY, sideW, sideH, ahk_id %SSOK_SidebarHwnd%
+    if (sideX = "" && SSOK_SidebarMiniHwnd != "")
+        WinGetPos, sideX, sideY, sideW, sideH, ahk_id %SSOK_SidebarMiniHwnd%
+    if (sideX = "")
+    {
+        sideW := 112
+        sideX := SSOK_AttachWorkRight - sideW
+        if (SSOK_SidebarSavedY != "")
+            sideY := SSOK_SidebarSavedY
+        else
+            sideY := SSOK_AttachWorkTop + 76
+    }
+    outX := sideX - guiW - (forceLeft ? 0 : gap)
+    if (!forceLeft)
+    {
+        if (outX < SSOK_AttachWorkLeft)
+            outX := sideX + sideW + gap
+        if (outX + guiW > SSOK_AttachWorkRight)
+            outX := SSOK_AttachWorkRight - guiW
+        if (outX < SSOK_AttachWorkLeft)
+            outX := SSOK_AttachWorkLeft
+    }
+    outY := sideY
+    if (outY + guiH > SSOK_AttachWorkBottom)
+        outY := SSOK_AttachWorkBottom - guiH
+    if (outY < SSOK_AttachWorkTop)
+        outY := SSOK_AttachWorkTop
+}
+
+SSOK_Tool_IsKoreaNonWorkday(date8)
+{
+    global SSOK_ToolStandalone
+    if (!SSOK_ToolStandalone && IsFunc("SSOK_IsKoreaNonWorkday"))
+        return Func("SSOK_IsKoreaNonWorkday").Call(date8)
+    stamp := date8 . "000000"
+    FormatTime, wday, %stamp%, WDay
+    if (wday = 1 || wday = 7)
+        return true
+    md := SubStr(date8, 5, 4)
+    return (md = "0101" || md = "0301" || md = "0505" || md = "0606"
+        || md = "0815" || md = "1003" || md = "1009" || md = "1225")
+}
+
+SSOK_Tool_OpenUrlPreferred(url)
+{
+    if IsFunc("SSOK_OpenUrlPreferred")
+        return Func("SSOK_OpenUrlPreferred").Call(url)
+    Run, %url%,, UseErrorLevel
+    return ErrorLevel ? "" : "default"
+}
+
+SSOK_Tool_QU_UrlEncode(value)
+{
+    _size := StrPut(value, "UTF-8")
+    VarSetCapacity(_buf, _size, 0)
+    _len := StrPut(value, &_buf, _size, "UTF-8") - 1
+    _out := ""
+    Loop, %_len%
+    {
+        _ch := NumGet(_buf, A_Index - 1, "UChar")
+        if ((_ch >= 0x30 && _ch <= 0x39) || (_ch >= 0x41 && _ch <= 0x5A) || (_ch >= 0x61 && _ch <= 0x7A) || _ch = 0x2D || _ch = 0x2E || _ch = 0x5F || _ch = 0x7E)
+            _out .= Chr(_ch)
+        else if (_ch = 0x20)
+            _out .= "+"
+        else
+            _out .= "%" . Format("{:02X}", _ch)
+    }
+    return _out
+}
+
+SSOK_Tool_ACC_ActivateBrowser(browserExe := "")
+{
+    if IsFunc("SSOK_ACC_ActivateBrowser")
+        return Func("SSOK_ACC_ActivateBrowser").Call(browserExe)
+    return
+}
+
+SSOK_Tool_CreateHwpxReportFromText(reportSource, templateName)
+{
+    if IsFunc("SSOK_CreateHwpxReportFromText")
+        return Func("SSOK_CreateHwpxReportFromText").Call(reportSource, templateName)
+    return false
+}
+
+SSOK_Tool_QU_NormalizeUrl(url)
+{
+    u := Trim(url)
+    if (u = "")
+        return ""
+    if RegExMatch(u, "i)^(https?://|file:|mailto:)")
+        return u
+    return "https://" . u
+}
+SSOK_Tool_GetCalculatorPos(guiW, guiH, ByRef outX, ByRef outY)
+{
+    global SSOK_ToolStandalone
+    global SSOK_SidebarHwnd, SSOK_SidebarMiniHwnd, SSOK_SidebarSavedY
+
+    ; ssok_tool.ahk 단독 실행: 현재 주 모니터 작업영역 중앙
+    if (SSOK_ToolStandalone)
+    {
+        SysGet, SSOK_ToolWork, MonitorWorkArea
+        outX := SSOK_ToolWorkLeft + Floor((SSOK_ToolWorkRight - SSOK_ToolWorkLeft - guiW) / 2)
+        outY := SSOK_ToolWorkTop + Floor((SSOK_ToolWorkBottom - SSOK_ToolWorkTop - guiH) / 2)
+
+        if (outX < SSOK_ToolWorkLeft)
+            outX := SSOK_ToolWorkLeft
+        if (outY < SSOK_ToolWorkTop)
+            outY := SSOK_ToolWorkTop
+        return
+    }
+
+    ; ssok.ahk에서 Include된 경우:
+    ; 기존 SSOK_Tool_GetSidebarAttachedGuiPos()와 동일한 위치 계산을 그대로 수행
+    SysGet, SSOK_AttachWork, MonitorWorkArea
+    gap := 8
+    sideX := ""
+    sideY := ""
+    sideW := 112
+    sideH := 650
+
+    if (SSOK_SidebarHwnd != "")
+        WinGetPos, sideX, sideY, sideW, sideH, ahk_id %SSOK_SidebarHwnd%
+    if (sideX = "" && SSOK_SidebarMiniHwnd != "")
+        WinGetPos, sideX, sideY, sideW, sideH, ahk_id %SSOK_SidebarMiniHwnd%
+    if (sideX = "")
+    {
+        sideW := 112
+        sideX := SSOK_AttachWorkRight - sideW
+        if (SSOK_SidebarSavedY != "")
+            sideY := SSOK_SidebarSavedY
+        else
+            sideY := SSOK_AttachWorkTop + 76
+    }
+
+    outX := sideX - guiW - gap
+    if (outX < SSOK_AttachWorkLeft)
+        outX := sideX + sideW + gap
+    if (outX + guiW > SSOK_AttachWorkRight)
+        outX := SSOK_AttachWorkRight - guiW
+    if (outX < SSOK_AttachWorkLeft)
+        outX := SSOK_AttachWorkLeft
+
+    outY := sideY
+    if (outY + guiH > SSOK_AttachWorkBottom)
+        outY := SSOK_AttachWorkBottom - guiH
+    if (outY < SSOK_AttachWorkTop)
+        outY := SSOK_AttachWorkTop
+}
 SSOK_ShowCalculator:
-    Gosub, SSOK_WinHelp_BlockWindowsMenu
+    ; SSOK 본체에서 Include된 경우에는 기존 Windows 메뉴 차단 동작을 그대로 수행
+    if (!SSOK_ToolStandalone)
+    {
+        SSOK_ToolMainLabel := "SSOK_WinHelp_BlockWindowsMenu"
+        if IsLabel(SSOK_ToolMainLabel)
+            Gosub, %SSOK_ToolMainLabel%
+    }
+
+    ; 단독 실행에서도 경력기간 탭이 정상 생성되도록 보장
+    if !IsObject(SSOK_CareerSelected)
+        SSOK_CareerSelected := []
+
     Gui, SSOKCalc:Destroy
     Gui, SSOKCalc:New, +AlwaysOnTop +ToolWindow +HwndSSOK_CalcHwnd, SSOK 행정업무 간편 계산기
     Gui, SSOKCalc:Margin, 12, 10
@@ -2556,7 +2802,7 @@ SSOK_ShowCalculator:
     Gui, SSOKCalc:Add, Text, x22 y712 w633 h42 Left Hidden vSSOK_CareerHelp2, 예시: 1번 = 올해 3월 1일 ~ 다음 해 2월 말일 / 2번 = 작년 3월 1일 ~ 올해 2월 말일.`n※ 윤년의 2월 말일은 29일이며, 선택된 기간이 서로 겹치면 중복 날짜는 한 번만 합산합니다.
 
     Gui, SSOKCalc:Add, Button, x22 y770 w633 h34 Hidden vSSOK_CareerCopyBtn gSSOK_CareerCopy, 경력 결과 복사
-    SSOK_GetSidebarAttachedGuiPos(680, 850, SSOK_CalcWinX, SSOK_CalcWinY)
+    SSOK_Tool_GetCalculatorPos(680, 850, SSOK_CalcWinX, SSOK_CalcWinY)
     Gui, SSOKCalc:Show, x%SSOK_CalcWinX% y%SSOK_CalcWinY% w680 h850, SSOK 행정업무 간편 계산기
 
     SSOK_CalcMode := "expr"
@@ -4742,7 +4988,7 @@ SSOK_CalcBid(input)
         Loop
         {
             d8 := SubStr(cur, 1, 8)
-            if (!SSOK_IsKoreaNonWorkday(d8))
+            if (!SSOK_Tool_IsKoreaNonWorkday(d8))
                 counted++
             if (counted = period)
                 break
@@ -4765,7 +5011,7 @@ SSOK_CalcBid(input)
     Loop
     {
         d8 := SubStr(closeDate, 1, 8)
-        if (!SSOK_IsKoreaNonWorkday(d8))
+        if (!SSOK_Tool_IsKoreaNonWorkday(d8))
             break
         isDelayed := true
         EnvAdd, closeDate, 1, Days
@@ -4809,7 +5055,7 @@ SSOK_CalcWorkdays(input)
     Loop, %totalDays%
     {
         d8 := SubStr(cur, 1, 8)
-        if (SSOK_IsKoreaNonWorkday(d8))
+        if (SSOK_Tool_IsKoreaNonWorkday(d8))
             holidays++
         else
             workdays++
@@ -5248,38 +5494,56 @@ SSOK_CalcGetBudgetBreakdown(cat, inputStr, ByRef formulaOut)
     return ""
 }
 
+SSOK_Tool_SidebarDeleteProxy:
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_Delete"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+return
 SSOK_Sidebar_WorkTools:
     Gosub, SSOK_ShowWorkToolsGui
 return
 
 SSOK_ShowWorkToolsGui:
+    SSOK_AdminCalendar_LoadSettings()
+    SSOK_AdminCalMenuText := SSOK_AdminCalEnabled ? "업무달력 [ON]" : "업무달력 [OFF]"
+
+    ; 업무용 도구 가로폭은 현재 메인 메뉴(사이드바)보다 20px 넓게 사용
+    SSOK_WorkToolsW := SSOK_SidebarW + 20
+    if (SSOK_WorkToolsW = "" || SSOK_WorkToolsW < 132)
+        SSOK_WorkToolsW := 132
+
+    SSOK_WorkToolsButtonW := SSOK_WorkToolsW - 16
+    SSOK_WorkToolsSettingsW := 30
+    SSOK_WorkToolsGap := 4
+    SSOK_WorkToolsCalendarW := SSOK_WorkToolsButtonW - SSOK_WorkToolsSettingsW - SSOK_WorkToolsGap
+    SSOK_WorkToolsSettingsX := 8 + SSOK_WorkToolsCalendarW + SSOK_WorkToolsGap
+
     Gui, SSOKWorkTools:Destroy
     Gui, SSOKWorkTools:+AlwaysOnTop +ToolWindow +HwndSSOK_WorkToolsHwnd
     Gui, SSOKWorkTools:Color, F7FBFF
-    Gui, SSOKWorkTools:Font, s8 bold, Malgun Gothic
-    Gui, SSOKWorkTools:Add, Button, x8 y8 w166 h25 gSSOK_WorkTools_Travel, 여비정산서
-    Gui, SSOKWorkTools:Add, Button, x8 y39 w166 h25 gSSOK_WorkTools_Calc, 계산기
-    Gui, SSOKWorkTools:Add, Button, x8 y70 w166 h25 gSSOK_WorkTools_AutoClick, 마우스 매크로
-    Gui, SSOKWorkTools:Add, Button, x8 y101 w166 h25 gSSOK_WorkTools_Privacy, 개인정보 숨기기
-    Gui, SSOKWorkTools:Add, Button, x8 y132 w166 h25 gSSOK_WorkTools_CommaToggle, 숫자 천 단위 토글
-    Gui, SSOKWorkTools:Add, Button, x8 y163 w166 h25 gSSOK_WorkTools_SchoolSearch, 학교검색 (전국)
-    Gui, SSOKWorkTools:Add, Button, x8 y194 w166 h25 gSSOK_WorkTools_SchoolSearchNational, 학교검색 (세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y225 w166 h25 gSSOK_WorkTools_LocalFinanceInfo, 지방교육재정정보
-    Gui, SSOKWorkTools:Add, Button, x8 y256 w166 h25 gSSOK_WorkTools_ContractG2B, 계약현황 (나라장터)
-    Gui, SSOKWorkTools:Add, Button, x8 y287 w166 h25 gSSOK_WorkTools_ContractG2BSejong, 계약현황 (나라장터_세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y318 w166 h25 gSSOK_WorkTools_ContractLofin365, 계약현황 (지방재정365)
-    Gui, SSOKWorkTools:Add, Button, x8 y349 w166 h25 gSSOK_WorkTools_ContractSejong, 계약현황 (세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y380 w166 h25 vSSOK_WorkTools_Exit gSSOK_Sidebar_Delete, 종료
-    Gui, SSOKWorkTools:Add, Button, x8 y411 w166 h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
-    Gui, SSOKWorkTools:Add, Button, x8 y442 w166 h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
-    Gui, SSOKWorkTools:Add, Button, x8 y473 w166 h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
+    ; 기존 s5.6에서 20% 확대 = s6.72
+    Gui, SSOKWorkTools:Font, s6.72 bold, Malgun Gothic
+    Gui, SSOKWorkTools:Add, Button, x8 y8 w%SSOK_WorkToolsCalendarW% h25 vSSOK_WorkTools_AdminCalendar gSSOK_WorkTools_AdminCalendarToggle, %SSOK_AdminCalMenuText%
+    Gui, SSOKWorkTools:Add, Button, x%SSOK_WorkToolsSettingsX% y8 w%SSOK_WorkToolsSettingsW% h25 gSSOK_WorkTools_AdminCalendarSettings, 설정
+    Gui, SSOKWorkTools:Add, Button, x8 y39  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Travel, 여비정산서
+    Gui, SSOKWorkTools:Add, Button, x8 y70  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Calc, 계산기
+    Gui, SSOKWorkTools:Add, Button, x8 y101 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_AutoClick, 마우스 매크로
+    Gui, SSOKWorkTools:Add, Button, x8 y132 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CompanyInfo, 국세청·조달청 업체조회
+    Gui, SSOKWorkTools:Add, Button, x8 y163 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Privacy, 개인정보 숨기기
+    Gui, SSOKWorkTools:Add, Button, x8 y194 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CommaToggle, 숫자 천 단위 토글
+    Gui, SSOKWorkTools:Add, Button, x8 y225 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearch, 학교검색 (전국)
+    Gui, SSOKWorkTools:Add, Button, x8 y256 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearchNational, 학교검색 (세종)
+    Gui, SSOKWorkTools:Add, Button, x8 y287 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_LocalFinanceInfo, 지방교육재정정보
+    Gui, SSOKWorkTools:Add, Button, x8 y318 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractG2B, 계약현황 (나라장터)
+    Gui, SSOKWorkTools:Add, Button, x8 y349 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractLofin365, 계약현황 (지방재정365)
+    Gui, SSOKWorkTools:Add, Button, x8 y380 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractSejong, 계약현황 (세종)
+    Gui, SSOKWorkTools:Add, Button, x8 y411 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Exit gSSOK_Tool_SidebarDeleteProxy, 종료
+    Gui, SSOKWorkTools:Add, Button, x8 y442 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
+    Gui, SSOKWorkTools:Add, Button, x8 y504 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
+    Gui, SSOKWorkTools:Add, Button, x8 y535 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
+    Gui, SSOKWorkTools:Add, Button, x8 y566 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
 
-    Gui, SSOKWorkTools:Add, Button, x8 y504 w166 h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
-
-    ; 테스트버전을 눌러도 창 크기와 위치는 변경하지 않습니다.
-    ; 따라서 테스트버전 버튼이 사라지지 않고 계속 같은 위치에서 다시 누를 수 있습니다.
-    SSOK_WorkToolsW := 182
-    SSOK_WorkToolsH := 536
+    SSOK_WorkToolsH := 474
     SSOK_WorkToolsBetaExpanded := 0
 
     SSOK_WorkToolsX := SSOK_SidebarX - SSOK_WorkToolsW
@@ -5296,26 +5560,40 @@ SSOK_ShowWorkToolsGui:
     WinActivate, ahk_id %SSOK_WorkToolsHwnd%
 return
 
+SSOK_WorkTools_AdminCalendarToggle:
+    SSOK_AdminCalendar_Toggle()
+return
+
+SSOK_WorkTools_AdminCalendarSettings:
+    SSOK_AdminCalendar_ShowSettings()
+return
+
 SSOK_WorkTools_BetaToggle:
-    ; 테스트버전 버튼 자체는 절대로 숨기거나 이동하지 않습니다.
-    if (SSOK_WorkToolsBetaExpanded)
+    ; 현재 업무용 도구 창의 위치/크기를 기억한 뒤 숨기고,
+    ; 그 자리에 Beta 창을 표시합니다.
+    global SSOK_WorkToolsHwnd
+    global SSOK_BetaReplaceX, SSOK_BetaReplaceY, SSOK_BetaReplaceW, SSOK_BetaReplaceH
+
+    SSOK_BetaReplaceX := ""
+    SSOK_BetaReplaceY := ""
+    SSOK_BetaReplaceW := ""
+    SSOK_BetaReplaceH := ""
+
+    if (SSOK_WorkToolsHwnd != "")
     {
-        GuiControl, SSOKWorkTools:Hide, SSOK_WorkTools_Win1
-        GuiControl, SSOKWorkTools:Hide, SSOK_WorkTools_Win2
-        GuiControl, SSOKWorkTools:Hide, SSOK_WorkTools_ExpenseDraft
-        SSOK_WorkToolsBetaExpanded := 0
+        WinGetPos, SSOK_BetaReplaceX, SSOK_BetaReplaceY, SSOK_BetaReplaceW, SSOK_BetaReplaceH, ahk_id %SSOK_WorkToolsHwnd%
+        Gui, SSOKWorkTools:Hide
     }
-    else
-    {
-        GuiControl, SSOKWorkTools:Show, SSOK_WorkTools_Win1
-        GuiControl, SSOKWorkTools:Show, SSOK_WorkTools_Win2
-        GuiControl, SSOKWorkTools:Show, SSOK_WorkTools_ExpenseDraft
-        SSOK_WorkToolsBetaExpanded := 1
-    }
+
+    SSOK_ToolDynamicLabel := "SSOK_Expense_Tools_Open"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_WorkTools_Travel:
-    Gosub, SSOK_TrayOpenTravel
+    SSOK_ToolDynamicLabel := "SSOK_TrayOpenTravel"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_WorkTools_Calc:
@@ -5324,6 +5602,10 @@ return
 
 SSOK_WorkTools_AutoClick:
     Gosub, SSOK_Advanced_AutoClick
+return
+
+SSOK_WorkTools_CompanyInfo:
+    SSOK_CompanyInfo_Show()
 return
 
 SSOK_WorkTools_Privacy:
@@ -5340,38 +5622,53 @@ return
 
 SSOK_WorkTools_SchoolSearchNational:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     Gosub, SSOK_SchoolSearch_ShowNational
 return
 
 SSOK_WorkTools_LocalFinanceInfo:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     SSOK_OpenLocalFinanceInfoForSejongElementary()
 return
 
 SSOK_WorkTools_ContractG2B:
-    Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    SSOK_OpenUrlPreferred("https://www.g2b.go.kr/link/FIUA006_01/")
-return
+    ; 업무용 도구의 현재 위치/크기를 저장하고 같은 자리에 교육청 선택창 표시
+    SSOK_BetaReplaceX := ""
+    SSOK_BetaReplaceY := ""
+    SSOK_BetaReplaceW := ""
+    SSOK_BetaReplaceH := ""
 
-SSOK_WorkTools_ContractG2BSejong:
-    Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    SSOK_OpenUrlPreferred("https://www.g2b.go.kr/link/FIUA006_01/single/?untySrchSeCd=BKOB&rowCnt=&instCd=9300000&demaInstNm=&hghrkInstCd=9300000&prcmBsneAreaCd=%EC%A0%84%EC%B2%B4&prcmMthoSeCd=&frcpYn=N&laseYn=N&rsrvYn=N&chkInstCd=&urlSrchSeCd=hghrkInstCd")
+    if (SSOK_WorkToolsHwnd != "" && WinExist("ahk_id " . SSOK_WorkToolsHwnd))
+    {
+        WinGetPos, SSOK_BetaReplaceX, SSOK_BetaReplaceY, SSOK_BetaReplaceW, SSOK_BetaReplaceH, ahk_id %SSOK_WorkToolsHwnd%
+        Gui, SSOKWorkTools:Hide
+    }
+
+    if IsFunc("SSOK_Expense_G2B_Show")
+        SSOK_Expense_G2B_Show()
+    else
+        MsgBox, 48, SSOK 안내, 나라장터 교육청 선택 기능을 불러오지 못했습니다.
 return
 
 SSOK_WorkTools_ContractLofin365:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    SSOK_OpenUrlPreferred("https://www.lofin365.go.kr/portal/LF3120302.do")
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    SSOK_Tool_OpenUrlPreferred("https://www.lofin365.go.kr/portal/LF3120302.do")
 return
 
 SSOK_WorkTools_ContractSejong:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    SSOK_OpenUrlPreferred("https://www.sje.go.kr/sje/ir/selectCntrInfoList.do?mi=52495")
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    SSOK_Tool_OpenUrlPreferred("https://www.sje.go.kr/sje/ir/selectCntrInfoList.do?mi=52495")
 return
 
 SSOKWorkToolsGuiEscape:
@@ -5423,31 +5720,49 @@ SSOK_Sidebar_Advanced:
 return
 
 SSOK_Advanced_Privacy:
-    Gosub, SSOK_Sidebar_PrepareAction
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     Gosub, SSOK_DoPrivacyMask
 return
 
 SSOK_Advanced_Win1:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    Gosub, SSOK_Expense_DoWin1_KEdufine_TabSeq_10_1_4
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    SSOK_ToolDynamicLabel := "SSOK_Expense_DoWin1_KEdufine_TabSeq_10_1_4"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_Advanced_Win2:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    Gosub, SSOK_Expense_DoWin4_KEdufine_TabSeq
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    SSOK_ToolDynamicLabel := "SSOK_Expense_DoWin4_KEdufine_TabSeq"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_Advanced_ExpenseDraft:
-    Gosub, SSOK_Sidebar_PrepareAction
-    SSOK_Expense_Run()
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    ; 단독 실행에서는 expense 모듈이 없으므로 존재할 때만 호출
+    if IsFunc("SSOK_Expense_Run")
+        Func("SSOK_Expense_Run").Call()
 return
 
 SSOK_Advanced_CommaToggle:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
-    Gosub, SSOK_DoCommaToggle
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    SSOK_ToolDynamicLabel := "SSOK_DoCommaToggle"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_Advanced_AutoClick:
@@ -5457,19 +5772,25 @@ return
 
 SSOK_Advanced_SchoolSearch:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     SSOK_OpenSchoolInfo2ForSejongElementary()
 return
 
 SSOK_SchoolSearch_ShowNational:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     Gosub, SSOK_SchoolSearch_Show
 return
 
 SSOK_Advanced_EduOfficeSearch:
     Gosub, SSOK_Advanced_SaveMovedPos
-    Gosub, SSOK_Sidebar_PrepareAction
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     Gosub, SSOK_EduOfficeSearch_Show
 return
 
@@ -5611,7 +5932,7 @@ SSOK_AutoClick_Show:
     Gosub, SSOK_AutoClick_UpdateRangeText
     Gosub, SSOK_AutoClick_ApplyIntervalEnabled
     Gosub, SSOK_AutoClick_SaveSettings
-    SSOK_GetSidebarAttachedGuiPos(980, 644, SSOK_AutoClickWinX, SSOK_AutoClickWinY)
+    SSOK_Tool_GetSidebarAttachedGuiPos(980, 644, SSOK_AutoClickWinX, SSOK_AutoClickWinY)
     Gui, SSOKAutoClick:Show, x%SSOK_AutoClickWinX% y%SSOK_AutoClickWinY% w980 h644, SSOK 자동 마우스 클릭
 return
 
@@ -6042,25 +6363,33 @@ SSOK_SchoolSearch_Show:
     Gui, SSOKSchool:Destroy
     Gui, SSOKSchool:+AlwaysOnTop +ToolWindow +MinSize920x540
     Gui, SSOKSchool:Color, F7FBFF
-    SSOK_SchoolDataTitle := "세종특별자치시교육청_세종시 관내 학교급별 현황 안내"
-    SSOK_SchoolDataMeta := "관리부서명: 교육복지과    전화번호: 044-320-3332`n게시일: 2025.09.17.    수정일: 2026.02.20.`n(출처: 공공데이터포털)"
+    ; 공공데이터포털의 현재 공식값을 fallback으로 먼저 표시하고
+    ; 창이 뜬 뒤 포털 페이지에서 최신 메타데이터를 다시 읽어 갱신합니다.
+    SSOK_SchoolDataTitle := "세종특별자치시교육청_세종시 관내 학교급별 현황 안내_20260702"
+    SSOK_SchoolDataMeta := "관리부서: 교육복지과    전체: 173건`n등록일: 2025.09.17.    수정일: 2026.07.02.`n업데이트: 연간    차기등록: 2027.07.30.    (공공데이터포털)"
     Gui, SSOKSchool:Font, s12 bold, Malgun Gothic
-    Gui, SSOKSchool:Add, Text, x18 y12 w710 h30 c005BAC +0x200, %SSOK_SchoolDataTitle%
+    Gui, SSOKSchool:Add, Text, x18 y12 w710 h30 c005BAC +0x200 vSSOK_SchoolDataTitleText, %SSOK_SchoolDataTitle%
     Gui, SSOKSchool:Font, s8 norm, Malgun Gothic
-    Gui, SSOKSchool:Add, Text, x748 y8 w425 h56 c555555 Right, %SSOK_SchoolDataMeta%
+    Gui, SSOKSchool:Add, Text, x748 y4 w425 h62 c555555 Right vSSOK_SchoolDataMetaText, %SSOK_SchoolDataMeta%
     Gui, SSOKSchool:Font, s9 norm, Malgun Gothic
     Gui, SSOKSchool:Add, Text, x20 y64 w60 h24 +0x200, 검색어
     Gui, SSOKSchool:Add, Edit, x82 y62 w420 h26 vSSOK_SchoolSearchQuery
     Gui, SSOKSchool:Add, Button, x510 y61 w80 h28 Default gSSOK_SchoolSearch_DoSearch, 검색
-    Gui, SSOKSchool:Add, Text, x20 y98 w1145 h38 vSSOK_SchoolSearchStatus c777777, 학교 정보 200건을 불러오는 중입니다...
+    Gui, SSOKSchool:Add, Text, x20 y98 w1145 h38 vSSOK_SchoolSearchStatus c777777, 공공데이터포털 학교 정보를 불러오는 중입니다...
     Gui, SSOKSchool:Add, ListView, x18 y146 w1145 h410 vSSOK_SchoolSearchLV gSSOK_SchoolSearch_LVClick Grid AltSubmit, 구분|학교명|지역명|전화|팩스|학급수|학생수|교원수|주소|홈페이지
-    SSOK_GetSidebarAttachedGuiPos(1180, 610, SSOK_SchoolSearchWinX, SSOK_SchoolSearchWinY)
+    SSOK_Tool_GetSidebarAttachedGuiPos(1180, 610, SSOK_SchoolSearchWinX, SSOK_SchoolSearchWinY)
     Gui, SSOKSchool:Show, x%SSOK_SchoolSearchWinX% y%SSOK_SchoolSearchWinY% w1180 h610, %SSOK_SchoolDataTitle%
     ; 창이 완전히 표시되기 전에 API를 바로 호출하면 첫 호출에서만 400/999류 오류가 뜨는 경우가 있어
     ; 자동 불러오기는 조금 늦추고, 최초 자동 호출 실패 시 팝업 없이 한 번 더 재시도합니다.
     SSOK_SchoolSearch_IsAutoLoading := 0
     SSOK_SchoolSearch_AutoRetryDone := 0
     SetTimer, SSOK_SchoolSearch_AutoLoad, -700
+    ; 데이터포털 메타데이터는 별도로 읽어 상단 제목/날짜/건수를 최신화
+    SetTimer, SSOK_SchoolSearch_LoadPortalMeta, -120
+return
+
+SSOK_SchoolSearch_LoadPortalMeta:
+    SSOK_SchoolSearch_UpdatePortalMeta()
 return
 
 SSOK_SchoolSearch_AutoLoad:
@@ -6147,25 +6476,25 @@ SSOK_SchoolSearch_LVClick:
         query := SSOK_SchoolSearch_BuildHomepageQuery(schoolName)
         if (query = "")
             return
-        url := "https://duckduckgo.com/?q=" . SSOK_QU_UrlEncode("!ducky " . query)
+        url := "https://duckduckgo.com/?q=" . SSOK_Tool_QU_UrlEncode("!ducky " . query)
     }
 
     if (schoolName != "")
         GuiControl, SSOKSchool:, SSOK_SchoolSearchStatus, %schoolName% 홈페이지를 여는 중...
-    SSOK_OpenUrlPreferred(url)
+    SSOK_Tool_OpenUrlPreferred(url)
 return
 
 SSOK_EduOfficeSearch_Show:
     ; 교육청 업무담당 조회: 업무명 검색이 기본 선택된 부서 업무 페이지를 엽니다.
-    SSOK_OpenUrlPreferred(SSOK_EduOfficeSearch_GetUrl())
+    SSOK_Tool_OpenUrlPreferred(SSOK_EduOfficeSearch_GetUrl())
 return
 
 SSOK_EduOfficeSearch_OpenStaffPage:
-    SSOK_OpenUrlPreferred(SSOK_EduOfficeSearch_GetUrl())
+    SSOK_Tool_OpenUrlPreferred(SSOK_EduOfficeSearch_GetUrl())
 return
 
 SSOK_EduOfficeSearch_OpenOfficePhone:
-    SSOK_OpenUrlPreferred(SSOK_EduOfficeSearch_GetUrl())
+    SSOK_Tool_OpenUrlPreferred(SSOK_EduOfficeSearch_GetUrl())
 return
 
 SSOK_QU_OpenSchoolSearchFromMenu:
@@ -6175,7 +6504,7 @@ return
 
 SSOK_QU_OpenSchoolInfoFromMenu:
     Gui, SSOKQuickUrl:Destroy
-    SSOK_OpenUrlPreferred("https://www.schoolinfo.go.kr/ei/ss/pneiss_a08_s0.do?SIDO_CODE=3611000000")
+    SSOK_Tool_OpenUrlPreferred("https://www.schoolinfo.go.kr/ei/ss/pneiss_a08_s0.do?SIDO_CODE=3611000000")
 return
 
 SSOK_QU_OpenSchoolInfo2FromMenu:
@@ -6195,7 +6524,7 @@ return
 
 SSOK_QU_OpenSchoolSupportInfoFromMenu:
     Gui, SSOKQuickUrl:Destroy
-    SSOK_OpenUrlPreferred("https://sssc.sje.go.kr/sssc/cm/conts/contsView.do?mi=201304&contsId=201058")
+    SSOK_Tool_OpenUrlPreferred("https://sssc.sje.go.kr/sssc/cm/conts/contsView.do?mi=201304&contsId=201058")
 return
 
 SSOK_QU_OpenContractInfoFromMenu:
@@ -6204,18 +6533,18 @@ SSOK_QU_OpenContractInfoFromMenu:
 return
 
 SSOK_QU_OpenContractInfo:
-    SSOK_OpenUrlPreferred("https://www.sje.go.kr/sje/ir/selectCntrInfoList.do?mi=52495")
+    SSOK_Tool_OpenUrlPreferred("https://www.sje.go.kr/sje/ir/selectCntrInfoList.do?mi=52495")
 return
 
 SSOK_OpenSchoolInfo2ForSejongElementary()
 {
     url := "https://www.schoolinfo.go.kr/ng/go/pnnggo_a01_l2.do"
-    browserExe := SSOK_OpenUrlPreferred(url)
+    browserExe := SSOK_Tool_OpenUrlPreferred(url)
     if (browserExe = "")
         return false
 
     Sleep, 4800
-    SSOK_ACC_ActivateBrowser(browserExe)
+    SSOK_Tool_ACC_ActivateBrowser(browserExe)
     Sleep, 300
 
     ; 학교기본정보를 불러온 뒤 초등학교와 세종특별자치시교육청을 선택합니다.
@@ -6227,13 +6556,13 @@ SSOK_OpenSchoolInfo2ForSejongElementary()
 SSOK_OpenLocalFinanceInfoForSejongElementary()
 {
     url := "https://www.eduinfo.go.kr/portal/theme/schCmprPage.do"
-    browserExe := SSOK_OpenUrlPreferred(url)
+    browserExe := SSOK_Tool_OpenUrlPreferred(url)
     if (browserExe = "")
         return false
 
     ; 페이지의 서울 기본 검색이 끝난 뒤 세종 검색으로 바꿉니다.
     Sleep, 5200
-    SSOK_ACC_ActivateBrowser(browserExe)
+    SSOK_Tool_ACC_ActivateBrowser(browserExe)
     Sleep, 300
 
     ; 세종 > 세종특별자치시 > 초를 선택하고 검색 버튼을 누릅니다.
@@ -6264,6 +6593,231 @@ SSOK_EduOfficeSearch_GetUrl()
 SSOK_EduOfficeSearch_GetSearchUrl(query := "")
 {
     return SSOK_EduOfficeSearch_GetUrl()
+}
+
+
+SSOK_SchoolSearch_GetPortalUrl()
+{
+    return "https://www.data.go.kr/data/15050938/fileData.do"
+}
+
+SSOK_SchoolSearch_UpdatePortalMeta()
+{
+    global SSOK_SchoolDataTitle, SSOK_SchoolDataMeta
+
+    meta := SSOK_SchoolSearch_FetchPortalMeta(err)
+
+    if (!IsObject(meta) || !meta.ok)
+        return false
+
+    SSOK_SchoolDataTitle := meta.name
+
+    metaText := "관리부서: " . meta.department
+    if (meta.totalRows != "")
+        metaText .= "    전체: " . meta.totalRows . "건"
+
+    metaText .= "`n등록일: " . SSOK_SchoolSearch_FormatPortalDate(meta.registered)
+        . "    수정일: " . SSOK_SchoolSearch_FormatPortalDate(meta.modified)
+
+    metaText .= "`n업데이트: " . meta.updateCycle
+    if (meta.nextDate != "")
+        metaText .= "    차기등록: " . SSOK_SchoolSearch_FormatPortalDate(meta.nextDate)
+    metaText .= "    (공공데이터포털)"
+
+    SSOK_SchoolDataMeta := metaText
+
+    GuiControl, SSOKSchool:, SSOK_SchoolDataTitleText, %SSOK_SchoolDataTitle%
+    GuiControl, SSOKSchool:, SSOK_SchoolDataMetaText, %SSOK_SchoolDataMeta%
+
+    return true
+}
+
+SSOK_SchoolSearch_FetchPortalMeta(ByRef errMsg)
+{
+    errMsg := ""
+    url := SSOK_SchoolSearch_GetPortalUrl()
+
+    try
+    {
+        req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        req.SetTimeouts(3000, 3000, 6000, 6000)
+        req.Open("GET", url, false)
+        req.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSOK/1.0")
+        req.SetRequestHeader("Accept-Language", "ko-KR,ko;q=0.9")
+        req.Send()
+
+        if (req.Status < 200 || req.Status >= 400)
+        {
+            errMsg := "공공데이터포털 메타정보 응답 오류: HTTP " . req.Status
+            return {ok:false}
+        }
+
+        ; data.go.kr은 UTF-8이므로 ResponseBody를 명시적으로 UTF-8로 읽습니다.
+        html := SSOK_SchoolSearch_ResponseBodyToUtf8(req.ResponseBody)
+
+        if (html = "")
+            html := req.ResponseText . ""
+
+        if (html = "")
+        {
+            errMsg := "공공데이터포털 메타정보를 읽지 못했습니다."
+            return {ok:false}
+        }
+
+        plain := SSOK_SchoolSearch_HtmlToPlainText(html)
+
+        ; 한 페이지 안에 파일데이터/오픈API 정보가 모두 있으므로
+        ; 첫 번째 '파일데이터 정보' 영역을 기준으로 파싱합니다.
+        filePos := InStr(plain, "파일데이터 정보")
+        apiPos := InStr(plain, "오픈API 정보", false, filePos + 1)
+
+        if (filePos > 0)
+        {
+            if (apiPos > filePos)
+                section := SubStr(plain, filePos, apiPos - filePos)
+            else
+                section := SubStr(plain, filePos)
+        }
+        else
+            section := plain
+
+        name := SSOK_SchoolSearch_MetaValue(section, "파일데이터명", "분류체계")
+        department := SSOK_SchoolSearch_MetaValue(section, "관리부서명", "관리부서 전화번호")
+        updateCycle := SSOK_SchoolSearch_MetaValue(section, "업데이트 주기", "차기 등록 예정일")
+        nextDate := SSOK_SchoolSearch_MetaValue(section, "차기 등록 예정일", "상세 및 제공정보")
+        totalRows := SSOK_SchoolSearch_MetaValue(section, "전체 행", "키워드")
+        registered := SSOK_SchoolSearch_MetaValue(section, "등록일", "수정일")
+        modified := SSOK_SchoolSearch_MetaValue(section, "수정일", "기타 유의사항")
+
+        name := SSOK_SchoolSearch_CleanMetaValue(name)
+        department := SSOK_SchoolSearch_CleanMetaValue(department)
+        updateCycle := SSOK_SchoolSearch_CleanMetaValue(updateCycle)
+        nextDate := SSOK_SchoolSearch_CleanMetaValue(nextDate)
+        totalRows := SSOK_SchoolSearch_CleanMetaValue(totalRows)
+        registered := SSOK_SchoolSearch_CleanMetaValue(registered)
+        modified := SSOK_SchoolSearch_CleanMetaValue(modified)
+
+        ; 포털 구조가 조금 바뀌더라도 핵심값이 없으면 기존 fallback을 유지
+        if (name = "" || registered = "" || modified = "")
+        {
+            errMsg := "공공데이터포털 메타정보 구조를 해석하지 못했습니다."
+            return {ok:false}
+        }
+
+        if (department = "")
+            department := "교육복지과"
+        if (updateCycle = "")
+            updateCycle := "연간"
+
+        return {ok:true
+            , name:name
+            , department:department
+            , updateCycle:updateCycle
+            , nextDate:nextDate
+            , totalRows:totalRows
+            , registered:registered
+            , modified:modified}
+    }
+    catch e
+    {
+        errMsg := e.Message
+        return {ok:false}
+    }
+}
+
+SSOK_SchoolSearch_ResponseBodyToUtf8(body)
+{
+    try
+    {
+        stream := ComObjCreate("ADODB.Stream")
+        stream.Type := 1
+        stream.Open()
+        stream.Write(body)
+        stream.Position := 0
+        stream.Type := 2
+        stream.Charset := "utf-8"
+        text := stream.ReadText()
+        stream.Close()
+        return text
+    }
+    catch e
+    {
+        return ""
+    }
+}
+
+SSOK_SchoolSearch_HtmlToPlainText(html)
+{
+    try
+    {
+        doc := ComObjCreate("HTMLFile")
+        doc.Open()
+        doc.Write(html)
+        doc.Close()
+
+        if IsObject(doc.body)
+            plain := doc.body.innerText . ""
+        else
+            plain := ""
+    }
+    catch e
+    {
+        plain := ""
+    }
+
+    if (plain = "")
+    {
+        plain := RegExReplace(html, "is)<script\b[^>]*>.*?</script>", " ")
+        plain := RegExReplace(plain, "is)<style\b[^>]*>.*?</style>", " ")
+        plain := RegExReplace(plain, "is)<br\s*/?>", "`n")
+        plain := RegExReplace(plain, "is)</(li|p|div|dt|dd|tr|h\d)>", "`n")
+        plain := RegExReplace(plain, "is)<[^>]+>", " ")
+        plain := StrReplace(plain, "&nbsp;", " ")
+        plain := StrReplace(plain, "&#160;", " ")
+        plain := StrReplace(plain, "&amp;", "&")
+    }
+
+    plain := StrReplace(plain, "`r", "")
+    plain := RegExReplace(plain, "[ `t]+", " ")
+    plain := RegExReplace(plain, " *`n *", "`n")
+    plain := RegExReplace(plain, "`n{2,}", "`n")
+
+    return Trim(plain)
+}
+
+SSOK_SchoolSearch_MetaValue(section, label, nextLabel)
+{
+    p1 := InStr(section, label)
+
+    if (!p1)
+        return ""
+
+    p1 += StrLen(label)
+
+    p2 := InStr(section, nextLabel, false, p1)
+
+    if (!p2)
+        return ""
+
+    return Trim(SubStr(section, p1, p2 - p1))
+}
+
+SSOK_SchoolSearch_CleanMetaValue(value)
+{
+    s := Trim(value . "")
+    s := RegExReplace(s, "^[\s:：\-]+", "")
+    s := RegExReplace(s, "[\s`r`n]+", " ")
+    return Trim(s)
+}
+
+SSOK_SchoolSearch_FormatPortalDate(value)
+{
+    s := Trim(value . "")
+
+    if RegExMatch(s, "(\d{4})[-./](\d{1,2})[-./](\d{1,2})", m)
+        return Format("{:04}.{:02}.{:02}.", m1 + 0, m2 + 0, m3 + 0)
+
+    return s
 }
 
 
@@ -6316,7 +6870,7 @@ SSOK_SchoolSearch_FetchRecords(ByRef errMsg)
 
     for _, serviceKey in serviceKeys
     {
-        encodedKey := SSOK_QU_UrlEncode(serviceKey)
+        encodedKey := SSOK_Tool_QU_UrlEncode(serviceKey)
 
         for _, authMode in authModes
         {
@@ -6766,7 +7320,9 @@ SSOK_SaveHiddenMenuPositionIni()
 ; - Chrome → Edge → 기본 브라우저 순으로 실행
 ; =========================================================
 #F9::
-    Gosub, SSOK_WinHelp_CancelDirect
+    SSOK_ToolDynamicLabel := "SSOK_WinHelp_CancelDirect"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
     Gosub, SSOK_DoF9
 return
 
@@ -6774,7 +7330,7 @@ SSOK_DoF9:
     ClipSavedF9 := ClipboardAll
     ; 블록 지정 여부 확인
     f9Text := ""
-    if (SSOK_CopyClipboardText(f9RawText, 0.35, 2) && f9RawText != "")
+    if (SSOK_Tool_CopyClipboardText(f9RawText, 0.35, 2) && f9RawText != "")
         f9Text := Trim(f9RawText)
 
     Clipboard := ClipSavedF9
@@ -6790,14 +7346,14 @@ return
 
 SSOK_OpenGeminiBlankPreferred()
 {
-    SSOK_OpenUrlPreferred("https://gemini.google.com/app")
+    SSOK_Tool_OpenUrlPreferred("https://gemini.google.com/app")
 }
 
 SSOK_OpenGeminiAndPaste(queryText)
 {
     ClipSavedGemini := ClipboardAll
 
-    browserExe := SSOK_OpenUrlPreferred("https://gemini.google.com/app")
+    browserExe := SSOK_Tool_OpenUrlPreferred("https://gemini.google.com/app")
     if (browserExe = "")
         Sleep, 1800
 
@@ -6806,7 +7362,7 @@ SSOK_OpenGeminiAndPaste(queryText)
 
     ; 페이지 로드 여유 대기 후 선택 문구 입력
     Sleep, 1800
-    if (!SSOK_SetClipboardTextWithWait(queryText, 0.7, 3))
+    if (!SSOK_Tool_SetClipboardTextWithWait(queryText, 0.7, 3))
     {
         Clipboard := ClipSavedGemini
         return
@@ -6920,7 +7476,7 @@ SSOK_ShowGeminiAIMenu:
     Gui, SSOKGeminiAI:Add, Text, x40 y602 w400 h18 c999999, 5개 AI 사이트 이름과 주소는 ssok.ini에 저장됩니다.
     Gui, SSOKGeminiAI:Add, Button, x465 y595 w100 h30 gSSOK_AI_SaveSites, 전체 저장
     Gui, SSOKGeminiAI:Add, Text, x350 y632 w290 h24 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
-    SSOK_GetSidebarAttachedGuiPos(680, 667, SSOK_AI_WinX, SSOK_AI_WinY)
+    SSOK_Tool_GetSidebarAttachedGuiPos(680, 667, SSOK_AI_WinX, SSOK_AI_WinY)
     Gui, SSOKGeminiAI:Show, x%SSOK_AI_WinX% y%SSOK_AI_WinY% w680 h667, SSOK Gemini AI 도우미
     SetTimer, SSOK_AI_TrackTargetWindow, 200
 return
@@ -6958,7 +7514,7 @@ SSOK_AI_ReportConvert2:
         MsgBox, 48, SSOK HWP 양식 변환, Gemini에서 작성된 텍스트를 블록 지정하거나 복사한 뒤 다시 실행해 주세요.
         return
     }
-    SSOK_CreateHwpxReportFromText(reportSource, "ssok_ai_report2_template.hwtx")
+    SSOK_Tool_CreateHwpxReportFromText(reportSource, "ssok_ai_report2_template.hwtx")
 return
 
 SSOK_AI_ReportConvert1:
@@ -6972,7 +7528,7 @@ SSOK_AI_ReportConvert1:
         MsgBox, 48, SSOK HWP 양식 변환, Gemini에서 작성된 텍스트를 블록 지정하거나 복사한 뒤 다시 실행해 주세요.
         return
     }
-    SSOK_CreateHwpxReportFromText(reportSource, "ssok_ai_report1_template.hwtx")
+    SSOK_Tool_CreateHwpxReportFromText(reportSource, "ssok_ai_report1_template.hwtx")
 return
 
 SSOK_AI_SearchOnly:
@@ -7111,7 +7667,7 @@ SSOK_AI_SaveSitesFromGui(showNotice := 0)
         SSOK_AI_SiteUrl%idx% := urlVar
     }
     SSOK_AI_SaveActive := 1
-    SSOK_SaveUnifiedIni()
+    SSOK_Tool_SaveUnifiedIni()
     SSOK_AI_SaveActive := 0
     if (showNotice)
         MsgBox, 64, SSOK 안내, Win+F3 AI 사이트 5개를 저장했습니다.`n`n저장 위치: ssok.ini
@@ -7122,7 +7678,7 @@ SSOK_AI_OpenSiteIndex(index)
     global
     SSOK_AI_SaveSitesFromGui(0)
     urlVar := SSOK_AI_SiteUrl%index%
-    urlVar := SSOK_QU_NormalizeUrl(urlVar)
+    urlVar := SSOK_Tool_QU_NormalizeUrl(urlVar)
     if (urlVar = "")
     {
         MsgBox, 48, SSOK 안내, AI 사이트 주소가 비어 있습니다.`n`n주소를 입력해 주세요.
@@ -7130,7 +7686,7 @@ SSOK_AI_OpenSiteIndex(index)
     }
     SetTimer, SSOK_AI_TrackTargetWindow, Off
     Gui, SSOKGeminiAI:Destroy
-    SSOK_OpenUrlPreferred(urlVar)
+    SSOK_Tool_OpenUrlPreferred(urlVar)
 }
 
 SSOK_AI_SaveSites:
@@ -7162,7 +7718,7 @@ SSOK_RunGeminiWithPrompt:
         return
     }
 
-    browserExe := SSOK_OpenUrlPreferred("https://gemini.google.com/app")
+    browserExe := SSOK_Tool_OpenUrlPreferred("https://gemini.google.com/app")
     if (browserExe = "")
     {
         Sleep, 1800
@@ -7176,7 +7732,7 @@ SSOK_RunGeminiWithPrompt:
 
     ; Gemini 페이지와 입력창 준비 시간을 넉넉히 둠
     Sleep, 2200
-    if (!SSOK_SetClipboardTextWithWait(prompt, 0.7, 3))
+    if (!SSOK_Tool_SetClipboardTextWithWait(prompt, 0.7, 3))
     {
         Clipboard := ClipSaved2
         MsgBox, 48, SSOK AI, Gemini로 보낼 문구를 클립보드에 복사하지 못했습니다.
@@ -7602,4 +8158,2167 @@ SSOK_CareerDaysInclusive(a, b)
     return (endDT + 1)
 }
 
-#Include %A_ScriptDir%\ssok_tool_expense.ahk
+; [단독 실행 호환] ssok_tool_expense.ahk는 ssok.ahk 본체에서 별도로 Include합니다.
+
+
+; ============================================================================
+; 행정업무달력 - 전북특별자치도교육청 + 서울특별시교육청(초) 통합 알림
+; 설정 저장: ssok.ini [AdminCalendar]
+; 기본값: 지역 서울+전북 / ON / 09:00, 11:00, 14:00, 16:30
+; ============================================================================
+
+SSOK_AdminCalendar_StandaloneInit:
+    Gosub, SSOK_AdminCalendar_Init
+return
+
+SSOK_AdminCalendar_Init:
+    SSOK_AdminCalendar_LoadSettings()
+    SetTimer, SSOK_AdminCalendar_Timer, 15000
+return
+
+SSOK_AdminCalendar_Timer:
+    SSOK_AdminCalendar_CheckNow()
+return
+
+SSOK_AdminCalendar_ToggleTipHide:
+    ToolTip
+return
+
+SSOK_AdminCalendar_PopupHide:
+    Gui, SSOKAdminCalPopup:Destroy
+return
+
+SSOK_AdminCalendar_Save:
+    Gui, SSOKAdminCalSettings:Submit, NoHide
+
+    t1 := SSOK_AdminCalendar_NormalizeTime(SSOK_AdminCalCfgTime1)
+    t2 := SSOK_AdminCalendar_NormalizeTime(SSOK_AdminCalCfgTime2)
+    t3 := SSOK_AdminCalendar_NormalizeTime(SSOK_AdminCalCfgTime3)
+    t4 := SSOK_AdminCalendar_NormalizeTime(SSOK_AdminCalCfgTime4)
+
+    if (SSOK_AdminCalCfgUse1 && t1 = "")
+    {
+        MsgBox, 48, 행정업무달력, 1회 시간을 HH:mm 형식으로 입력해 주세요.
+        return
+    }
+    if (SSOK_AdminCalCfgUse2 && t2 = "")
+    {
+        MsgBox, 48, 행정업무달력, 2회 시간을 HH:mm 형식으로 입력해 주세요.
+        return
+    }
+    if (SSOK_AdminCalCfgUse3 && t3 = "")
+    {
+        MsgBox, 48, 행정업무달력, 3회 시간을 HH:mm 형식으로 입력해 주세요.
+        return
+    }
+    if (SSOK_AdminCalCfgUse4 && t4 = "")
+    {
+        MsgBox, 48, 행정업무달력, 4회 시간을 HH:mm 형식으로 입력해 주세요.
+        return
+    }
+
+    ; 꺼진 회차도 나중에 다시 켤 수 있도록 정상값은 유지
+    if (t1 = "")
+        t1 := "09:00"
+    if (t2 = "")
+        t2 := "11:00"
+    if (t3 = "")
+        t3 := "14:00"
+    if (t4 = "")
+        t4 := "16:30"
+
+    enabled := SSOK_AdminCalCfgOn ? 1 : 0
+    useSeoul := SSOK_AdminCalCfgSeoul ? 1 : 0
+    useJeonbuk := SSOK_AdminCalCfgJeonbuk ? 1 : 0
+
+    if (!useSeoul && !useJeonbuk)
+    {
+        MsgBox, 48, 행정업무달력, 지역을 하나 이상 선택해 주세요.
+        return
+    }
+
+    SSOK_AdminCalendar_WriteSettings(enabled
+        , SSOK_AdminCalCfgUse1 ? 1 : 0, t1
+        , SSOK_AdminCalCfgUse2 ? 1 : 0, t2
+        , SSOK_AdminCalCfgUse3 ? 1 : 0, t3
+        , SSOK_AdminCalCfgUse4 ? 1 : 0, t4
+        , useSeoul, useJeonbuk)
+
+    SSOK_AdminCalLoaded := false
+    SSOK_AdminCalendar_LoadSettings(true)
+    SSOK_AdminCalendar_UpdateMenuText()
+
+    count := 0
+    times := ""
+    if (SSOK_AdminCalCfgUse1)
+    {
+        count++
+        times .= (times = "" ? "" : " / ") . t1
+    }
+    if (SSOK_AdminCalCfgUse2)
+    {
+        count++
+        times .= (times = "" ? "" : " / ") . t2
+    }
+    if (SSOK_AdminCalCfgUse3)
+    {
+        count++
+        times .= (times = "" ? "" : " / ") . t3
+    }
+    if (SSOK_AdminCalCfgUse4)
+    {
+        count++
+        times .= (times = "" ? "" : " / ") . t4
+    }
+
+    regions := (useSeoul ? "서울" : "")
+    if (useJeonbuk)
+        regions .= (regions != "" ? " / " : "") . "전북"
+
+    msg := "설정을 저장했습니다.`n`n상태: " . (enabled ? "ON" : "OFF")
+        . "`n지역: " . regions
+        . "`nPOPUP 횟수: " . count . "회"
+        . (times != "" ? "`n시간: " . times : "")
+
+    MsgBox, 64, 행정업무달력, %msg%
+return
+
+SSOK_AdminCalendar_Defaults:
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgOn, 1
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgOff, 0
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgSeoul, 1
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgJeonbuk, 1
+
+    ; 기본 알림은 09:00 / 14:00 두 번만 사용
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse1, 1
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse2, 0
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse3, 1
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse4, 0
+
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgTime1, 09:00
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgTime2, 11:00
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgTime3, 14:00
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgTime4, 16:30
+return
+
+SSOK_AdminCalendar_Preview:
+    SSOK_AdminCalendar_ShowTodayPopup(true)
+return
+
+SSOK_AdminCalendar_OpenSite:
+    SSOK_AdminCalendar_LoadSettings()
+    if (SSOK_AdminCalUseSeoul)
+        SSOK_Tool_OpenUrlPreferred(SSOK_AdminCalendar_GetSeoulUrl())
+    if (SSOK_AdminCalUseJeonbuk)
+        SSOK_Tool_OpenUrlPreferred(SSOK_AdminCalendar_GetUrl())
+return
+
+SSOKAdminCalSettingsGuiClose:
+SSOKAdminCalSettingsGuiEscape:
+    Gui, SSOKAdminCalSettings:Destroy
+return
+
+SSOK_AdminCalendar_Toggle()
+{
+    global SSOK_AdminCalEnabled
+    global SSOK_AdminCalUse1, SSOK_AdminCalUse2, SSOK_AdminCalUse3, SSOK_AdminCalUse4
+    global SSOK_AdminCalTime1, SSOK_AdminCalTime2, SSOK_AdminCalTime3, SSOK_AdminCalTime4
+    global SSOK_AdminCalUseSeoul, SSOK_AdminCalUseJeonbuk
+    global SSOK_AdminCalLoaded
+
+    SSOK_AdminCalendar_LoadSettings()
+    enabled := SSOK_AdminCalEnabled ? 0 : 1
+
+    SSOK_AdminCalendar_WriteSettings(enabled
+        , SSOK_AdminCalUse1, SSOK_AdminCalTime1
+        , SSOK_AdminCalUse2, SSOK_AdminCalTime2
+        , SSOK_AdminCalUse3, SSOK_AdminCalTime3
+        , SSOK_AdminCalUse4, SSOK_AdminCalTime4
+        , SSOK_AdminCalUseSeoul, SSOK_AdminCalUseJeonbuk)
+
+    SSOK_AdminCalLoaded := false
+    SSOK_AdminCalendar_LoadSettings(true)
+    SSOK_AdminCalendar_UpdateMenuText()
+
+    ToolTip, % "행정업무달력 [" . (enabled ? "ON" : "OFF") . "]"
+    SetTimer, SSOK_AdminCalendar_ToggleTipHide, -1200
+}
+
+SSOK_AdminCalendar_ShowSettings()
+{
+    global SSOK_AdminCalEnabled
+    global SSOK_AdminCalUse1, SSOK_AdminCalUse2, SSOK_AdminCalUse3, SSOK_AdminCalUse4
+    global SSOK_AdminCalTime1, SSOK_AdminCalTime2, SSOK_AdminCalTime3, SSOK_AdminCalTime4
+    global SSOK_AdminCalCfgOn, SSOK_AdminCalCfgOff
+    global SSOK_AdminCalUseSeoul, SSOK_AdminCalUseJeonbuk
+    global SSOK_AdminCalCfgSeoul, SSOK_AdminCalCfgJeonbuk
+    global SSOK_AdminCalCfgUse1, SSOK_AdminCalCfgUse2, SSOK_AdminCalCfgUse3, SSOK_AdminCalCfgUse4
+    global SSOK_AdminCalCfgTime1, SSOK_AdminCalCfgTime2, SSOK_AdminCalCfgTime3, SSOK_AdminCalCfgTime4
+
+    SSOK_AdminCalendar_LoadSettings()
+
+    Gui, SSOKAdminCalSettings:Destroy
+    Gui, SSOKAdminCalSettings:New, +AlwaysOnTop +ToolWindow, 행정업무달력 설정
+    Gui, SSOKAdminCalSettings:Margin, 16, 14
+    Gui, SSOKAdminCalSettings:Color, F7FBFF
+
+    Gui, SSOKAdminCalSettings:Font, s11 Bold, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Text, w390 h26, 행정업무달력
+
+    Gui, SSOKAdminCalSettings:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Text, y+4 w390 h22, 전체 사용 설정
+
+    Gui, SSOKAdminCalSettings:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Radio, y+2 w70 vSSOK_AdminCalCfgOn Group, ON
+    Gui, SSOKAdminCalSettings:Add, Radio, x+15 yp w70 vSSOK_AdminCalCfgOff, OFF
+
+    if (SSOK_AdminCalEnabled)
+    {
+        GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgOn, 1
+        GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgOff, 0
+    }
+    else
+    {
+        GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgOn, 0
+        GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgOff, 1
+    }
+
+    Gui, SSOKAdminCalSettings:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Text, x16 y+15 w390 h22, 지역
+    Gui, SSOKAdminCalSettings:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Checkbox, x24 y+2 w80 h24 vSSOK_AdminCalCfgSeoul, 서울
+    Gui, SSOKAdminCalSettings:Add, Checkbox, x112 yp w80 h24 vSSOK_AdminCalCfgJeonbuk, 전북
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgSeoul, %SSOK_AdminCalUseSeoul%
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgJeonbuk, %SSOK_AdminCalUseJeonbuk%
+
+    Gui, SSOKAdminCalSettings:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Text, x16 y+15 w390 h22, POPUP 횟수 / 시간 설정
+    Gui, SSOKAdminCalSettings:Add, Text, y+0 w390 h22 c005BAC, [기본] 2회  ·  09:00 / 14:00   (11:00 / 16:30은 필요 시 추가)
+
+    ; 각 회차를 개별 체크해서 사용 여부를 정하고, 오른쪽에서 시간을 수정
+    Gui, SSOKAdminCalSettings:Font, s9 Norm, Malgun Gothic
+
+    Gui, SSOKAdminCalSettings:Add, Checkbox, x24 y+10 w90 h24 vSSOK_AdminCalCfgUse1, 1회 사용
+    Gui, SSOKAdminCalSettings:Add, Edit, x125 yp w78 h24 Center vSSOK_AdminCalCfgTime1, %SSOK_AdminCalTime1%
+    Gui, SSOKAdminCalSettings:Add, Text, x212 yp w165 h24 +0x200 c666666, 예: 09:00
+
+    Gui, SSOKAdminCalSettings:Add, Checkbox, x24 y+7 w90 h24 vSSOK_AdminCalCfgUse2, 2회 사용
+    Gui, SSOKAdminCalSettings:Add, Edit, x125 yp w78 h24 Center vSSOK_AdminCalCfgTime2, %SSOK_AdminCalTime2%
+    Gui, SSOKAdminCalSettings:Add, Text, x212 yp w165 h24 +0x200 c666666, 예: 11:00
+
+    Gui, SSOKAdminCalSettings:Add, Checkbox, x24 y+7 w90 h24 vSSOK_AdminCalCfgUse3, 3회 사용
+    Gui, SSOKAdminCalSettings:Add, Edit, x125 yp w78 h24 Center vSSOK_AdminCalCfgTime3, %SSOK_AdminCalTime3%
+    Gui, SSOKAdminCalSettings:Add, Text, x212 yp w165 h24 +0x200 c666666, 예: 14:00
+
+    Gui, SSOKAdminCalSettings:Add, Checkbox, x24 y+7 w90 h24 vSSOK_AdminCalCfgUse4, 4회 사용
+    Gui, SSOKAdminCalSettings:Add, Edit, x125 yp w78 h24 Center vSSOK_AdminCalCfgTime4, %SSOK_AdminCalTime4%
+    Gui, SSOKAdminCalSettings:Add, Text, x212 yp w165 h24 +0x200 c666666, 예: 16:30
+
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse1, %SSOK_AdminCalUse1%
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse2, %SSOK_AdminCalUse2%
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse3, %SSOK_AdminCalUse3%
+    GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgUse4, %SSOK_AdminCalUse4%
+
+    Gui, SSOKAdminCalSettings:Add, Button, x16 y+17 w84 h30 gSSOK_AdminCalendar_Save, 저장
+    Gui, SSOKAdminCalSettings:Add, Button, x106 yp w84 h30 gSSOK_AdminCalendar_Defaults, 기본값
+    Gui, SSOKAdminCalSettings:Add, Button, x196 yp w84 h30 gSSOK_AdminCalendar_Preview, 오늘 일정
+    Gui, SSOKAdminCalSettings:Add, Button, x286 yp w104 h30 gSSOK_AdminCalendar_OpenSite, 행정달력 열기
+
+    Gui, SSOKAdminCalSettings:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKAdminCalSettings:Add, Text, x16 y+12 w390 h42 c666666, 선택한 지역의 오늘 일정을 한 화면에 합쳐 표시합니다. 일정 앞에는 서울/전북 지역명을 붙이지 않습니다. 알림 횟수와 시간은 기존 설정을 그대로 사용합니다.
+
+    Gui, SSOKAdminCalSettings:Show, AutoSize Center
+}
+
+SSOK_AdminCalendar_LoadSettings(force := false)
+{
+    global SSOK_AdminCalLoaded, SSOK_AdminCalEnabled
+    global SSOK_AdminCalUse1, SSOK_AdminCalUse2, SSOK_AdminCalUse3, SSOK_AdminCalUse4
+    global SSOK_AdminCalTime1, SSOK_AdminCalTime2, SSOK_AdminCalTime3, SSOK_AdminCalTime4
+    global SSOK_AdminCalUseSeoul, SSOK_AdminCalUseJeonbuk
+
+    if (SSOK_AdminCalLoaded && !force)
+        return
+
+    ini := SSOK_AdminCalendar_GetIniFile()
+
+    IniRead, enabled, %ini%, AdminCalendar, Enabled, 1
+    IniRead, presetVersion, %ini%, AdminCalendar, PresetVersion, 0
+    IniRead, useSeoul, %ini%, AdminCalendar, UseSeoul, 1
+    IniRead, useJeonbuk, %ini%, AdminCalendar, UseJeonbuk, 1
+
+    IniRead, use1, %ini%, AdminCalendar, Use1, 1
+    IniRead, t1, %ini%, AdminCalendar, Time1, 09:00
+
+    ; 11:00은 선택 추가
+    IniRead, use2, %ini%, AdminCalendar, Use2, 0
+    IniRead, t2, %ini%, AdminCalendar, Time2, 11:00
+
+    ; 14:00은 기본 사용
+    IniRead, use3, %ini%, AdminCalendar, Use3, 1
+    IniRead, t3, %ini%, AdminCalendar, Time3, 14:00
+
+    ; 16:30은 선택 추가
+    IniRead, use4, %ini%, AdminCalendar, Use4, 0
+    IniRead, t4, %ini%, AdminCalendar, Time4, 16:30
+
+    ; 이전 개발버전에서 4회가 기본이던 설정을 이번 기본값으로 한 번만 전환
+    if (presetVersion < 2)
+    {
+        use1 := 1
+        use2 := 0
+        use3 := 1
+        use4 := 0
+
+        IniWrite, 1, %ini%, AdminCalendar, Use1
+        IniWrite, 0, %ini%, AdminCalendar, Use2
+        IniWrite, 1, %ini%, AdminCalendar, Use3
+        IniWrite, 0, %ini%, AdminCalendar, Use4
+        IniWrite, 2, %ini%, AdminCalendar, PresetVersion
+    }
+
+    t1 := SSOK_AdminCalendar_NormalizeTime(t1)
+    t2 := SSOK_AdminCalendar_NormalizeTime(t2)
+    t3 := SSOK_AdminCalendar_NormalizeTime(t3)
+    t4 := SSOK_AdminCalendar_NormalizeTime(t4)
+
+    SSOK_AdminCalEnabled := (enabled = 0 || enabled = "0" || enabled = "OFF") ? 0 : 1
+    SSOK_AdminCalUseSeoul := (useSeoul = 0 || useSeoul = "0") ? 0 : 1
+    SSOK_AdminCalUseJeonbuk := (useJeonbuk = 0 || useJeonbuk = "0") ? 0 : 1
+
+    if (!SSOK_AdminCalUseSeoul && !SSOK_AdminCalUseJeonbuk)
+        SSOK_AdminCalUseJeonbuk := 1
+
+    SSOK_AdminCalUse1 := (use1 = 0 || use1 = "0") ? 0 : 1
+    SSOK_AdminCalUse2 := (use2 = 0 || use2 = "0") ? 0 : 1
+    SSOK_AdminCalUse3 := (use3 = 0 || use3 = "0") ? 0 : 1
+    SSOK_AdminCalUse4 := (use4 = 0 || use4 = "0") ? 0 : 1
+
+    SSOK_AdminCalTime1 := (t1 != "") ? t1 : "09:00"
+    SSOK_AdminCalTime2 := (t2 != "") ? t2 : "11:00"
+    SSOK_AdminCalTime3 := (t3 != "") ? t3 : "14:00"
+    SSOK_AdminCalTime4 := (t4 != "") ? t4 : "16:30"
+
+    SSOK_AdminCalLoaded := true
+}
+
+SSOK_AdminCalendar_WriteSettings(enabled, use1, t1, use2, t2, use3, t3, use4, t4, useSeoul := 1, useJeonbuk := 1)
+{
+    ini := SSOK_AdminCalendar_GetIniFile()
+    SplitPath, ini,, iniDir
+    if (iniDir != "")
+        FileCreateDir, %iniDir%
+
+    IniWrite, %enabled%, %ini%, AdminCalendar, Enabled
+    IniWrite, %useSeoul%, %ini%, AdminCalendar, UseSeoul
+    IniWrite, %useJeonbuk%, %ini%, AdminCalendar, UseJeonbuk
+
+    IniWrite, %use1%, %ini%, AdminCalendar, Use1
+    IniWrite, %t1%, %ini%, AdminCalendar, Time1
+
+    IniWrite, %use2%, %ini%, AdminCalendar, Use2
+    IniWrite, %t2%, %ini%, AdminCalendar, Time2
+
+    IniWrite, %use3%, %ini%, AdminCalendar, Use3
+    IniWrite, %t3%, %ini%, AdminCalendar, Time3
+
+    IniWrite, %use4%, %ini%, AdminCalendar, Use4
+    IniWrite, %t4%, %ini%, AdminCalendar, Time4
+
+    IniWrite, 2, %ini%, AdminCalendar, PresetVersion
+}
+
+SSOK_AdminCalendar_GetIniFile()
+{
+    global SSOK_IniFile
+
+    if (SSOK_IniFile != "")
+        return SSOK_IniFile
+
+    return A_ScriptDir . "\ssok.ini"
+}
+
+SSOK_AdminCalendar_NormalizeTime(value)
+{
+    s := Trim(value . "")
+
+    if RegExMatch(s, "^(\d{1,2})\s*[:시]\s*(\d{1,2})", m)
+    {
+        h := m1 + 0
+        mi := m2 + 0
+    }
+    else
+    {
+        digits := RegExReplace(s, "\D", "")
+
+        if (StrLen(digits) = 3)
+        {
+            h := SubStr(digits, 1, 1) + 0
+            mi := SubStr(digits, 2, 2) + 0
+        }
+        else if (StrLen(digits) = 4)
+        {
+            h := SubStr(digits, 1, 2) + 0
+            mi := SubStr(digits, 3, 2) + 0
+        }
+        else
+            return ""
+    }
+
+    if (h > 23 || mi > 59)
+        return ""
+
+    return Format("{:02}:{:02}", h, mi)
+}
+
+SSOK_AdminCalendar_UpdateMenuText()
+{
+    global SSOK_AdminCalEnabled
+
+    SSOK_AdminCalendar_LoadSettings()
+    text := SSOK_AdminCalEnabled ? "업무달력 [ON]" : "업무달력 [OFF]"
+    GuiControl, SSOKWorkTools:, SSOK_WorkTools_AdminCalendar, %text%
+}
+
+SSOK_AdminCalendar_CheckNow()
+{
+    global SSOK_AdminCalEnabled
+    global SSOK_AdminCalUse1, SSOK_AdminCalUse2, SSOK_AdminCalUse3, SSOK_AdminCalUse4
+    global SSOK_AdminCalTime1, SSOK_AdminCalTime2, SSOK_AdminCalTime3, SSOK_AdminCalTime4
+    global SSOK_AdminCalLastShownKey
+
+    SSOK_AdminCalendar_LoadSettings()
+
+    if (!SSOK_AdminCalEnabled)
+        return
+
+    now := Format("{:02}:{:02}", A_Hour + 0, A_Min + 0)
+
+    matched := false
+
+    if (SSOK_AdminCalUse1 && now = SSOK_AdminCalTime1)
+        matched := true
+    else if (SSOK_AdminCalUse2 && now = SSOK_AdminCalTime2)
+        matched := true
+    else if (SSOK_AdminCalUse3 && now = SSOK_AdminCalTime3)
+        matched := true
+    else if (SSOK_AdminCalUse4 && now = SSOK_AdminCalTime4)
+        matched := true
+
+    if (!matched)
+        return
+
+    key := A_YYYY . A_MM . A_DD . "|" . now
+
+    if (SSOK_AdminCalLastShownKey = key)
+        return
+
+    SSOK_AdminCalLastShownKey := key
+    SSOK_AdminCalendar_ShowTodayPopup(false)
+}
+
+SSOK_AdminCalendar_ShowTodayPopup(manual := false)
+{
+    result := SSOK_AdminCalendar_GetTodaySchedule()
+
+    FormatTime, dateTitle,, M월 d일
+    title := dateTitle . " 오늘의 행정업무 달력"
+
+    if (result.ok)
+    {
+        seoulEvents := IsObject(result.seoulEvents) ? result.seoulEvents : []
+        jeonbukEvents := IsObject(result.jeonbukEvents) ? result.jeonbukEvents : []
+        SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents)
+    }
+    else
+    {
+        errText := "행정달력을 불러오지 못했습니다."
+            . (result.error != "" ? "`n" . result.error : "")
+        SSOK_AdminCalendar_ShowPopup(title, errText, manual ? 12000 : 8500)
+    }
+}
+
+SSOK_AdminCalendar_ShowPopup(title, body, duration := 8500)
+{
+    global SSOK_AdminCalPopupHwnd
+
+    Gui, SSOKAdminCalPopup:Destroy
+    Gui, SSOKAdminCalPopup:New, +AlwaysOnTop -Caption +ToolWindow +Border +HwndSSOK_AdminCalPopupHwnd
+    Gui, SSOKAdminCalPopup:Color, FFF8D8
+    Gui, SSOKAdminCalPopup:Margin, 22, 16
+
+    ; 오류/안내 팝업도 기본 크기 글꼴을 사용합니다.
+    Gui, SSOKAdminCalPopup:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, w620 h24 Center, %title%
+    Gui, SSOKAdminCalPopup:Font, s9 Normal, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, y+8 w620 Center, %body%
+    Gui, SSOKAdminCalPopup:Add, Button, x272 y+16 w120 h30 gSSOK_AdminCalendar_PopupHide, 확인
+
+    SysGet, SSOK_AdminWork, MonitorWorkArea
+    workLeft := SSOK_AdminWorkLeft
+    workRight := SSOK_AdminWorkRight
+    workTop := SSOK_AdminWorkTop
+    if (workLeft = "")
+        workLeft := 0
+    if (workRight = "" || workRight <= workLeft)
+        workRight := A_ScreenWidth
+    if (workTop = "")
+        workTop := 0
+
+    popupOuterW := 664
+    popupX := workLeft + ((workRight - workLeft - popupOuterW) // 2)
+    popupY := workTop + 28
+    if (popupX < workLeft)
+        popupX := workLeft
+    if (popupY < workTop)
+        popupY := workTop
+
+    SetTimer, SSOK_AdminCalendar_PopupHide, Off
+    Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
+}
+
+SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents)
+{
+    global SSOK_AdminCalPopupHwnd, SSOK_AdminCalSeoulBody, SSOK_AdminCalJeonbukBody
+
+    seoulText := SSOK_AdminCalendar_FormatEventsAll(seoulEvents)
+    jeonbukText := SSOK_AdminCalendar_FormatEventsAll(jeonbukEvents)
+
+    ; 서울/전북 모두 오늘 일정이 없으면 팝업을 띄우지 않는다.
+    if (seoulText = "" && jeonbukText = "")
+    {
+        Gui, SSOKAdminCalPopup:Destroy
+        return
+    }
+
+    ; 일정이 없는 지역은 "일정 없음" 문구를 표시하지 않고 빈칸으로 둔다.
+    seoulDisplay := (seoulText = "" ? " " : seoulText)
+    jeonbukDisplay := (jeonbukText = "" ? " " : jeonbukText)
+
+    bodyY := 66
+
+    Gui, SSOKAdminCalPopup:Destroy
+    Gui, SSOKAdminCalPopup:New, +AlwaysOnTop -Caption +ToolWindow +Border +HwndSSOK_AdminCalPopupHwnd
+    Gui, SSOKAdminCalPopup:Color, FFF8D8
+    Gui, SSOKAdminCalPopup:Margin, 20, 16
+
+    ; 제목은 기본 크기, 지역명은 작고 연한 회색으로 각 칸 좌측 상단에 표시
+    Gui, SSOKAdminCalPopup:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x20 y16 w740 h24 Center, %title%
+
+    Gui, SSOKAdminCalPopup:Font, s6 Normal c909090, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x24 y47 w350 h14 Left, 서울
+    Gui, SSOKAdminCalPopup:Add, Text, x404 y47 w350 h14 Left, 전북
+
+    ; 일정 본문은 높이를 고정하지 않는다. 실제 표시되는 문구 수/줄바꿈에 맞춰 자동 높이로 생성한다.
+    Gui, SSOKAdminCalPopup:Font, s9 Normal c000000, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x24 y%bodyY% w350 +0x80 Left vSSOK_AdminCalSeoulBody, %seoulDisplay%
+    Gui, SSOKAdminCalPopup:Add, Text, x404 y%bodyY% w350 +0x80 Left vSSOK_AdminCalJeonbukBody, %jeonbukDisplay%
+
+    GuiControlGet, seoulPos, Pos, SSOK_AdminCalSeoulBody
+    GuiControlGet, jeonbukPos, Pos, SSOK_AdminCalJeonbukBody
+    contentH := (seoulPosH > jeonbukPosH ? seoulPosH : jeonbukPosH)
+    if (contentH < 20)
+        contentH := 20
+
+    ; 가운데 구분선만 아주 옅게 표시하고, 서울/전북 아래 가로선은 사용하지 않는다.
+    sepY := 46
+    sepH := bodyY + contentH - sepY + 2
+    Gui, SSOKAdminCalPopup:Add, Progress, x390 y%sepY% w1 h%sepH% cE8E3D3 BackgroundE8E3D3, 100
+
+    buttonY := bodyY + contentH + 16
+    Gui, SSOKAdminCalPopup:Add, Button, x330 y%buttonY% w120 h30 gSSOK_AdminCalendar_PopupHide, 확인
+
+    SysGet, SSOK_AdminWork, MonitorWorkArea
+    workLeft := SSOK_AdminWorkLeft
+    workRight := SSOK_AdminWorkRight
+    workTop := SSOK_AdminWorkTop
+    if (workLeft = "")
+        workLeft := 0
+    if (workRight = "" || workRight <= workLeft)
+        workRight := A_ScreenWidth
+    if (workTop = "")
+        workTop := 0
+
+    popupOuterW := 800
+    popupX := workLeft + ((workRight - workLeft - popupOuterW) // 2)
+    popupY := workTop + 28
+    if (popupX < workLeft)
+        popupX := workLeft
+    if (popupY < workTop)
+        popupY := workTop
+
+    SetTimer, SSOK_AdminCalendar_PopupHide, Off
+    Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
+}
+
+SSOK_AdminCalendar_GetTodaySchedule()
+{
+    global SSOK_AdminCalCacheDate
+    global SSOK_AdminCalCacheText
+    global SSOK_AdminCalCacheCount
+    global SSOK_AdminCalCacheRegions
+    global SSOK_AdminCalCacheSeoulEvents
+    global SSOK_AdminCalCacheJeonbukEvents
+    global SSOK_AdminCalUseSeoul, SSOK_AdminCalUseJeonbuk
+
+    SSOK_AdminCalendar_LoadSettings()
+
+    todayKey := A_YYYY . A_MM . A_DD
+    regionKey := (SSOK_AdminCalUseSeoul ? "S" : "") . (SSOK_AdminCalUseJeonbuk ? "J" : "")
+    merged := []
+    seen := {}
+    seoulEvents := []
+    seoulSeen := {}
+    jeonbukEvents := []
+    jeonbukSeen := {}
+    errors := []
+    okAny := false
+
+    if (SSOK_AdminCalUseSeoul)
+    {
+        htmlS := SSOK_AdminCalendar_DownloadSeoulHtml(errS)
+        if (htmlS != "")
+        {
+            resultS := SSOK_AdminCalendar_ParseTodaySeoul(htmlS)
+            if (resultS.ok)
+            {
+                okAny := true
+                SSOK_AdminCalendar_MergeEvents(seoulEvents, seoulSeen, resultS.events)
+                SSOK_AdminCalendar_MergeEvents(merged, seen, resultS.events)
+            }
+            else if (resultS.error != "")
+                errors.Push(resultS.error)
+        }
+        else if (errS != "")
+            errors.Push(errS)
+    }
+
+    if (SSOK_AdminCalUseJeonbuk)
+    {
+        htmlJ := SSOK_AdminCalendar_DownloadHtml(errJ)
+        if (htmlJ != "")
+        {
+            resultJ := SSOK_AdminCalendar_ParseToday(htmlJ)
+            if (resultJ.ok)
+            {
+                okAny := true
+                SSOK_AdminCalendar_MergeEvents(jeonbukEvents, jeonbukSeen, resultJ.events)
+                SSOK_AdminCalendar_MergeEvents(merged, seen, resultJ.events)
+            }
+            else if (resultJ.error != "")
+                errors.Push(resultJ.error)
+        }
+        else if (errJ != "")
+            errors.Push(errJ)
+    }
+
+    if (!okAny)
+    {
+        if (SSOK_AdminCalCacheDate = todayKey && SSOK_AdminCalCacheRegions = regionKey)
+            return {ok:true, text:SSOK_AdminCalCacheText, count:SSOK_AdminCalCacheCount
+                , seoulEvents:IsObject(SSOK_AdminCalCacheSeoulEvents) ? SSOK_AdminCalCacheSeoulEvents : []
+                , jeonbukEvents:IsObject(SSOK_AdminCalCacheJeonbukEvents) ? SSOK_AdminCalCacheJeonbukEvents : []}
+
+        errText := ""
+        for _, e in errors
+        {
+            if (e != "" && !InStr("`n" . errText . "`n", "`n" . e . "`n"))
+                errText .= (errText = "" ? "" : "`n") . e
+        }
+        return {ok:false, text:"", count:0, error:errText, seoulEvents:[], jeonbukEvents:[]}
+    }
+
+    out := SSOK_AdminCalendar_FormatEvents(merged)
+    result := {ok:true, text:out, count:merged.Length(), error:"", events:merged
+        , seoulEvents:seoulEvents, jeonbukEvents:jeonbukEvents}
+
+    SSOK_AdminCalCacheDate := todayKey
+    SSOK_AdminCalCacheRegions := regionKey
+    SSOK_AdminCalCacheText := result.text
+    SSOK_AdminCalCacheCount := result.count
+    SSOK_AdminCalCacheSeoulEvents := seoulEvents
+    SSOK_AdminCalCacheJeonbukEvents := jeonbukEvents
+    return result
+}
+
+SSOK_AdminCalendar_GetSeoulUrl()
+{
+    return "https://baro.sen.go.kr/"
+}
+
+SSOK_AdminCalendar_DownloadSeoulHtml(ByRef error)
+{
+    error := ""
+    urls := [SSOK_AdminCalendar_GetSeoulUrl()
+        , "https://baro.sen.go.kr/fus/main/view0000v.do"]
+
+    for _, url in urls
+    {
+        try
+        {
+            req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+            req.SetTimeouts(3000, 3000, 5000, 5000)
+            req.Open("GET", url, false)
+            req.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSOK/1.0")
+            req.SetRequestHeader("Accept-Language", "ko-KR,ko;q=0.9")
+            req.Send()
+
+            if (req.Status >= 200 && req.Status < 400)
+            {
+                htmlUtf8 := SSOK_AdminCalendar_ResponseBodyToUtf8(req.ResponseBody)
+                if (InStr(htmlUtf8, "학교급별 일정") || InStr(htmlUtf8, "초등학교"))
+                    return htmlUtf8
+
+                htmlText := req.ResponseText . ""
+                if (InStr(htmlText, "학교급별 일정") || InStr(htmlText, "초등학교"))
+                    return htmlText
+            }
+        }
+        catch e
+        {
+            error := e.Message
+        }
+    }
+
+    if (error = "")
+        error := "서울교육청 학교급별 일정 페이지에 연결되지 않았습니다."
+    return ""
+}
+
+SSOK_AdminCalendar_ParseTodaySeoul(html)
+{
+    ; 서울교육청 메인 화면에서 기본으로 내려오는 '유' 일정 사용
+    dateText := A_YYYY . "-" . A_MM . "-" . A_DD
+    plain := SSOK_AdminCalendar_HtmlToLines(html)
+    lines := StrSplit(plain, "`n")
+    target := 0
+
+    for i, line in lines
+    {
+        cur := Trim(line)
+        if (cur != dateText)
+            continue
+
+        isKindergarten := false
+        j := i - 1
+        minJ := i - 5
+        if (minJ < 1)
+            minJ := 1
+
+        while (j >= minJ)
+        {
+            prev := Trim(lines[j])
+            if (prev = "유" || InStr(prev, "유치원"))
+            {
+                isKindergarten := true
+                break
+            }
+            if (prev = "초" || prev = "중" || prev = "고")
+                break
+            j--
+        }
+
+        if (isKindergarten)
+        {
+            target := i
+            break
+        }
+    }
+
+    if (!target)
+        return {ok:false, text:"", count:0, error:"서울교육청 오늘 일정(유) 영역을 찾지 못했습니다.", events:[]}
+
+    events := []
+    seen := {}
+
+    Loop, 80
+    {
+        idx := target + A_Index
+        if (idx > lines.Length())
+            break
+
+        item := Trim(lines[idx])
+        if (item = "")
+            continue
+
+        if RegExMatch(item, "^20\d{2}-\d{2}-\d{2}$")
+            break
+        if (item = "유" || item = "초" || item = "중" || item = "고")
+            break
+        if RegExMatch(item, "^\d{1,2}$")
+            break
+        if (InStr(item, "학교급별 일정") || InStr(item, "개인정보처리방침"))
+            break
+        if (item = "유치원" || item = "업무일정표" || item = "나의 일정")
+            continue
+
+        item := SSOK_AdminCalendar_CleanText(item)
+        if (item = "일정 닫기")
+            continue
+        if (item != "" && !seen.HasKey(item))
+        {
+            seen[item] := true
+            events.Push(item)
+        }
+    }
+
+    out := SSOK_AdminCalendar_FormatEvents(events)
+    return {ok:true, text:out, count:events.Length(), error:"", events:events}
+}
+
+SSOK_AdminCalendar_HtmlToLines(fragment)
+{
+    s := fragment . ""
+    s := RegExReplace(s, "is)<br\s*/?>", "`n")
+    s := RegExReplace(s, "is)</(?:p|div|li|td|tr|a|span|button|h[1-6])\s*>", "`n")
+    s := RegExReplace(s, "is)<[^>]+>", " ")
+
+    s := StrReplace(s, "&nbsp;", " ")
+    s := StrReplace(s, "&#160;", " ")
+    s := StrReplace(s, "&amp;", "&")
+    s := StrReplace(s, "&lt;", "<")
+    s := StrReplace(s, "&gt;", ">")
+    s := StrReplace(s, "&quot;", Chr(34))
+    s := StrReplace(s, "&#39;", "'")
+    s := StrReplace(s, "`r", "")
+    s := RegExReplace(s, "[ `t]+", " ")
+    s := RegExReplace(s, " *`n *", "`n")
+    s := RegExReplace(s, "`n{2,}", "`n")
+    return Trim(s)
+}
+
+SSOK_AdminCalendar_MergeEvents(ByRef merged, ByRef seen, events)
+{
+    if (!IsObject(events))
+        return
+
+    for _, item in events
+    {
+        item := SSOK_AdminCalendar_CleanText(item)
+        if (item = "일정 닫기")
+            continue
+        if (item = "" || seen.HasKey(item))
+            continue
+        seen[item] := true
+        merged.Push(item)
+    }
+}
+
+SSOK_AdminCalendar_FormatEvents(events)
+{
+    if (!IsObject(events) || !events.Length())
+        return ""
+
+    out := ""
+    maxShow := events.Length() > 6 ? 6 : events.Length()
+    Loop, %maxShow%
+        out .= (out = "" ? "" : "`n") . "- " . events[A_Index]
+
+    if (events.Length() > maxShow)
+        out .= "`n- 외 " . (events.Length() - maxShow) . "건"
+    if (StrLen(out) > 900)
+        out := SubStr(out, 1, 897) . "..."
+    return out
+}
+
+SSOK_AdminCalendar_FormatEventsAll(events)
+{
+    if (!IsObject(events) || !events.Length())
+        return ""
+
+    out := ""
+    seen := {}
+    for _, item in events
+    {
+        item := SSOK_AdminCalendar_CleanText(item)
+        if (item = "" || item = "일정 닫기" || seen.HasKey(item))
+            continue
+        seen[item] := true
+        out .= (out = "" ? "" : "`n") . "· " . item
+    }
+    return out
+}
+
+SSOK_AdminCalendar_GetUrl()
+{
+    return "https://www.jbe.go.kr/board/list.jbe?boardId=BBS_0000084&contentsSid=335&cpath=%2Fsupport&menuCd=DOM_000000106002001000"
+}
+
+SSOK_AdminCalendar_DownloadHtml(ByRef error)
+{
+    error := ""
+
+    urls := [SSOK_AdminCalendar_GetUrl()
+        , "https://www.jbe.go.kr/board/list.jbe?boardId=BBS_0000084&contentsSid=335&cpath=&cpath=%2Fsupport&menuCd=DOM_000000106002001000"
+        , "https://www.jbe.go.kr/schedule/list.jbe?boardId=BBS_0000084&menuCd=DOM_000000106002001000&contentsSid=335&cpath="]
+
+    for _, url in urls
+    {
+        try
+        {
+            req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+            req.SetTimeouts(3000, 3000, 5000, 5000)
+            req.Open("GET", url, false)
+            req.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSOK/1.0")
+            req.SetRequestHeader("Accept-Language", "ko-KR,ko;q=0.9")
+            req.Send()
+
+            if (req.Status >= 200 && req.Status < 400)
+            {
+                ; 사이트가 UTF-8이므로 ResponseBody를 먼저 명시적으로 UTF-8로 해석
+                htmlUtf8 := SSOK_AdminCalendar_ResponseBodyToUtf8(req.ResponseBody)
+
+                if (InStr(htmlUtf8, "행정달력") || InStr(htmlUtf8, "오늘날짜"))
+                    return htmlUtf8
+
+                ; 환경에 따라 ResponseText가 정상일 수 있으므로 두 번째로 사용
+                htmlText := req.ResponseText . ""
+
+                if (InStr(htmlText, "행정달력") || InStr(htmlText, "오늘날짜"))
+                    return htmlText
+
+                ; 마지막으로 보드 식별자가 있으면 HTML 자체는 받아온 것으로 판단
+                if (InStr(htmlUtf8, "BBS_0000084"))
+                    return htmlUtf8
+
+                if (InStr(htmlText, "BBS_0000084"))
+                    return htmlText
+            }
+        }
+        catch e
+        {
+            error := e.Message
+        }
+    }
+
+    if (error = "")
+        error := "전북교육청 행정달력 페이지에 연결되지 않았습니다."
+
+    return ""
+}
+
+SSOK_AdminCalendar_ResponseBodyToUtf8(body)
+{
+    try
+    {
+        stream := ComObjCreate("ADODB.Stream")
+        stream.Type := 1
+        stream.Open()
+        stream.Write(body)
+        stream.Position := 0
+        stream.Type := 2
+        stream.Charset := "utf-8"
+
+        text := stream.ReadText()
+        stream.Close()
+
+        return text
+    }
+    catch e
+    {
+        return ""
+    }
+}
+
+SSOK_AdminCalendar_ParseToday(html)
+{
+    day := A_DD + 0
+    cellHtml := ""
+
+    ; 1순위: 서버가 붙여 주는 "오늘날짜" 표기가 들어간 td를 직접 찾음
+    patToday := "is)<td\b[^>]*>(?:(?!</td>)[\s\S])*?오늘날짜(?:(?!</td>)[\s\S])*?</td>"
+
+    if RegExMatch(html, patToday, mToday)
+        cellHtml := mToday
+
+    ; 2순위: 모든 td를 순회하며 셀의 첫 숫자가 오늘 날짜인지 확인
+    if (cellHtml = "")
+    {
+        pos := 1
+
+        while (pos := RegExMatch(html, "is)<td\b[^>]*>.*?</td>", mCell, pos))
+        {
+            plain := SSOK_AdminCalendar_HtmlToText(mCell)
+
+            if RegExMatch(plain, "^\s*0?" . day . "(?:\s|오늘날짜|$)")
+            {
+                cellHtml := mCell
+                break
+            }
+
+            pos += StrLen(mCell)
+        }
+    }
+
+    if (cellHtml = "")
+        return {ok:false, text:"", count:0, error:"오늘 날짜의 달력 칸을 찾지 못했습니다.", events:[]}
+
+    ; 오늘 칸을 찾았으면, 일정이 한 건도 없어도 이것은 정상입니다.
+    events := []
+    pos := 1
+
+    while (pos := RegExMatch(cellHtml, "is)<li\b[^>]*>(.*?)</li>", mItem, pos))
+    {
+        item := SSOK_AdminCalendar_HtmlToText(mItem1)
+        item := RegExReplace(item, "^\s*\d{1,2}\.\d{1,2}\.\s*", "")
+
+        if (item != "")
+            events.Push(item)
+
+        pos += StrLen(mItem)
+    }
+
+    if (!events.Length())
+        return {ok:true, text:"", count:0, error:"", events:events}
+
+    out := SSOK_AdminCalendar_FormatEvents(events)
+    return {ok:true, text:out, count:events.Length(), error:"", events:events}
+}
+
+SSOK_AdminCalendar_HtmlToText(fragment)
+{
+    s := fragment . ""
+
+    ; 줄바꿈 태그는 텍스트 줄바꿈으로
+    s := RegExReplace(s, "is)<br\s*/?>", "`n")
+    s := RegExReplace(s, "is)</p\s*>", "`n")
+    s := RegExReplace(s, "is)</div\s*>", "`n")
+
+    ; 나머지 태그 제거
+    s := RegExReplace(s, "is)<[^>]+>", " ")
+
+    ; 자주 쓰는 HTML entity 복원
+    s := StrReplace(s, "&nbsp;", " ")
+    s := StrReplace(s, "&#160;", " ")
+    s := StrReplace(s, "&amp;", "&")
+    s := StrReplace(s, "&lt;", "<")
+    s := StrReplace(s, "&gt;", ">")
+    s := StrReplace(s, "&quot;", Chr(34))
+    s := StrReplace(s, "&#39;", "'")
+
+    return SSOK_AdminCalendar_CleanText(s)
+}
+
+SSOK_AdminCalendar_CleanText(text)
+{
+    s := text . ""
+    s := StrReplace(s, Chr(160), " ")
+    s := StrReplace(s, "`r", " ")
+    s := RegExReplace(s, "[ `t]+", " ")
+    s := RegExReplace(s, " *`n *", "`n")
+    s := RegExReplace(s, "`n{2,}", "`n")
+
+    return Trim(s)
+}
+
+
+; ============================================================================
+; 국세청 · 조달청 업체정보 조회
+; 국세청: 사업자등록 상태조회
+; 조달청: 업체 기본정보 / 등록업종 / 현재 유효 부정당제재
+; ============================================================================
+
+SSOK_CompanyInfo_Search:
+    Gui, SSOKCompanyInfo:Submit, NoHide
+
+    bizno := RegExReplace(SSOK_CompanyBizNo, "\D", "")
+    inputName := Trim(SSOK_CompanyName)
+
+    if (bizno = "" && inputName = "")
+    {
+        MsgBox, 48, 업체정보 조회, 사업자등록번호 또는 업체명/기관명을 입력해 주세요.
+        return
+    }
+
+    if (bizno != "" && StrLen(bizno) != 10)
+    {
+        MsgBox, 48, 업체정보 조회, 사업자등록번호는 숫자 10자리여야 합니다.
+        return
+    }
+
+    if (bizno != "")
+    {
+        SSOK_CompanyBizNo := bizno
+        GuiControl, SSOKCompanyInfo:, SSOK_CompanyBizNo, %bizno%
+        GuiControl, SSOKCompanyInfo:, SSOK_CompanyStatus, 조회 중... 국세청·조달업체·수요기관 정보를 확인하고 있습니다.
+        GuiControl, SSOKCompanyInfo:, SSOK_CompanyResult, 조회 중입니다...
+
+        result := SSOK_CompanyInfo_QueryAll(bizno, inputName)
+    }
+    else
+    {
+        ; 이름만 입력한 경우 조달업체 역검색은 공식 사용자정보 API가 지원하지 않지만
+        ; 수요기관은 수요기관명(dminsttNm)으로 검색할 수 있습니다.
+        GuiControl, SSOKCompanyInfo:, SSOK_CompanyStatus, 수요기관명으로 조달청 수요기관 정보를 검색하고 있습니다.
+        GuiControl, SSOKCompanyInfo:, SSOK_CompanyResult, 조회 중입니다...
+
+        result := SSOK_CompanyInfo_QueryByName(inputName)
+    }
+
+    GuiControl, SSOKCompanyInfo:, SSOK_CompanyResult, %result%
+    GuiControl, SSOKCompanyInfo:, SSOK_CompanyStatus, 조회 완료
+return
+
+SSOK_CompanyInfo_Clear:
+    SSOK_CompanyBizNo := ""
+    SSOK_CompanyName := ""
+    GuiControl, SSOKCompanyInfo:, SSOK_CompanyBizNo,
+    GuiControl, SSOKCompanyInfo:, SSOK_CompanyName,
+    GuiControl, SSOKCompanyInfo:, SSOK_CompanyResult,
+    GuiControl, SSOKCompanyInfo:, SSOK_CompanyStatus, 사업자번호 또는 업체명/기관명을 입력하세요. 이름만 입력해도 검색합니다. (이름만 조회도 가능)
+return
+
+SSOK_CompanyInfo_OpenNTS:
+    SSOK_Tool_OpenUrlPreferred("https://www.data.go.kr/data/15081808/openapi.do")
+return
+
+SSOK_CompanyInfo_OpenG2B:
+    SSOK_Tool_OpenUrlPreferred("https://www.data.go.kr/data/15129466/openapi.do")
+return
+
+SSOK_CompanyInfo_OpenFSC:
+    SSOK_Tool_OpenUrlPreferred("https://www.data.go.kr/data/15043184/openapi.do")
+return
+
+SSOKCompanyInfoGuiClose:
+SSOKCompanyInfoGuiEscape:
+    Gui, SSOKCompanyInfo:Destroy
+return
+
+SSOK_CompanyInfo_Show()
+{
+    global SSOK_CompanyBizNo, SSOK_CompanyName
+    global SSOK_CompanyResult, SSOK_CompanyStatus
+
+    Gui, SSOKCompanyInfo:Destroy
+    Gui, SSOKCompanyInfo:New, +AlwaysOnTop +ToolWindow, 국세청 · 조달청 업체정보 조회
+    Gui, SSOKCompanyInfo:Color, F7FBFF
+    Gui, SSOKCompanyInfo:Margin, 14, 12
+
+    Gui, SSOKCompanyInfo:Font, s12 Bold, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Text, x14 y12 w726 h28, 국세청 · 조달청 업체정보 조회
+
+    Gui, SSOKCompanyInfo:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Text, x14 y43 w726 h32 c555555, 사업자번호는 국세청·조달청을, 업체명/기관명은 조달청 수요기관 + 금융위원회 기업정보를 함께 조회합니다.
+
+    Gui, SSOKCompanyInfo:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Text, x14 y82 w85 h25 +0x200, 사업자번호
+    Gui, SSOKCompanyInfo:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Edit, x102 y82 w175 h25 vSSOK_CompanyBizNo, %SSOK_CompanyBizNo%
+
+    Gui, SSOKCompanyInfo:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Text, x286 y82 w90 h25 +0x200, 업체명/기관명
+    Gui, SSOKCompanyInfo:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Edit, x380 y82 w195 h25 vSSOK_CompanyName, %SSOK_CompanyName%
+
+    Gui, SSOKCompanyInfo:Add, Button, x586 y81 w72 h27 Default gSSOK_CompanyInfo_Search, 조회
+    Gui, SSOKCompanyInfo:Add, Button, x666 y81 w72 h27 gSSOK_CompanyInfo_Clear, 초기화
+
+    Gui, SSOKCompanyInfo:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Text, x14 y116 w724 h24 c005BAC vSSOK_CompanyStatus, 사업자번호를 입력한 뒤 조회하세요.
+
+    Gui, SSOKCompanyInfo:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Edit, x14 y143 w724 h405 vSSOK_CompanyResult ReadOnly -Wrap HScroll
+
+    Gui, SSOKCompanyInfo:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKCompanyInfo:Add, Button, x14 y558 w125 h27 gSSOK_CompanyInfo_OpenNTS, 국세청 API 정보
+    Gui, SSOKCompanyInfo:Add, Button, x146 y558 w125 h27 gSSOK_CompanyInfo_OpenG2B, 조달청 API 정보
+    Gui, SSOKCompanyInfo:Add, Button, x278 y558 w135 h27 gSSOK_CompanyInfo_OpenFSC, 금융위 기업정보
+    Gui, SSOKCompanyInfo:Add, Text, x424 y555 w314 h40 c666666, ※ 업체명만 조회할 때는 수요기관과 금융위 기업정보를 함께 검색합니다.
+
+    Gui, SSOKCompanyInfo:Show, w752 h600 Center, 국세청 · 조달청 업체정보 조회
+}
+
+SSOK_CompanyInfo_QueryAll(bizno, enteredName := "")
+{
+    out := ""
+
+    ; ---------------- 국세청 ----------------
+    nts := SSOK_CompanyInfo_QueryNTS(bizno, ntsErr)
+
+    out .= "■ 국세청 사업자등록 상태`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+
+    if (IsObject(nts) && nts.ok)
+    {
+        out .= "사업자등록번호 : " . SSOK_CompanyInfo_FormatBizNo(bizno) . "`r`n"
+        out .= "사업자상태     : " . SSOK_CompanyInfo_ValueOrDash(nts.b_stt) . "`r`n"
+        out .= "과세유형       : " . SSOK_CompanyInfo_ValueOrDash(nts.tax_type) . "`r`n"
+
+        if (nts.end_dt != "")
+            out .= "폐업일         : " . SSOK_CompanyInfo_FormatDate(nts.end_dt) . "`r`n"
+        if (nts.tax_type_change_dt != "")
+            out .= "과세유형 전환일: " . SSOK_CompanyInfo_FormatDate(nts.tax_type_change_dt) . "`r`n"
+        if (nts.invoice_apply_dt != "")
+            out .= "세금계산서 적용일: " . SSOK_CompanyInfo_FormatDate(nts.invoice_apply_dt) . "`r`n"
+        if (nts.rbf_tax_type != "")
+            out .= "직전 과세유형  : " . nts.rbf_tax_type . "`r`n"
+    }
+    else
+        out .= "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(ntsErr) . "`r`n"
+
+    out .= "`r`n"
+
+    ; ---------------- 조달청 기본정보 ----------------
+    basicDoc := SSOK_CompanyInfo_G2BQuery("getPrcrmntCorpBasicInfo02", 3, bizno, basicErr)
+
+    out .= "■ 조달청 나라장터 조달업체 기본정보`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+
+    g2bName := ""
+
+    if IsObject(basicDoc)
+    {
+        item := basicDoc.selectSingleNode("//item")
+
+        if IsObject(item)
+        {
+            g2bName := SSOK_CompanyInfo_XmlText(item, "corpNm")
+            basicBizno := SSOK_CompanyInfo_XmlText(item, "bizno")
+            ceoNm := SSOK_CompanyInfo_XmlText(item, "ceoNm")
+            rgnNm := SSOK_CompanyInfo_XmlText(item, "rgnNm")
+            zip := SSOK_CompanyInfo_XmlText(item, "zip")
+            adrs := SSOK_CompanyInfo_XmlText(item, "adrs")
+            dtlAdrs := SSOK_CompanyInfo_XmlText(item, "dtlAdrs")
+            telNo := SSOK_CompanyInfo_XmlText(item, "telNo")
+            faxNo := SSOK_CompanyInfo_XmlText(item, "faxNo")
+            corpBsnsDivNm := SSOK_CompanyInfo_XmlText(item, "corpBsnsDivNm")
+            mnfctDivNm := SSOK_CompanyInfo_XmlText(item, "mnfctDivNm")
+            hdoffceDivNm := SSOK_CompanyInfo_XmlText(item, "hdoffceDivNm")
+            opbizDt := SSOK_CompanyInfo_XmlText(item, "opbizDt")
+            rgstDt := SSOK_CompanyInfo_XmlText(item, "rgstDt")
+            chgDt := SSOK_CompanyInfo_XmlText(item, "chgDt")
+
+            out .= "업체명         : " . SSOK_CompanyInfo_ValueOrDash(g2bName) . "`r`n"
+            out .= "사업자등록번호 : " . SSOK_CompanyInfo_FormatBizNo((basicBizno != "") ? basicBizno : bizno) . "`r`n"
+            out .= "대표자         : " . SSOK_CompanyInfo_ValueOrDash(ceoNm) . "`r`n"
+            out .= "지역           : " . SSOK_CompanyInfo_ValueOrDash(rgnNm) . "`r`n"
+            out .= "주소           : " . SSOK_CompanyInfo_JoinAddress(zip, adrs, dtlAdrs) . "`r`n"
+            out .= "전화 / 팩스    : " . SSOK_CompanyInfo_ValueOrDash(telNo) . " / " . SSOK_CompanyInfo_ValueOrDash(faxNo) . "`r`n"
+            out .= "업체업무구분   : " . SSOK_CompanyInfo_ValueOrDash(corpBsnsDivNm) . "`r`n"
+            out .= "제조구분       : " . SSOK_CompanyInfo_ValueOrDash(mnfctDivNm) . "`r`n"
+            out .= "본사구분       : " . SSOK_CompanyInfo_ValueOrDash(hdoffceDivNm) . "`r`n"
+
+            if (opbizDt != "")
+                out .= "개업일         : " . SSOK_CompanyInfo_FormatDate(opbizDt) . "`r`n"
+            if (rgstDt != "")
+                out .= "나라장터 등록  : " . SSOK_CompanyInfo_FormatDateTime(rgstDt) . "`r`n"
+            if (chgDt != "")
+                out .= "최근 변경      : " . SSOK_CompanyInfo_FormatDateTime(chgDt) . "`r`n"
+
+            if (enteredName != "")
+            {
+                nInput := RegExReplace(enteredName, "[\s\(\)㈜주식회사]+", "")
+                nG2B := RegExReplace(g2bName, "[\s\(\)㈜주식회사]+", "")
+
+                if (nG2B != "" && nInput != "" && !InStr(nG2B, nInput) && !InStr(nInput, nG2B))
+                    out .= "※ 입력 업체명 [" . enteredName . "]과 조달청 등록 업체명이 다릅니다.`r`n"
+                else
+                    out .= "※ 입력 업체명과 조달청 등록 업체명이 일치합니다.`r`n"
+            }
+        }
+        else
+            out .= "나라장터 조달업체 기본정보가 조회되지 않았습니다.`r`n"
+    }
+    else
+        out .= "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(basicErr) . "`r`n"
+
+    out .= "`r`n"
+
+    ; ---------------- 조달청 수요기관정보 ----------------
+    out .= "■ 조달청 수요기관정보`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+
+    if (enteredName != "")
+    {
+        demandDoc := SSOK_CompanyInfo_G2BDemandQuery(enteredName, demandErr)
+
+        if IsObject(demandDoc)
+        {
+            nodes := demandDoc.selectNodes("//item")
+            dcnt := nodes.length
+
+            if (dcnt <= 0)
+                out .= "입력한 기관명으로 조회되는 수요기관이 없습니다.`r`n"
+            else
+            {
+                showD := (dcnt > 8) ? 8 : dcnt
+
+                Loop, %showD%
+                {
+                    dnode := nodes.item(A_Index - 1)
+
+                    dNm := SSOK_CompanyInfo_XmlFirstText(dnode, "dminsttNm|insttNm")
+                    dCd := SSOK_CompanyInfo_XmlFirstText(dnode, "dminsttCd|insttCd")
+                    dDiv := SSOK_CompanyInfo_XmlFirstText(dnode, "dminsttDivNm|dminsttClsfcNm|insttDivNm|jurisdctnDivNm")
+                    dRgn := SSOK_CompanyInfo_XmlFirstText(dnode, "rgnNm|areaNm")
+                    dZip := SSOK_CompanyInfo_XmlFirstText(dnode, "zip|zipNo")
+                    dAdrs := SSOK_CompanyInfo_XmlFirstText(dnode, "adrs|addr")
+                    dDtl := SSOK_CompanyInfo_XmlFirstText(dnode, "dtlAdrs|dtlAddr")
+                    dTopCd := SSOK_CompanyInfo_XmlFirstText(dnode, "topInsttCd|topDminsttCd")
+                    dTopNm := SSOK_CompanyInfo_XmlFirstText(dnode, "topInsttNm|topDminsttNm")
+                    dTel := SSOK_CompanyInfo_XmlFirstText(dnode, "telNo|tel")
+                    dFax := SSOK_CompanyInfo_XmlFirstText(dnode, "faxNo|fax")
+
+                    out .= "[" . A_Index . "] 기관명 : " . SSOK_CompanyInfo_ValueOrDash(dNm) . "`r`n"
+
+                    if (dCd != "")
+                        out .= "    수요기관코드 : " . dCd . "`r`n"
+                    if (dDiv != "")
+                        out .= "    소관/구분    : " . dDiv . "`r`n"
+                    if (dRgn != "")
+                        out .= "    지역         : " . dRgn . "`r`n"
+
+                    dFullAddr := SSOK_CompanyInfo_JoinAddress(dZip, dAdrs, dDtl)
+                    if (dFullAddr != "-")
+                        out .= "    주소         : " . dFullAddr . "`r`n"
+
+                    if (dTopNm != "" || dTopCd != "")
+                        out .= "    최상위기관   : " . SSOK_CompanyInfo_ValueOrDash(dTopNm)
+                            . (dTopCd != "" ? " [" . dTopCd . "]" : "") . "`r`n"
+
+                    if (dTel != "" || dFax != "")
+                        out .= "    전화 / 팩스  : " . SSOK_CompanyInfo_ValueOrDash(dTel)
+                            . " / " . SSOK_CompanyInfo_ValueOrDash(dFax) . "`r`n"
+
+                    if (A_Index < showD)
+                        out .= "`r`n"
+                }
+
+                if (dcnt > showD)
+                    out .= "`r`n외 " . (dcnt - showD) . "건`r`n"
+            }
+        }
+        else
+            out .= "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(demandErr) . "`r`n"
+    }
+    else
+    {
+        out .= "기관명을 함께 입력하면 나라장터 수요기관정보를 검색합니다.`r`n"
+        out .= "※ 수요기관정보 API는 기관명 기준 검색을 지원합니다.`r`n"
+    }
+
+    out .= "`r`n"
+
+    ; ---------------- 금융위원회 기업기본정보 ----------------
+    out .= "■ 금융위원회 기업기본정보`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+
+    if (enteredName != "")
+        out .= SSOK_CompanyInfo_FSCResultText(enteredName, bizno)
+    else
+        out .= "업체명을 함께 입력하면 금융위원회 기업정보를 추가 조회합니다.`r`n"
+
+    out .= "`r`n"
+
+    ; ---------------- 조달청 등록업종 ----------------
+    industryDoc := SSOK_CompanyInfo_G2BQuery("getPrcrmntCorpIndstrytyInfo02", 1, bizno, industryErr)
+
+    out .= "■ 조달청 등록업종`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+
+    if IsObject(industryDoc)
+    {
+        nodes := industryDoc.selectNodes("//item")
+        cnt := nodes.length
+
+        if (cnt <= 0)
+            out .= "등록업종 정보가 조회되지 않았습니다.`r`n"
+        else
+        {
+            showCnt := (cnt > 15) ? 15 : cnt
+
+            Loop, %showCnt%
+            {
+                node := nodes.item(A_Index - 1)
+                cd := SSOK_CompanyInfo_XmlText(node, "indstrytyCd")
+                nm := SSOK_CompanyInfo_XmlText(node, "indstrytyNm")
+                stats := SSOK_CompanyInfo_XmlText(node, "indstrytyStatsNm")
+                expiry := SSOK_CompanyInfo_XmlText(node, "vldPrdExprtDt")
+                rep := SSOK_CompanyInfo_XmlText(node, "rprsntIndstrytyYn")
+
+                line := A_Index . ". [" . SSOK_CompanyInfo_ValueOrDash(cd) . "] " . SSOK_CompanyInfo_ValueOrDash(nm)
+
+                if (stats != "")
+                    line .= " / " . stats
+                if (expiry != "")
+                    line .= " / 유효기간 " . SSOK_CompanyInfo_FormatDate(expiry)
+                if (rep = "Y")
+                    line .= " / 대표업종"
+
+                out .= line . "`r`n"
+            }
+
+            if (cnt > showCnt)
+                out .= "외 " . (cnt - showCnt) . "건`r`n"
+        }
+    }
+    else
+        out .= "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(industryErr) . "`r`n"
+
+    out .= "`r`n"
+
+    ; ---------------- 조달청 부정당 제재 ----------------
+    sanctionDoc := SSOK_CompanyInfo_G2BQuery("getUnptRsttCorpInfo02", 1, bizno, sanctionErr)
+
+    out .= "■ 조달청 부정당 제재업체 정보`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+
+    if IsObject(sanctionDoc)
+    {
+        nodes := sanctionDoc.selectNodes("//item")
+        cnt := nodes.length
+
+        if (cnt <= 0)
+        {
+            out .= "현재 유효한 부정당 제재 : 없음`r`n"
+            out .= "※ 현재 조회되는 유효 제재가 없다는 뜻이며, 과거 만료·해제 제재의 존재 여부까지 의미하지는 않습니다.`r`n"
+        }
+        else
+        {
+            out .= "현재 유효한 부정당 제재 : 있음 (" . cnt . "건)`r`n"
+
+            showCnt := (cnt > 10) ? 10 : cnt
+
+            Loop, %showCnt%
+            {
+                node := nodes.item(A_Index - 1)
+
+                sCorp := SSOK_CompanyInfo_XmlText(node, "corpNm")
+                sBegin := SSOK_CompanyInfo_XmlText(node, "rsttBgnDate")
+                sEnd := SSOK_CompanyInfo_XmlText(node, "rsttEndDate")
+                sInst := SSOK_CompanyInfo_XmlText(node, "insttNm")
+                sLaw := SSOK_CompanyInfo_XmlText(node, "lawordNm")
+                sClause := SSOK_CompanyInfo_XmlText(node, "lawordArtclClause")
+                sProgress := SSOK_CompanyInfo_XmlText(node, "rsttProgrsNm")
+
+                out .= "`r`n[" . A_Index . "] " . SSOK_CompanyInfo_ValueOrDash(sCorp) . "`r`n"
+                out .= "제재기간 : " . SSOK_CompanyInfo_FormatDate(sBegin) . " ~ " . SSOK_CompanyInfo_FormatDate(sEnd) . "`r`n"
+                out .= "제재기관 : " . SSOK_CompanyInfo_ValueOrDash(sInst) . "`r`n"
+                out .= "근거법령 : " . SSOK_CompanyInfo_ValueOrDash(sLaw)
+
+                if (sClause != "")
+                    out .= " " . sClause
+
+                out .= "`r`n"
+                out .= "제재상태 : " . SSOK_CompanyInfo_ValueOrDash(sProgress) . "`r`n"
+            }
+        }
+    }
+    else
+        out .= "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(sanctionErr) . "`r`n"
+
+    out .= "`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+    out .= "출처: 국세청 사업자등록정보 상태조회 / 조달청 나라장터 사용자정보서비스`r`n"
+    out .= "조회 사업자번호: " . SSOK_CompanyInfo_FormatBizNo(bizno)
+
+    return out
+}
+
+SSOK_CompanyInfo_QueryByName(name)
+{
+    out := ""
+
+    ; ==========================================================
+    ; 1. 조달청 수요기관명 검색
+    ; ==========================================================
+    out .= "■ 조달청 수요기관명 검색`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+    out .= "검색어 : " . name . "`r`n`r`n"
+
+    demandDoc := SSOK_CompanyInfo_G2BDemandQuery(name, demandErr)
+
+    if IsObject(demandDoc)
+    {
+        nodes := demandDoc.selectNodes("//item")
+        cnt := nodes.length
+
+        if (cnt <= 0)
+            out .= "일치하는 수요기관을 찾지 못했습니다.`r`n"
+        else
+        {
+            showCnt := (cnt > 15) ? 15 : cnt
+
+            Loop, %showCnt%
+            {
+                node := nodes.item(A_Index - 1)
+
+                nm := SSOK_CompanyInfo_XmlFirstText(node, "dminsttNm|insttNm")
+                cd := SSOK_CompanyInfo_XmlFirstText(node, "dminsttCd|insttCd")
+                divNm := SSOK_CompanyInfo_XmlFirstText(node, "dminsttDivNm|dminsttClsfcNm|insttDivNm|jurisdctnDivNm")
+                rgn := SSOK_CompanyInfo_XmlFirstText(node, "rgnNm|areaNm")
+                zip := SSOK_CompanyInfo_XmlFirstText(node, "zip|zipNo")
+                adrs := SSOK_CompanyInfo_XmlFirstText(node, "adrs|addr")
+                dtl := SSOK_CompanyInfo_XmlFirstText(node, "dtlAdrs|dtlAddr")
+                topCd := SSOK_CompanyInfo_XmlFirstText(node, "topInsttCd|topDminsttCd")
+                topNm := SSOK_CompanyInfo_XmlFirstText(node, "topInsttNm|topDminsttNm")
+
+                out .= "[" . A_Index . "] " . SSOK_CompanyInfo_ValueOrDash(nm) . "`r`n"
+
+                if (cd != "")
+                    out .= "    수요기관코드 : " . cd . "`r`n"
+                if (divNm != "")
+                    out .= "    소관/구분    : " . divNm . "`r`n"
+                if (rgn != "")
+                    out .= "    지역         : " . rgn . "`r`n"
+
+                fullAddr := SSOK_CompanyInfo_JoinAddress(zip, adrs, dtl)
+                if (fullAddr != "-")
+                    out .= "    주소         : " . fullAddr . "`r`n"
+
+                if (topNm != "" || topCd != "")
+                    out .= "    최상위기관   : " . SSOK_CompanyInfo_ValueOrDash(topNm)
+                        . (topCd != "" ? " [" . topCd . "]" : "") . "`r`n"
+
+                if (A_Index < showCnt)
+                    out .= "`r`n"
+            }
+
+            if (cnt > showCnt)
+                out .= "`r`n외 " . (cnt - showCnt) . "건`r`n"
+        }
+    }
+    else
+        out .= "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(demandErr) . "`r`n"
+
+    ; ==========================================================
+    ; 2. 금융위원회 기업기본정보
+    ; ==========================================================
+    out .= "`r`n"
+    out .= "■ 금융위원회 기업기본정보`r`n"
+    out .= "────────────────────────────────────────────────────────────`r`n"
+    out .= SSOK_CompanyInfo_FSCResultText(name)
+
+    out .= "`r`n────────────────────────────────────────────────────────────`r`n"
+    out .= "※ 기관명은 조달청 수요기관에서, 일반 법인명은 금융위원회 기업기본정보에서 찾습니다.`r`n"
+    out .= "※ 금융위원회 기업정보는 실시간 자료가 아니라 일 단위로 갱신됩니다."
+
+    return out
+}
+
+SSOK_CompanyInfo_G2BDemandQuery(name, ByRef errMsg)
+{
+    errMsg := ""
+
+    ; getDminsttInfo02는 조회구분(inqryDiv)이 필수입니다.
+    ; 기관명 검색용 조회구분을 우선 호출하고,
+    ; API 측 조회구분 정의가 달라진 경우 필수값 오류(08/10)에 한해서만
+    ; 후보 조회구분을 순차 확인하여 실제 기관명이 검색되는 정상응답만 사용합니다.
+    modes := ["2", "1", "3", "4"]
+
+    firstNormalDoc := ""
+    lastErr := ""
+
+    for _, mode in modes
+    {
+        doc := SSOK_CompanyInfo_G2BDemandRequest(name, mode, resultCode, resultMsg)
+
+        if !IsObject(doc)
+        {
+            if (resultMsg != "")
+                lastErr := resultMsg
+            continue
+        }
+
+        ; 필수값/조회조건 오류이면 다음 조회구분을 확인
+        if (resultCode = "08" || resultCode = "10" || resultCode = "11" || resultCode = "12")
+        {
+            lastErr := "조달청 수요기관 API 오류 [" . resultCode . "] " . resultMsg
+            continue
+        }
+
+        ; 데이터 없음은 정상적인 빈 결과
+        if (resultCode = "03" || resultCode = "07")
+        {
+            if !IsObject(firstNormalDoc)
+                firstNormalDoc := doc
+            continue
+        }
+
+        if (resultCode != "" && resultCode != "00" && resultCode != "0")
+        {
+            lastErr := "조달청 수요기관 API 오류 [" . resultCode . "] " . resultMsg
+            continue
+        }
+
+        if !IsObject(firstNormalDoc)
+            firstNormalDoc := doc
+
+        ; 실제 반환 기관명 중 검색어와 대응하는 항목이 있으면 이 조회구분이 맞음
+        if SSOK_CompanyInfo_DemandHasNameMatch(doc, name)
+            return doc
+
+        ; 정상 0건이면 다른 조회구분까지 확인해 본다.
+        nodes := doc.selectNodes("//item")
+        if (nodes.length <= 0)
+            continue
+    }
+
+    if IsObject(firstNormalDoc)
+        return firstNormalDoc
+
+    if (lastErr = "")
+        lastErr := "조달청 수요기관 정보를 조회하지 못했습니다."
+
+    errMsg := lastErr
+    return ""
+}
+
+SSOK_CompanyInfo_G2BDemandRequest(name, inqryDiv, ByRef resultCode, ByRef resultMsg)
+{
+    resultCode := ""
+    resultMsg := ""
+
+    key := SSOK_CompanyInfo_GetServiceKey()
+
+    url := "https://apis.data.go.kr/1230000/ao/UsrInfoService02/getDminsttInfo02"
+        . "?serviceKey=" . SSOK_Tool_QU_UrlEncode(key)
+        . "&numOfRows=100"
+        . "&pageNo=1"
+        . "&type=xml"
+        . "&inqryDiv=" . inqryDiv
+        . "&dminsttNm=" . SSOK_Tool_QU_UrlEncode(name)
+
+    try
+    {
+        req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        req.SetTimeouts(4000, 4000, 8000, 8000)
+        req.Open("GET", url, false)
+        req.SetRequestHeader("Accept", "application/xml,text/xml,*/*")
+        req.Send()
+
+        httpStatus := req.Status
+        body := req.ResponseText . ""
+    }
+    catch e
+    {
+        resultMsg := "조달청 수요기관 API 호출 실패: " . e.Message
+        return ""
+    }
+
+    if (httpStatus < 200 || httpStatus >= 300)
+    {
+        resultMsg := "조달청 수요기관 API 응답 오류: HTTP " . httpStatus
+        return ""
+    }
+
+    try
+    {
+        doc := ComObjCreate("MSXML2.DOMDocument.6.0")
+        doc.async := false
+        doc.validateOnParse := false
+
+        if !doc.loadXML(body)
+        {
+            resultMsg := "조달청 수요기관 API XML 응답을 해석하지 못했습니다."
+            return ""
+        }
+
+        codeNode := doc.selectSingleNode("//resultCode")
+        msgNode := doc.selectSingleNode("//resultMsg")
+
+        resultCode := IsObject(codeNode) ? Trim(codeNode.text . "") : ""
+        resultMsg := IsObject(msgNode) ? Trim(msgNode.text . "") : ""
+
+        return doc
+    }
+    catch e
+    {
+        resultMsg := "조달청 수요기관 API 응답 처리 실패: " . e.Message
+        return ""
+    }
+}
+
+SSOK_CompanyInfo_DemandHasNameMatch(doc, searchName)
+{
+    if !IsObject(doc)
+        return false
+
+    needle := SSOK_CompanyInfo_NormalizeName(searchName)
+
+    if (needle = "")
+        return false
+
+    nodes := doc.selectNodes("//item")
+
+    Loop, % nodes.length
+    {
+        node := nodes.item(A_Index - 1)
+        nm := SSOK_CompanyInfo_XmlFirstText(node, "dminsttNm|insttNm")
+        hay := SSOK_CompanyInfo_NormalizeName(nm)
+
+        if (hay != "" && (InStr(hay, needle) || InStr(needle, hay)))
+            return true
+    }
+
+    return false
+}
+
+SSOK_CompanyInfo_XmlFirstText(parentNode, tagNames)
+{
+    if !IsObject(parentNode)
+        return ""
+
+    Loop, Parse, tagNames, |
+    {
+        tag := A_LoopField
+        try
+            node := parentNode.selectSingleNode("./" . tag)
+        catch
+            node := ""
+
+        if IsObject(node)
+        {
+            value := Trim(node.text . "")
+            if (value != "")
+                return value
+        }
+    }
+
+    return ""
+}
+
+SSOK_CompanyInfo_FSCResultText(name, compareBizNo := "")
+{
+    doc := SSOK_CompanyInfo_FSCQueryByName(name, errMsg)
+
+    if !IsObject(doc)
+        return "조회 실패 : " . SSOK_CompanyInfo_ValueOrDash(errMsg) . "`r`n"
+
+    nodes := doc.selectNodes("//item")
+    cnt := nodes.length
+
+    if (cnt <= 0)
+        return "일치하는 기업정보를 찾지 못했습니다.`r`n"
+
+    out := ""
+    seen := {}
+    shown := 0
+    compareBizNo := RegExReplace(compareBizNo . "", "\D", "")
+
+    Loop, % cnt
+    {
+        node := nodes.item(A_Index - 1)
+
+        corpNm := SSOK_CompanyInfo_XmlFirstText(node, "corpNm")
+        crno := SSOK_CompanyInfo_XmlFirstText(node, "crno")
+        bzno := SSOK_CompanyInfo_XmlFirstText(node, "bzno")
+
+        dedupKey := corpNm . "|" . crno . "|" . bzno
+
+        if seen.HasKey(dedupKey)
+            continue
+
+        seen[dedupKey] := true
+        shown++
+
+        if (shown > 10)
+            break
+
+        rpr := SSOK_CompanyInfo_XmlFirstText(node, "enpRprFnm")
+        corpType := SSOK_CompanyInfo_XmlFirstText(node, "corpDcdNm")
+        market := SSOK_CompanyInfo_XmlFirstText(node, "corpRegMrktDcdNm")
+        estbDt := SSOK_CompanyInfo_XmlFirstText(node, "enpEstbDt")
+        sicNm := SSOK_CompanyInfo_XmlFirstText(node, "sicNm")
+        mainBiz := SSOK_CompanyInfo_XmlFirstText(node, "enpMainBizNm")
+        zip := SSOK_CompanyInfo_XmlFirstText(node, "enpOzpno")
+        addr := SSOK_CompanyInfo_XmlFirstText(node, "enpBsadr")
+        dtlAddr := SSOK_CompanyInfo_XmlFirstText(node, "enpDtadr")
+        tel := SSOK_CompanyInfo_XmlFirstText(node, "enpTlno")
+        homepage := SSOK_CompanyInfo_XmlFirstText(node, "enpHmpgUrl")
+        empCnt := SSOK_CompanyInfo_XmlFirstText(node, "enpEmpeCnt")
+
+        out .= "[" . shown . "] " . SSOK_CompanyInfo_ValueOrDash(corpNm) . "`r`n"
+
+        if (bzno != "")
+        {
+            out .= "    사업자번호   : " . SSOK_CompanyInfo_FormatBizNo(bzno)
+
+            if (compareBizNo != "")
+            {
+                if (RegExReplace(bzno, "\D", "") = compareBizNo)
+                    out .= "  [입력 사업자번호와 일치]"
+                else
+                    out .= "  [입력 사업자번호와 다름]"
+            }
+
+            out .= "`r`n"
+        }
+
+        if (crno != "")
+            out .= "    법인등록번호 : " . crno . "`r`n"
+        if (rpr != "")
+            out .= "    대표자       : " . rpr . "`r`n"
+        if (corpType != "")
+            out .= "    법인구분     : " . corpType . "`r`n"
+        if (market != "")
+            out .= "    시장구분     : " . market . "`r`n"
+        if (estbDt != "")
+            out .= "    설립일       : " . SSOK_CompanyInfo_FormatDate(estbDt) . "`r`n"
+        if (sicNm != "")
+            out .= "    업종         : " . sicNm . "`r`n"
+        if (mainBiz != "")
+            out .= "    주요사업     : " . mainBiz . "`r`n"
+
+        fullAddr := SSOK_CompanyInfo_JoinAddress(zip, addr, dtlAddr)
+        if (fullAddr != "-")
+            out .= "    주소         : " . fullAddr . "`r`n"
+
+        if (tel != "")
+            out .= "    전화         : " . tel . "`r`n"
+        if (homepage != "")
+            out .= "    홈페이지     : " . homepage . "`r`n"
+        if (empCnt != "" && empCnt != "0")
+            out .= "    종업원수     : " . empCnt . "`r`n"
+
+        out .= "`r`n"
+    }
+
+    if (shown = 0)
+        return "일치하는 기업정보를 찾지 못했습니다.`r`n"
+
+    if (shown > 10)
+        out .= "외 추가 결과가 있습니다.`r`n"
+
+    return out
+}
+
+SSOK_CompanyInfo_FSCQueryByName(name, ByRef errMsg)
+{
+    errMsg := ""
+    key := SSOK_CompanyInfo_GetServiceKey()
+
+    base := "https://apis.data.go.kr/1160100/service/GetCorpBasicInfoService_V2/getCorpOutline_V2"
+
+    url := base
+        . "?ServiceKey=" . SSOK_Tool_QU_UrlEncode(key)
+        . "&pageNo=1"
+        . "&numOfRows=100"
+        . "&resultType=xml"
+        . "&corpNm=" . SSOK_Tool_QU_UrlEncode(name)
+
+    doc := SSOK_CompanyInfo_FSCRequestXml(url, firstErr)
+
+    if IsObject(doc)
+        return doc
+
+    ; 일부 환경에서 resultType 값 처리 방식이 다른 경우 기본 XML로 한 번 더 시도
+    url2 := base
+        . "?ServiceKey=" . SSOK_Tool_QU_UrlEncode(key)
+        . "&pageNo=1"
+        . "&numOfRows=100"
+        . "&corpNm=" . SSOK_Tool_QU_UrlEncode(name)
+
+    doc := SSOK_CompanyInfo_FSCRequestXml(url2, secondErr)
+
+    if IsObject(doc)
+        return doc
+
+    errMsg := (secondErr != "") ? secondErr : firstErr
+    return ""
+}
+
+SSOK_CompanyInfo_FSCRequestXml(url, ByRef errMsg)
+{
+    errMsg := ""
+
+    try
+    {
+        req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        req.SetTimeouts(4000, 4000, 8000, 8000)
+        req.Open("GET", url, false)
+        req.SetRequestHeader("Accept", "application/xml,text/xml,*/*")
+        req.Send()
+
+        httpStatus := req.Status
+        body := req.ResponseText . ""
+    }
+    catch e
+    {
+        errMsg := "금융위원회 기업정보 API 호출 실패: " . e.Message
+        return ""
+    }
+
+    if (httpStatus < 200 || httpStatus >= 300)
+    {
+        errMsg := "금융위원회 기업정보 API 응답 오류: HTTP " . httpStatus
+        return ""
+    }
+
+    try
+    {
+        doc := ComObjCreate("MSXML2.DOMDocument.6.0")
+        doc.async := false
+        doc.validateOnParse := false
+
+        if !doc.loadXML(body)
+        {
+            errMsg := "금융위원회 기업정보 XML 응답을 해석하지 못했습니다."
+            return ""
+        }
+
+        codeNode := doc.selectSingleNode("//resultCode")
+        msgNode := doc.selectSingleNode("//resultMsg")
+
+        resultCode := IsObject(codeNode) ? Trim(codeNode.text . "") : ""
+        resultMsg := IsObject(msgNode) ? Trim(msgNode.text . "") : ""
+
+        if (resultCode != "" && resultCode != "00" && resultCode != "0")
+        {
+            errMsg := "금융위원회 기업정보 API 오류 [" . resultCode . "] " . resultMsg
+
+            if (resultCode = "20" || resultCode = "30" || resultCode = "31")
+                errMsg .= " / 공공데이터포털에서 금융위원회_기업기본정보 활용신청 상태를 확인해 주세요."
+
+            return ""
+        }
+
+        return doc
+    }
+    catch e
+    {
+        errMsg := "금융위원회 기업정보 응답 처리 실패: " . e.Message
+        return ""
+    }
+}
+
+SSOK_CompanyInfo_NormalizeName(value)
+{
+    s := Trim(value . "")
+    s := RegExReplace(s, "\s+", "")
+    s := StrReplace(s, "(주)", "")
+    s := StrReplace(s, "㈜", "")
+    s := StrReplace(s, "주식회사", "")
+    s := StrReplace(s, "（주）", "")
+    return s
+}
+
+
+SSOK_CompanyInfo_GetServiceKey()
+{
+    return "230ae6fe40480dce9f264334da7b436e300be9d6ce2ba45772563b6eb5a42854"
+}
+
+SSOK_CompanyInfo_QueryNTS(bizno, ByRef errMsg)
+{
+    errMsg := ""
+    key := SSOK_CompanyInfo_GetServiceKey()
+    url := "https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=" . SSOK_Tool_QU_UrlEncode(key)
+
+    dq := Chr(34)
+    payload := "{" . dq . "b_no" . dq . ":[" . dq . bizno . dq . "]}"
+
+    try
+    {
+        req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        req.SetTimeouts(4000, 4000, 8000, 8000)
+        req.Open("POST", url, false)
+        req.SetRequestHeader("Content-Type", "application/json")
+        req.SetRequestHeader("Accept", "application/json")
+        req.Send(payload)
+
+        httpStatus := req.Status
+        body := req.ResponseText . ""
+    }
+    catch e
+    {
+        errMsg := "국세청 API 호출 실패: " . e.Message
+        return {ok:false}
+    }
+
+    if (httpStatus < 200 || httpStatus >= 300)
+    {
+        errMsg := "국세청 API 응답 오류: HTTP " . httpStatus
+        return {ok:false}
+    }
+
+    statusCode := SSOK_CompanyInfo_JsonString(body, "status_code")
+
+    if (statusCode != "" && statusCode != "OK")
+    {
+        errMsg := "국세청 API 상태: " . statusCode
+        return {ok:false}
+    }
+
+    bNo := SSOK_CompanyInfo_JsonString(body, "b_no")
+    bStt := SSOK_CompanyInfo_JsonString(body, "b_stt")
+    taxType := SSOK_CompanyInfo_JsonString(body, "tax_type")
+    endDt := SSOK_CompanyInfo_JsonString(body, "end_dt")
+    taxChangeDt := SSOK_CompanyInfo_JsonString(body, "tax_type_change_dt")
+    invoiceDt := SSOK_CompanyInfo_JsonString(body, "invoice_apply_dt")
+    rbfTaxType := SSOK_CompanyInfo_JsonString(body, "rbf_tax_type")
+
+    if (bNo = "" && bStt = "" && taxType = "")
+    {
+        errMsg := "사업자 상태정보를 확인할 수 없습니다."
+        return {ok:false}
+    }
+
+    return {ok:true
+        , b_no:bNo
+        , b_stt:bStt
+        , tax_type:taxType
+        , end_dt:endDt
+        , tax_type_change_dt:taxChangeDt
+        , invoice_apply_dt:invoiceDt
+        , rbf_tax_type:rbfTaxType}
+}
+
+SSOK_CompanyInfo_G2BQuery(operation, inqryDiv, bizno, ByRef errMsg)
+{
+    errMsg := ""
+    key := SSOK_CompanyInfo_GetServiceKey()
+
+    url := "https://apis.data.go.kr/1230000/ao/UsrInfoService02/" . operation
+        . "?serviceKey=" . SSOK_Tool_QU_UrlEncode(key)
+        . "&numOfRows=100&pageNo=1"
+        . "&inqryDiv=" . inqryDiv
+        . "&bizno=" . bizno
+
+    try
+    {
+        req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        req.SetTimeouts(4000, 4000, 8000, 8000)
+        req.Open("GET", url, false)
+        req.SetRequestHeader("Accept", "application/xml,text/xml,*/*")
+        req.Send()
+
+        httpStatus := req.Status
+        body := req.ResponseText . ""
+    }
+    catch e
+    {
+        errMsg := "조달청 API 호출 실패: " . e.Message
+        return ""
+    }
+
+    if (httpStatus < 200 || httpStatus >= 300)
+    {
+        errMsg := "조달청 API 응답 오류: HTTP " . httpStatus
+        return ""
+    }
+
+    try
+    {
+        doc := ComObjCreate("MSXML2.DOMDocument.6.0")
+        doc.async := false
+        doc.validateOnParse := false
+
+        if !doc.loadXML(body)
+        {
+            errMsg := "조달청 API XML 응답을 해석하지 못했습니다."
+            return ""
+        }
+
+        codeNode := doc.selectSingleNode("//resultCode")
+        msgNode := doc.selectSingleNode("//resultMsg")
+
+        resultCode := IsObject(codeNode) ? Trim(codeNode.text . "") : ""
+        resultMsg := IsObject(msgNode) ? Trim(msgNode.text . "") : ""
+
+        if (resultCode != "" && resultCode != "00" && resultCode != "0")
+        {
+            errMsg := "조달청 API 오류 [" . resultCode . "] " . resultMsg
+
+            if (resultCode = "20" || resultCode = "30")
+                errMsg .= " / 공공데이터포털에서 조달청 API 활용신청 승인 상태를 확인해 주세요."
+
+            return ""
+        }
+
+        return doc
+    }
+    catch e
+    {
+        errMsg := "조달청 API 응답 처리 실패: " . e.Message
+        return ""
+    }
+}
+
+SSOK_CompanyInfo_XmlText(parentNode, tagName)
+{
+    if !IsObject(parentNode)
+        return ""
+
+    try
+        node := parentNode.selectSingleNode("./" . tagName)
+    catch
+        return ""
+
+    if !IsObject(node)
+        return ""
+
+    return Trim(node.text . "")
+}
+
+SSOK_CompanyInfo_JsonString(json, key)
+{
+    dq := Chr(34)
+    pattern := dq . key . dq . "\s*:\s*" . dq . "((?:\\.|[^" . dq . "])*)" . dq
+
+    if !RegExMatch(json, pattern, m)
+        return ""
+
+    v := m1
+    v := StrReplace(v, "\" . dq, dq)
+    v := StrReplace(v, "\/", "/")
+    v := StrReplace(v, "\r", "`r")
+    v := StrReplace(v, "\n", "`n")
+    v := StrReplace(v, "\t", "`t")
+    v := StrReplace(v, "\\", "\")
+
+    return v
+}
+
+SSOK_CompanyInfo_FormatBizNo(value)
+{
+    s := RegExReplace(value . "", "\D", "")
+
+    if (StrLen(s) = 10)
+        return SubStr(s, 1, 3) . "-" . SubStr(s, 4, 2) . "-" . SubStr(s, 6, 5)
+
+    return value
+}
+
+SSOK_CompanyInfo_FormatDate(value)
+{
+    s := RegExReplace(value . "", "\D", "")
+
+    if (StrLen(s) >= 8)
+        return SubStr(s, 1, 4) . "." . SubStr(s, 5, 2) . "." . SubStr(s, 7, 2)
+
+    return (value != "") ? value : "-"
+}
+
+SSOK_CompanyInfo_FormatDateTime(value)
+{
+    s := RegExReplace(value . "", "\D", "")
+
+    if (StrLen(s) >= 14)
+        return SubStr(s, 1, 4) . "." . SubStr(s, 5, 2) . "." . SubStr(s, 7, 2)
+            . " " . SubStr(s, 9, 2) . ":" . SubStr(s, 11, 2) . ":" . SubStr(s, 13, 2)
+
+    return SSOK_CompanyInfo_FormatDate(value)
+}
+
+SSOK_CompanyInfo_ValueOrDash(value)
+{
+    s := Trim(value . "")
+    return (s = "") ? "-" : s
+}
+
+SSOK_CompanyInfo_JoinAddress(zip, adrs, dtlAdrs)
+{
+    out := ""
+
+    if (zip != "")
+        out := "[" . zip . "] "
+
+    out .= Trim(adrs . " " . dtlAdrs)
+    out := Trim(out)
+
+    return (out = "") ? "-" : out
+}
+

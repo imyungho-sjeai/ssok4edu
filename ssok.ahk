@@ -2266,7 +2266,7 @@ SSOK_Sidebar_F12:
 return
 
 SSOK_Sidebar_PCOff:
-    ; PC OFF는 직전 작업창을 다시 활성화하지 않고 바로 절전 처리
+    Gosub, SSOK_Sidebar_PrepareAction
     Gosub, SSOK_DoMouseWakeSleep
 return
 
@@ -2938,6 +2938,7 @@ SSOK_SaveUnifiedIni()
     global SSOK_QU_Name1, SSOK_QU_Name2, SSOK_QU_Name3, SSOK_QU_Name4, SSOK_QU_Name5, SSOK_QU_Name6, SSOK_QU_Name7, SSOK_QU_Name8, SSOK_QU_Name9, SSOK_QU_Name10, SSOK_QU_Name11, SSOK_QU_Name12
     global SSOK_QU_Url1, SSOK_QU_Url2, SSOK_QU_Url3, SSOK_QU_Url4, SSOK_QU_Url5, SSOK_QU_Url6, SSOK_QU_Url7, SSOK_QU_Url8, SSOK_QU_Url9, SSOK_QU_Url10, SSOK_QU_Url11, SSOK_QU_Url12
     global SSOK_QU_SaveActive
+    global SSOK_QU_EduRegionPortal, SSOK_QU_EduRegionKEdufine, SSOK_QU_EduRegionNeis, SSOK_QU_EduRegionSupport, SSOK_QU_EduRegionEVPN
     global SSOK_AI_Ini
     global SSOK_AI_SiteName1, SSOK_AI_SiteName2, SSOK_AI_SiteName3, SSOK_AI_SiteName4, SSOK_AI_SiteName5
     global SSOK_AI_SiteUrl1, SSOK_AI_SiteUrl2, SSOK_AI_SiteUrl3, SSOK_AI_SiteUrl4, SSOK_AI_SiteUrl5
@@ -3117,6 +3118,52 @@ SSOK_SaveUnifiedIni()
         }
     }
 
+    ; 교육청 바로가기 지역 선택값 보존
+    ; 다른 기능이 통합 저장을 호출해도 기존 선택값이 사라지지 않도록 먼저 읽습니다.
+    if FileExist(QIIni)
+    {
+        if (Trim(SSOK_QU_EduRegionPortal) = "")
+        {
+            IniRead, _eduPortalRead, %QIIni%, EduQuickLinks, WorkPortal, __SSOK_MISSING__
+            if (_eduPortalRead != "__SSOK_MISSING__")
+                SSOK_QU_EduRegionPortal := _eduPortalRead
+        }
+        if (Trim(SSOK_QU_EduRegionKEdufine) = "")
+        {
+            IniRead, _eduKEdufineRead, %QIIni%, EduQuickLinks, KEdufine, __SSOK_MISSING__
+            if (_eduKEdufineRead != "__SSOK_MISSING__")
+                SSOK_QU_EduRegionKEdufine := _eduKEdufineRead
+        }
+        if (Trim(SSOK_QU_EduRegionNeis) = "")
+        {
+            IniRead, _eduNeisRead, %QIIni%, EduQuickLinks, Neis, __SSOK_MISSING__
+            if (_eduNeisRead != "__SSOK_MISSING__")
+                SSOK_QU_EduRegionNeis := _eduNeisRead
+        }
+        if (Trim(SSOK_QU_EduRegionSupport) = "")
+        {
+            IniRead, _eduSupportRead, %QIIni%, EduQuickLinks, Support, __SSOK_MISSING__
+            if (_eduSupportRead != "__SSOK_MISSING__")
+                SSOK_QU_EduRegionSupport := _eduSupportRead
+        }
+        if (Trim(SSOK_QU_EduRegionEVPN) = "")
+        {
+            IniRead, _eduEVPNRead, %QIIni%, EduQuickLinks, EVPN, __SSOK_MISSING__
+            if (_eduEVPNRead != "__SSOK_MISSING__")
+                SSOK_QU_EduRegionEVPN := _eduEVPNRead
+        }
+    }
+    if (Trim(SSOK_QU_EduRegionPortal) = "")
+        SSOK_QU_EduRegionPortal := "세종"
+    if (Trim(SSOK_QU_EduRegionKEdufine) = "")
+        SSOK_QU_EduRegionKEdufine := "세종"
+    if (Trim(SSOK_QU_EduRegionNeis) = "")
+        SSOK_QU_EduRegionNeis := "세종"
+    if (Trim(SSOK_QU_EduRegionSupport) = "")
+        SSOK_QU_EduRegionSupport := "세종"
+    if (Trim(SSOK_QU_EduRegionEVPN) = "")
+        SSOK_QU_EduRegionEVPN := "세종"
+
     SSOK_QF_LoadFolderSettings()
 
     SaveText := ""
@@ -3207,6 +3254,15 @@ SSOK_SaveUnifiedIni()
         SaveText .= "Name" . _i . "=" . _n . "`r`n"
         SaveText .= "Url" . _i . "=" . _u . "`r`n"
     }
+
+    ; 교육청 업무 시스템 바로가기에서 선택한 지역 저장
+    SaveText .= "`r`n"
+    SaveText .= "[EduQuickLinks]`r`n"
+    SaveText .= "WorkPortal=" . SSOK_QU_EduRegionPortal . "`r`n"
+    SaveText .= "KEdufine=" . SSOK_QU_EduRegionKEdufine . "`r`n"
+    SaveText .= "Neis=" . SSOK_QU_EduRegionNeis . "`r`n"
+    SaveText .= "Support=" . SSOK_QU_EduRegionSupport . "`r`n"
+    SaveText .= "EVPN=" . SSOK_QU_EduRegionEVPN . "`r`n"
 
     ; Win+F3 AI 메뉴 하단 5개 사이트도 함께 저장
     SaveText .= "`r`n"
@@ -3347,7 +3403,7 @@ SSOK_SaveUnifiedIni()
     _autoClickTimeModeSave := "1"
     _autoClickIXSave := ""
     _autoClickIYSave := ""
-    Loop, 5
+    Loop, 3
     {
         _i := A_Index
         _autoClickUse%_i%Save := "0"
@@ -3356,7 +3412,6 @@ SSOK_SaveUnifiedIni()
         _autoClickH%_i%Save := "00"
         _autoClickM%_i%Save := "00"
         _autoClickS%_i%Save := "00"
-        _autoClickTextHex%_i%Save := ""
     }
     if FileExist(QIIni)
     {
@@ -3370,7 +3425,7 @@ SSOK_SaveUnifiedIni()
         _autoClickTimeModeSave := _autoClickTimeModeRead
         _autoClickIXSave := (_autoClickIXRead = "__SSOK_EMPTY__" ? "" : _autoClickIXRead)
         _autoClickIYSave := (_autoClickIYRead = "__SSOK_EMPTY__" ? "" : _autoClickIYRead)
-        Loop, 5
+        Loop, 3
         {
             _i := A_Index
             IniRead, _autoClickUseRead, %QIIni%, AutoClick, Use%_i%, 0
@@ -3379,8 +3434,6 @@ SSOK_SaveUnifiedIni()
             IniRead, _autoClickHRead, %QIIni%, AutoClick, H%_i%, 00
             IniRead, _autoClickMRead, %QIIni%, AutoClick, M%_i%, 00
             IniRead, _autoClickSRead, %QIIni%, AutoClick, S%_i%, 00
-            IniRead, _autoClickTextHexRead, %QIIni%, AutoClick, TextHex%_i%, __SSOK_EMPTY__
-            _autoClickTextHex%_i%Save := (_autoClickTextHexRead = "__SSOK_EMPTY__" ? "" : _autoClickTextHexRead)
             _autoClickUse%_i%Save := (_autoClickUseRead = 1 ? "1" : "0")
             _autoClickX%_i%Save := (_autoClickXRead = "__SSOK_EMPTY__" ? "" : _autoClickXRead)
             _autoClickY%_i%Save := (_autoClickYRead = "__SSOK_EMPTY__" ? "" : _autoClickYRead)
@@ -3399,7 +3452,7 @@ SSOK_SaveUnifiedIni()
         _autoClickIXSave := SSOK_AutoClickIX
     if (SSOK_AutoClickIY != "")
         _autoClickIYSave := SSOK_AutoClickIY
-    Loop, 5
+    Loop, 3
     {
         _i := A_Index
         if (SSOK_AutoClickUse%_i% != "")
@@ -3423,14 +3476,7 @@ SSOK_SaveUnifiedIni()
     SaveText .= "IX=" . _autoClickIXSave . "`r`n"
     SaveText .= "IY=" . _autoClickIYSave . "`r`n"
     SaveText .= "CoordOneVer=2`r`n"
-    ; Preserve the macro's explicit enable flag and user-selected interval unit.
-    for _, _autoClickKey in ["IntervalEnabled", "IntervalValue", "IntervalUnit"]
-    {
-        IniRead, _autoClickExtra, %QIIni%, AutoClick, %_autoClickKey%, __SSOK_EMPTY__
-        if (_autoClickExtra != "__SSOK_EMPTY__")
-            SaveText .= _autoClickKey . "=" . _autoClickExtra . "`r`n"
-    }
-    Loop, 5
+    Loop, 3
     {
         _i := A_Index
         SaveText .= "Use" . _i . "=" . _autoClickUse%_i%Save . "`r`n"
@@ -3439,14 +3485,6 @@ SSOK_SaveUnifiedIni()
         SaveText .= "H" . _i . "=" . _autoClickH%_i%Save . "`r`n"
         SaveText .= "M" . _i . "=" . _autoClickM%_i%Save . "`r`n"
         SaveText .= "S" . _i . "=" . _autoClickS%_i%Save . "`r`n"
-        SaveText .= "TextHex" . _i . "=" . _autoClickTextHex%_i%Save . "`r`n"
-        for _, _autoClickField in ["Date", "AmPm"]
-        {
-            _autoClickKey := _autoClickField . _i
-            IniRead, _autoClickExtra, %QIIni%, AutoClick, %_autoClickKey%, __SSOK_EMPTY__
-            if (_autoClickExtra != "__SSOK_EMPTY__")
-                SaveText .= _autoClickKey . "=" . _autoClickExtra . "`r`n"
-        }
     }
     _accKeywordLines := SSOK_ACC_GetKeywordSectionForSave()
     SaveText .= "`r`n"
@@ -5806,6 +5844,7 @@ SSOK_OpenUrlPreferred(url)
 
 SSOK_ShowQuickUrlMenu:
     Gosub, SSOK_QU_LoadUrls
+    SSOK_QU_LoadEduRegionPrefs()
 
     Gui, SSOKQuickUrl:Destroy
     Gui, SSOKQuickUrl:+AlwaysOnTop +ToolWindow -MinimizeBox
@@ -5883,26 +5922,262 @@ SSOK_ShowQuickUrlMenu:
     Gui, SSOKQuickUrl:Font, s9 norm, Malgun Gothic
     Gui, SSOKQuickUrl:Add, Button, x500 y520 w140 h30 gSSOK_QU_SaveAll, 전체 저장
 
-    Gui, SSOKQuickUrl:Font, s8 bold underline c005BAC, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x20 y560 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolSearchFromMenu, [세종 관내 학교]
-    Gui, SSOKQuickUrl:Add, Text, x180 y560 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolInfoFromMenu, [학교알리미1]
-    Gui, SSOKQuickUrl:Add, Text, x340 y560 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolInfo2FromMenu, [학교알리미2]
-    Gui, SSOKQuickUrl:Add, Text, x500 y560 w150 h24 Center +0x200 gSSOK_QU_OpenLocalFinanceInfoFromMenu, [지방교육재정 알리미]
-    Gui, SSOKQuickUrl:Add, Text, x100 y588 w150 h24 Center +0x200 gSSOK_QU_OpenEduOfficeSearchFromMenu, [교육청 업무담당]
-    Gui, SSOKQuickUrl:Add, Text, x265 y588 w150 h24 Center +0x200 gSSOK_QU_OpenSchoolSupportInfoFromMenu, [학교지원본부 업무안내]
-    Gui, SSOKQuickUrl:Add, Text, x430 y588 w150 h24 Center +0x200 gSSOK_QU_OpenContractInfoFromMenu, [거래처 계약정보]
+    ; 교육청별 업무시스템 바로가기
+    ; 위 제목을 누르면 아래에 저장된 지역의 사이트가 바로 열립니다.
+    SSOK_QU_EduRegionListAll := "서울|대전|대구|부산|광주|울산|인천|경기|경북|경남|전북|전남|충남|충북|강원|제주|세종"
+    SSOK_QU_EduRegionListSupport := "서울|대전|대구|부산|광주|울산|인천|경기|경북|경남|전북|전남|충남|충북|강원|제주|세종"
 
-    Gui, SSOKQuickUrl:Font, s8 norm, Malgun Gothic
-    Gui, SSOKQuickUrl:Add, Text, x20 y620 w400 h18 c999999, 숫자 1~9번키 또는 [저장&열기]로 바로가기
-    Gui, SSOKQuickUrl:Add, Text, x350 y642 w290 h18 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
-    SSOK_GetSidebarAttachedGuiPos(680, 670, SSOK_QU_WinX, SSOK_QU_WinY)
-    Gui, SSOKQuickUrl:Show, x%SSOK_QU_WinX% y%SSOK_QU_WinY% w680 h670, SSOK 자주가는 사이트
+    Gui, SSOKQuickUrl:Font, s9 bold underline c4F6F8F, Malgun Gothic
+    Gui, SSOKQuickUrl:Add, Text, x20  y558 w110 h20 Center +0x200 gSSOK_QU_EduOpenPortal, 업무포털
+    Gui, SSOKQuickUrl:Add, Text, x140 y558 w110 h20 Center +0x200 gSSOK_QU_EduOpenKEdufine, K에듀파인
+    Gui, SSOKQuickUrl:Add, Text, x260 y558 w110 h20 Center +0x200 gSSOK_QU_EduOpenNeis, 나이스
+    Gui, SSOKQuickUrl:Add, Text, x380 y558 w110 h20 Center +0x200 gSSOK_QU_EduOpenSupport, 업무지원
+    Gui, SSOKQuickUrl:Add, Text, x500 y558 w110 h20 Center +0x200 gSSOK_QU_EduOpenEVPN, EVPN
+
+    Gui, SSOKQuickUrl:Font, s8 norm c000000, Malgun Gothic
+    Gui, SSOKQuickUrl:Add, DropDownList, x20  y579 w110 r12 vSSOK_QU_EduRegionPortal, %SSOK_QU_EduRegionListAll%
+    Gui, SSOKQuickUrl:Add, DropDownList, x140 y579 w110 r12 vSSOK_QU_EduRegionKEdufine, %SSOK_QU_EduRegionListAll%
+    Gui, SSOKQuickUrl:Add, DropDownList, x260 y579 w110 r12 vSSOK_QU_EduRegionNeis, %SSOK_QU_EduRegionListAll%
+    Gui, SSOKQuickUrl:Add, DropDownList, x380 y579 w110 r12 vSSOK_QU_EduRegionSupport, %SSOK_QU_EduRegionListSupport%
+    Gui, SSOKQuickUrl:Add, DropDownList, x500 y579 w110 r12 vSSOK_QU_EduRegionEVPN, %SSOK_QU_EduRegionListAll%
+    GuiControl, SSOKQuickUrl:ChooseString, SSOK_QU_EduRegionPortal, %SSOK_QU_EduRegionPortal%
+    GuiControl, SSOKQuickUrl:ChooseString, SSOK_QU_EduRegionKEdufine, %SSOK_QU_EduRegionKEdufine%
+    GuiControl, SSOKQuickUrl:ChooseString, SSOK_QU_EduRegionNeis, %SSOK_QU_EduRegionNeis%
+    GuiControl, SSOKQuickUrl:ChooseString, SSOK_QU_EduRegionSupport, %SSOK_QU_EduRegionSupport%
+    GuiControl, SSOKQuickUrl:ChooseString, SSOK_QU_EduRegionEVPN, %SSOK_QU_EduRegionEVPN%
+    Gui, SSOKQuickUrl:Add, Button, x615 y578 w45 h25 gSSOK_QU_EduSave, 저장
+
+    ; 하단 기존 링크는 한 줄로 유지
+    ; 세종 관내 학교만 기존 s5 대비 약 30% 크게 표시
+    Gui, SSOKQuickUrl:Font, s6.5 bold underline c6F7F8F, Malgun Gothic
+    Gui, SSOKQuickUrl:Add, Text, x5   y621 w95  h18 Center +0x200 gSSOK_QU_OpenSchoolSearchFromMenu, [세종 관내 학교]
+    Gui, SSOKQuickUrl:Add, Text, x100 y621 w75  h18 Center +0x200 gSSOK_QU_OpenSchoolInfoFromMenu, [학교알리미1]
+    Gui, SSOKQuickUrl:Add, Text, x175 y621 w75  h18 Center +0x200 gSSOK_QU_OpenSchoolInfo2FromMenu, [학교알리미2]
+    Gui, SSOKQuickUrl:Add, Text, x250 y621 w110 h18 Center +0x200 gSSOK_QU_OpenLocalFinanceInfoFromMenu, [지방교육재정 알리미]
+    Gui, SSOKQuickUrl:Add, Text, x360 y621 w100 h18 Center +0x200 gSSOK_QU_OpenEduOfficeSearchFromMenu, [교육청 업무담당]
+    Gui, SSOKQuickUrl:Add, Text, x460 y621 w120 h18 Center +0x200 gSSOK_QU_OpenSchoolSupportInfoFromMenu, [학교지원본부 업무안내]
+    Gui, SSOKQuickUrl:Add, Text, x580 y621 w95  h18 Center +0x200 gSSOK_QU_OpenContractInfoFromMenu, [거래처 계약정보]
+
+    Gui, SSOKQuickUrl:Font, s7 norm, Malgun Gothic
+    Gui, SSOKQuickUrl:Add, Text, x20 y666 w400 h18 c999999, 숫자 1~9번키 또는 [저장&열기]로 바로가기
+    Gui, SSOKQuickUrl:Add, Text, x430 y682 w225 h18 Right c999999, 저작권: 세종특별자치시교육청 주무관 이명호
+    SSOK_GetSidebarAttachedGuiPos(680, 695, SSOK_QU_WinX, SSOK_QU_WinY)
+    Gui, SSOKQuickUrl:Show, x%SSOK_QU_WinX% y%SSOK_QU_WinY% w680 h695, SSOK 자주가는 사이트
 return
-
 SSOKQuickUrlGuiEscape:
 SSOKQuickUrlGuiClose:
     Gui, SSOKQuickUrl:Destroy
 return
+
+SSOK_QU_EduOpenPortal:
+    SSOK_QU_OpenEduShortcut("portal")
+return
+
+SSOK_QU_EduOpenKEdufine:
+    SSOK_QU_OpenEduShortcut("kedufine")
+return
+
+SSOK_QU_EduOpenNeis:
+    SSOK_QU_OpenEduShortcut("neis")
+return
+
+SSOK_QU_EduOpenSupport:
+    SSOK_QU_OpenEduShortcut("support")
+return
+
+SSOK_QU_EduOpenEVPN:
+    SSOK_QU_OpenEduShortcut("evpn")
+return
+
+SSOK_QU_EduSave:
+    SSOK_QU_SaveEduRegionPrefs()
+    ToolTip, 교육청 바로가기 지역을 저장했습니다.
+    SetTimer, SSOK_QU_EduClearToolTip, -1200
+return
+
+SSOK_QU_EduClearToolTip:
+    ToolTip
+return
+
+SSOK_QU_LoadEduRegionPrefs()
+{
+    global SSOK_IniFile
+    global SSOK_QU_EduRegionPortal, SSOK_QU_EduRegionKEdufine, SSOK_QU_EduRegionNeis, SSOK_QU_EduRegionSupport, SSOK_QU_EduRegionEVPN
+
+    SSOK_QU_EduRegionPortal := "세종"
+    SSOK_QU_EduRegionKEdufine := "세종"
+    SSOK_QU_EduRegionNeis := "세종"
+    SSOK_QU_EduRegionSupport := "세종"
+    SSOK_QU_EduRegionEVPN := "세종"
+
+    if !FileExist(SSOK_IniFile)
+        return
+
+    IniRead, _r1, %SSOK_IniFile%, EduQuickLinks, WorkPortal, 세종
+    IniRead, _r2, %SSOK_IniFile%, EduQuickLinks, KEdufine, 세종
+    IniRead, _r3, %SSOK_IniFile%, EduQuickLinks, Neis, 세종
+    IniRead, _r4, %SSOK_IniFile%, EduQuickLinks, Support, 세종
+    IniRead, _r5, %SSOK_IniFile%, EduQuickLinks, EVPN, 세종
+    if (Trim(_r1) != "")
+        SSOK_QU_EduRegionPortal := _r1
+    if (Trim(_r2) != "")
+        SSOK_QU_EduRegionKEdufine := _r2
+    if (Trim(_r3) != "")
+        SSOK_QU_EduRegionNeis := _r3
+    if (Trim(_r4) != "")
+        SSOK_QU_EduRegionSupport := _r4
+    if (Trim(_r5) != "")
+        SSOK_QU_EduRegionEVPN := _r5
+}
+
+SSOK_QU_SaveEduRegionPrefs()
+{
+    global SSOK_QU_EduRegionPortal, SSOK_QU_EduRegionKEdufine, SSOK_QU_EduRegionNeis, SSOK_QU_EduRegionSupport, SSOK_QU_EduRegionEVPN
+
+    Gui, SSOKQuickUrl:Submit, NoHide
+    if (Trim(SSOK_QU_EduRegionPortal) = "")
+        SSOK_QU_EduRegionPortal := "세종"
+    if (Trim(SSOK_QU_EduRegionKEdufine) = "")
+        SSOK_QU_EduRegionKEdufine := "세종"
+    if (Trim(SSOK_QU_EduRegionNeis) = "")
+        SSOK_QU_EduRegionNeis := "세종"
+    if (Trim(SSOK_QU_EduRegionSupport) = "")
+        SSOK_QU_EduRegionSupport := "세종"
+    if (Trim(SSOK_QU_EduRegionEVPN) = "")
+        SSOK_QU_EduRegionEVPN := "세종"
+    SSOK_SaveUnifiedIni()
+}
+
+SSOK_QU_OpenEduShortcut(kind)
+{
+    global SSOK_QU_EduRegionPortal, SSOK_QU_EduRegionKEdufine, SSOK_QU_EduRegionNeis, SSOK_QU_EduRegionSupport, SSOK_QU_EduRegionEVPN
+
+    Gui, SSOKQuickUrl:Submit, NoHide
+    if (kind = "portal")
+        region := SSOK_QU_EduRegionPortal
+    else if (kind = "kedufine")
+        region := SSOK_QU_EduRegionKEdufine
+    else if (kind = "neis")
+        region := SSOK_QU_EduRegionNeis
+    else if (kind = "support")
+        region := SSOK_QU_EduRegionSupport
+    else if (kind = "evpn")
+        region := SSOK_QU_EduRegionEVPN
+    else
+        return
+
+    url := SSOK_QU_GetEduShortcutUrl(kind, region)
+    if (url = "")
+    {
+        MsgBox, 48, SSOK 안내, %region% 교육청의 해당 바로가기 주소가 등록되어 있지 않습니다.
+        return
+    }
+
+    ; 선택한 지역으로 실제 이동하면 현재 5개 선택값을 즉시 저장합니다.
+    ; 따라서 별도 [저장]을 누르지 않아도 다음 실행 때 마지막 선택 지역이 유지됩니다.
+    SSOK_SaveUnifiedIni()
+
+    Gui, SSOKQuickUrl:Destroy
+    SSOK_OpenUrlPreferred(url)
+}
+
+SSOK_QU_GetEduShortcutUrl(kind, region)
+{
+    code := SSOK_QU_GetEduRegionCode(region)
+    if (kind = "portal")
+        return (code = "" ? "" : "https://" . code . ".eduptl.kr")
+    if (kind = "neis")
+        return (code = "" ? "" : "https://" . code . ".neis.go.kr")
+    if (kind = "kedufine")
+        return (code = "" ? "" : "https://klef." . code . ".go.kr")
+    if (kind = "evpn")
+    {
+        if (region = "경북")
+            return "https://evpn.gbe.kr"
+        return (code = "" ? "" : "https://evpn." . code . ".go.kr")
+    }
+    if (kind = "support")
+        return SSOK_QU_GetEduSupportUrl(region)
+    return ""
+}
+
+SSOK_QU_GetEduRegionCode(region)
+{
+    if (region = "강원")
+        return "kwe"
+    if (region = "경기")
+        return "goe"
+    if (region = "경남")
+        return "gne"
+    if (region = "경북")
+        return "gbe"
+    if (region = "광주")
+        return "gen"
+    if (region = "대구")
+        return "dge"
+    if (region = "대전")
+        return "dje"
+    if (region = "부산")
+        return "pen"
+    if (region = "서울")
+        return "sen"
+    if (region = "세종")
+        return "sje"
+    if (region = "울산")
+        return "use"
+    if (region = "인천")
+        return "ice"
+    if (region = "전남")
+        return "jne"
+    if (region = "전북")
+        return "jbe"
+    if (region = "제주")
+        return "jje"
+    if (region = "충남")
+        return "cne"
+    if (region = "충북")
+        return "cbe"
+    return ""
+}
+
+SSOK_QU_GetEduSupportUrl(region)
+{
+    if (region = "서울")
+        return "https://baro.sen.go.kr/"
+    if (region = "대전")
+        return "https://www.dje.go.kr/boardCnts/list.do?boardID=10375&m=030609&s=dje"
+    if (region = "대구")
+        return "https://www.dge.go.kr/defsc/main.do"
+    if (region = "부산")
+        return "https://bsss.pen.go.kr/"
+    if (region = "광주")
+        return "https://www.gen.go.kr/xmanual/main/main.php#section-0"
+    if (region = "울산")
+        return "https://use.go.kr/user/bbs/BD_selectBbsList.do?q_bbsSn=1925"
+    if (region = "인천")
+        return "https://edus.ice.go.kr/"
+    if (region = "경기")
+        return "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?mi=10554&cntntsId=1465"
+    if (region = "경북")
+        return "https://www.gbe.kr/edupia/main.do#freLinkPopup"
+    if (region = "경남")
+        return "https://www.gne.go.kr/helpschool/index.do"
+    if (region = "전북")
+        return "https://www.jbe.go.kr/support/index.jbe"
+    if (region = "전남")
+        return "https://www.jge.go.kr/jgemain/na/ntt/selectNttList.do?mi=2346&bbsId=1096"
+    if (region = "충남")
+        return "http://www.cne.go.kr/manual/main.do"
+    if (region = "충북")
+        return "https://www.cbe.go.kr/baro/main.do"
+    if (region = "강원")
+        return "https://www.gwe.go.kr/main/bbs/list.do?key=bTIzMDcyMTExOTg1NTA="
+    if (region = "제주")
+        return "https://www.jje.go.kr/support/board/list.jje?boardId=BBS_0000261&menuCd=DOM_000001404001000000&contentsSid=732&cpath=%2Fsupport"
+    if (region = "세종")
+        return "https://www.sje.go.kr/sje/na/ntt/selectNttList.do?mi=52164&bbsId=982"
+    return ""
+}
 
 #IfWinActive, SSOK 자주가는 사이트
 1::SSOK_QU_HotkeyOpen(1)
@@ -8794,3 +9069,6 @@ return
 
 ; SSOK 기능 도구 통합 모듈
 #Include %A_ScriptDir%\ssok_tool.ahk
+
+; SSOK 간편 지출품의 모듈
+#Include %A_ScriptDir%\ssok_tool_expense.ahk

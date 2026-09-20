@@ -6699,3 +6699,770 @@ SSOK_Expense_ClickVisibleAddButton(button, target)
         CoordMode, Mouse, %previousMode%
     }
 }
+
+
+; ============================================================================
+; SSOK 업무용 도구 - 테스트버전 Beta (별도 소형 창)
+; 기존 Win+1~4 기능은 수정하지 않고 링크만 연결합니다.
+; 신규 2개 기능은 현재 단계에서 Excel 2개 파일 입력 UI만 구현합니다.
+; ============================================================================
+
+SSOK_Expense_Tools_Open:
+    SSOK_Expense_Tools_Show()
+return
+
+SSOKExpenseToolsGuiClose:
+SSOKExpenseToolsGuiEscape:
+    Gui, SSOKExpenseTools:Destroy
+return
+
+SSOK_Expense_Tools_Win1:
+    SSOK_Expense_Tools_ActivateTarget()
+    SSOK_Expense_Run()
+return
+
+SSOK_Expense_Tools_Win2:
+    SSOK_Expense_Tools_ActivateTarget()
+    SSOK_Expense_Tools_RunWin2()
+return
+
+SSOK_Expense_Tools_Win3:
+    SSOK_Expense_Tools_ActivateTarget()
+    SSOK_Expense_Win3Overview()
+return
+
+SSOK_Expense_Tools_Win4:
+    SSOK_Expense_Tools_ActivateTarget()
+    Gosub, SSOK_Expense_DoWin4_KEdufine_TabSeq
+return
+
+SSOK_Expense_Tools_CardCompare:
+    ; Beta 메뉴는 닫지 않습니다.
+    SSOK_Expense_CardCompare_Show()
+return
+
+SSOK_Expense_Tools_WorkPublic:
+    ; Beta 메뉴는 닫지 않습니다.
+    SSOK_Expense_WorkPublic_Show()
+return
+
+SSOK_Expense_Tools_Show()
+{
+    global SSOK_ExpenseToolsHwnd
+    global SSOK_BetaReplaceX, SSOK_BetaReplaceY, SSOK_BetaReplaceW, SSOK_BetaReplaceH
+    global SSOK_WorkToolsHwnd, SSOK_SidebarHwnd
+
+    Gui, SSOKExpenseTools:Destroy
+    Gui, SSOKExpenseTools:New, +AlwaysOnTop +ToolWindow +HwndSSOK_ExpenseToolsHwnd, 테스트버전 Beta
+    Gui, SSOKExpenseTools:Color, F7FBFF
+    Gui, SSOKExpenseTools:Font, s8 Bold, Malgun Gothic
+
+    ; 기본값은 기존 업무용 도구와 같은 182px 폭.
+    betaW := (SSOK_BetaReplaceW != "" && SSOK_BetaReplaceW > 0) ? SSOK_BetaReplaceW : 182
+    betaH := (SSOK_BetaReplaceH != "" && SSOK_BetaReplaceH > 0) ? SSOK_BetaReplaceH : 443
+
+    btnW := betaW - 16
+    if (btnW < 130)
+        btnW := 166
+
+    Gui, SSOKExpenseTools:Add, Button, x8 y8   w%btnW% h25 gSSOK_Expense_Tools_Win1, 간편 지출품의(win + 1)
+    Gui, SSOKExpenseTools:Add, Button, x8 y39  w%btnW% h25 gSSOK_Expense_Tools_Win2, 간편 원인행위(win + 2)
+    Gui, SSOKExpenseTools:Add, Button, x8 y70  w%btnW% h25 gSSOK_Expense_Tools_Win3, 간편 원인행위(win + 3)
+    Gui, SSOKExpenseTools:Add, Button, x8 y101 w%btnW% h25 gSSOK_Expense_Tools_Win4, 간편 원인행위(win + 4)
+    Gui, SSOKExpenseTools:Add, Button, x8 y132 w%btnW% h25 gSSOK_Expense_Tools_CardCompare, 법인카드내역비교
+    Gui, SSOKExpenseTools:Add, Button, x8 y163 w%btnW% h25 gSSOK_Expense_Tools_WorkPublic, 업무추진비공개
+
+    ; Beta를 누르기 직전 업무용 도구의 바로 그 자리/크기 사용
+    x := SSOK_BetaReplaceX
+    y := SSOK_BetaReplaceY
+
+    if (x = "" || y = "")
+    {
+        ; 예외적으로 위치 저장이 안 됐으면 업무용 도구 또는 사이드바 위치 사용
+        if (SSOK_WorkToolsHwnd != "")
+        {
+            WinGetPos, wtX, wtY, wtW, wtH, ahk_id %SSOK_WorkToolsHwnd%
+            if (wtX != "")
+            {
+                x := wtX
+                y := wtY
+                if (SSOK_BetaReplaceW = "")
+                    betaW := wtW
+                if (SSOK_BetaReplaceH = "")
+                    betaH := wtH
+            }
+        }
+    }
+
+    if (x = "" && SSOK_SidebarHwnd != "")
+    {
+        WinGetPos, sideX, sideY, sideW, sideH, ahk_id %SSOK_SidebarHwnd%
+        if (sideX != "")
+        {
+            x := sideX - betaW - 4
+            y := sideY
+        }
+    }
+
+    SysGet, betaWork, MonitorWorkArea
+    if (x = "")
+        x := betaWorkRight - betaW
+    if (y = "")
+        y := betaWorkTop + 80
+
+    if (x < betaWorkLeft)
+        x := betaWorkLeft
+    if (x + betaW > betaWorkRight)
+        x := betaWorkRight - betaW
+    if (y < betaWorkTop)
+        y := betaWorkTop
+    if (y + betaH > betaWorkBottom)
+        y := betaWorkBottom - betaH
+
+    Gui, SSOKExpenseTools:Show, x%x% y%y% w%betaW% h%betaH%, 테스트버전 Beta
+    WinSet, AlwaysOnTop, On, ahk_id %SSOK_ExpenseToolsHwnd%
+}
+
+SSOK_Expense_Tools_ActivateTarget()
+{
+    global SSOK_SidebarTargetHwnd
+
+    ; Beta 창은 그대로 유지하고 실제 업무 대상 창만 활성화
+    if (SSOK_SidebarTargetHwnd != "")
+    {
+        WinActivate, ahk_id %SSOK_SidebarTargetHwnd%
+        Sleep, 140
+    }
+}
+
+SSOK_Expense_Tools_RunWin2()
+{
+    ; 현재 Win+2 동작을 그대로 연결
+    KeyWait, LWin
+    KeyWait, RWin
+    SendInput, {LWin up}{RWin up}{Alt up}{Ctrl up}{Shift up}
+    SetKeyDelay, 80, 40
+    Sleep, 150
+    SendInput, {Tab 10}
+    Sleep, 120
+    SendInput, {Right}
+    Sleep, 120
+    SendInput, {Tab 1}
+    Sleep, 120
+    SendInput, {Down 4}
+    Sleep, 120
+    SendInput, {Tab 2}
+    Sleep, 120
+    SendInput, {Enter}
+    Sleep, 900
+    SendInput, 11
+    Sleep, 300
+    SendInput, {Enter}
+}
+
+
+
+; ============================================================================
+; 계약현황(나라장터) - 업무용 도구 연결 기능
+; - 기존 Win+1~4 및 다른 기존 기능은 수정하지 않음
+; - 교육청만 선택하고, 선택 즉시 해당 교육청 나라장터 통합상세검색 화면을 엶
+; - 단계구분/검색일자/페이지수 자동 변경 기능은 사용하지 않음
+; ============================================================================
+
+SSOKG2BGuiClose:
+SSOKG2BGuiEscape:
+    Gui, SSOKG2B:Destroy
+return
+
+SSOK_Expense_G2B_OfficeChanged:
+    global SSOK_ExpenseG2BOffice
+
+    Gui, SSOKG2B:Submit, NoHide
+    officeName := Trim(SSOK_ExpenseG2BOffice)
+
+    ; 첫 안내 항목은 아무 동작도 하지 않습니다.
+    if (officeName = "" || officeName = "교육청 선택")
+        return
+
+    ; 광주광역시교육청과 전라남도교육청은 서로 다른 상위기관코드입니다.
+    ; 통합 선택 시 두 교육청 검색 결과를 각각 새 탭으로 엽니다.
+    if (officeName = "전라남도·광주 통합")
+    {
+        Gui, SSOKG2B:Destroy
+        SSOK_Expense_G2B_OpenByCode("7380000")
+        Sleep, 250
+        SSOK_Expense_G2B_OpenByCode("8490000")
+        return
+    }
+
+    code := SSOK_Expense_G2B_GetOfficeCode(officeName)
+    if (code = "")
+    {
+        ToolTip, 교육청 기관코드를 찾지 못했습니다.
+        SetTimer, SSOKExpenseClearTip, -2200
+        return
+    }
+
+    Gui, SSOKG2B:Destroy
+    SSOK_Expense_G2B_OpenByCode(code)
+return
+
+SSOK_Expense_G2B_OpenByCode(code)
+{
+    ; 사용자가 제공한 원래 나라장터 링크 형식 그대로 교육청 코드만 바꿉니다.
+    url := "https://www.g2b.go.kr/link/FIUA006_01/single/?untySrchSeCd=BKOB&rowCnt=&instCd="
+        . code
+        . "&demaInstNm=&hghrkInstCd=" . code
+        . "&prcmBsneAreaCd=%EC%A0%84%EC%B2%B4&prcmMthoSeCd=&frcpYn=N&laseYn=N&rsrvYn=N&chkInstCd=&urlSrchSeCd=hghrkInstCd"
+
+    if IsFunc("SSOK_Tool_OpenUrlPreferred")
+        Func("SSOK_Tool_OpenUrlPreferred").Call(url)
+    else
+        Run, %url%,, UseErrorLevel
+}
+
+SSOK_Expense_G2B_Show()
+{
+    global SSOK_ExpenseG2BOffice, SSOK_ExpenseG2BHwnd
+    global SSOK_ExpenseToolsHwnd, SSOK_BetaReplaceX, SSOK_BetaReplaceY, SSOK_BetaReplaceW, SSOK_BetaReplaceH
+
+    ; 호출한 업무용 도구 창의 실제 위치를 사용해 교육청 선택창을 표시합니다.
+    x := ""
+    y := ""
+    betaW := ""
+    betaH := ""
+
+    if (SSOK_ExpenseToolsHwnd != "" && WinExist("ahk_id " . SSOK_ExpenseToolsHwnd))
+        WinGetPos, x, y, betaW, betaH, ahk_id %SSOK_ExpenseToolsHwnd%
+
+    if (x = "")
+        x := SSOK_BetaReplaceX
+    if (y = "")
+        y := SSOK_BetaReplaceY
+    if (betaW = "" || betaW < 170)
+        betaW := (SSOK_BetaReplaceW != "" && SSOK_BetaReplaceW >= 170) ? SSOK_BetaReplaceW : 182
+
+    Gui, SSOKExpenseTools:Destroy
+    Gui, SSOKG2B:Destroy
+    Gui, SSOKG2B:New, +AlwaysOnTop +ToolWindow +HwndSSOK_ExpenseG2BHwnd, 교육청 선택
+    Gui, SSOKG2B:Color, F7FBFF
+    Gui, SSOKG2B:Font, s8 Bold, Malgun Gothic
+
+    innerW := betaW - 16
+    if (innerW < 154)
+        innerW := 166
+
+    Gui, SSOKG2B:Add, Text, x8 y10 w%innerW% h20 +0x200, 교육청 선택
+    Gui, SSOKG2B:Font, s8 Norm, Malgun Gothic
+
+    offices := "교육청 선택||서울특별시교육청|부산광역시교육청|대구광역시교육청|인천광역시교육청|광주광역시교육청|대전광역시교육청|울산광역시교육청|세종특별자치시교육청|경기도교육청|강원특별자치도교육청|충청북도교육청|충청남도교육청|전북특별자치도교육청|전라남도교육청|전라남도·광주 통합|경상북도교육청|경상남도교육청|제주특별자치도교육청"
+    Gui, SSOKG2B:Add, DropDownList, x8 y34 w%innerW% vSSOK_ExpenseG2BOffice gSSOK_Expense_G2B_OfficeChanged, %offices%
+
+    Gui, SSOKG2B:Font, s7 Norm, Malgun Gothic
+    Gui, SSOKG2B:Add, Text, x8 y65 w%innerW% h20 c555555, 선택하면 바로 나라장터가 열립니다.
+
+    if (x = "" || y = "")
+        Gui, SSOKG2B:Show, w%betaW% h92 Center, 교육청 선택
+    else
+        Gui, SSOKG2B:Show, x%x% y%y% w%betaW% h92, 교육청 선택
+
+    WinSet, AlwaysOnTop, On, ahk_id %SSOK_ExpenseG2BHwnd%
+}
+
+SSOK_Expense_G2B_GetOfficeCode(name)
+{
+    ; 시도교육청 기관코드
+    if (name = "서울특별시교육청")
+        return "7010000"
+    if (name = "부산광역시교육청")
+        return "7150000"
+    if (name = "대구광역시교육청")
+        return "7240000"
+    if (name = "인천광역시교육청")
+        return "7310000"
+    if (name = "광주광역시교육청")
+        return "7380000"
+    if (name = "대전광역시교육청")
+        return "7430000"
+    if (name = "울산광역시교육청")
+        return "7480000"
+    if (name = "세종특별자치시교육청")
+        return "9300000"
+    if (name = "경기도교육청")
+        return "7530000"
+    if (name = "강원특별자치도교육청")
+        return "7801000"
+    if (name = "충청북도교육청")
+        return "8000000"
+    if (name = "충청남도교육청")
+        return "8140000"
+    if (name = "전북특별자치도교육청")
+        return "8321000"
+    if (name = "전라남도교육청")
+        return "8490000"
+    if (name = "경상북도교육청")
+        return "8750000"
+    if (name = "경상남도교육청")
+        return "9010000"
+    if (name = "제주특별자치도교육청")
+        return "9290000"
+    return ""
+}
+
+
+; ============================================================================
+; 법인카드내역비교 - 1차 기본 UI
+; ① 법인카드사용부 Excel
+; ② 법인카드이용내역서 Excel
+; 현재는 두 파일 입력/확인 기능까지만 구현
+; ============================================================================
+
+SSOK_Expense_CardCompare_PasteUse:
+    path := SSOK_Expense_GetCopiedFilePath()
+    if (path = "")
+    {
+        MsgBox, 48, 법인카드내역비교, 탐색기에서 Excel 파일을 먼저 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        return
+    }
+    SSOK_CardCompareUsePath := path
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, %path%
+    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+return
+
+SSOK_Expense_CardCompare_PasteStatement:
+    path := SSOK_Expense_GetCopiedFilePath()
+    if (path = "")
+    {
+        MsgBox, 48, 법인카드내역비교, 탐색기에서 Excel 파일을 먼저 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        return
+    }
+    SSOK_CardCompareStatementPath := path
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, %path%
+    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+return
+
+SSOK_Expense_CardCompare_BrowseUse:
+    FileSelectFile, picked, 3,, 법인카드사용부 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    if (ErrorLevel)
+        return
+    SSOK_CardCompareUsePath := picked
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, %picked%
+    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+return
+
+SSOK_Expense_CardCompare_BrowseStatement:
+    FileSelectFile, picked, 3,, 법인카드이용내역서 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    if (ErrorLevel)
+        return
+    SSOK_CardCompareStatementPath := picked
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, %picked%
+    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+return
+
+SSOK_Expense_CardCompare_UpdateStatus:
+    Gui, SSOKCardCompare:Submit, NoHide
+
+    if (FileExist(SSOK_CardCompareUsePath) && FileExist(SSOK_CardCompareStatementPath))
+        status := "Excel 2개가 선택되었습니다. 다음 단계에서 비교 규칙을 연결합니다."
+    else if (FileExist(SSOK_CardCompareUsePath) || FileExist(SSOK_CardCompareStatementPath))
+        status := "Excel 1개가 선택되었습니다. 나머지 파일도 선택해 주세요."
+    else
+        status := "법인카드사용부와 법인카드이용내역서 Excel을 각각 선택해 주세요."
+
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus, %status%
+return
+
+SSOK_Expense_CardCompare_Check:
+    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+
+    if (!FileExist(SSOK_CardCompareUsePath))
+    {
+        MsgBox, 48, 법인카드내역비교, 법인카드사용부 Excel을 선택해 주세요.
+        return
+    }
+
+    if (!FileExist(SSOK_CardCompareStatementPath))
+    {
+        MsgBox, 48, 법인카드내역비교, 법인카드이용내역서 Excel을 선택해 주세요.
+        return
+    }
+
+    MsgBox, 64, 법인카드내역비교, 두 Excel 파일을 정상적으로 불러왔습니다.`n`n다음 단계에서 두 파일의 열 구조를 확인하여 비교 규칙을 연결하면 됩니다.
+return
+
+SSOKCardCompareGuiDropFiles:
+    ; 탐색기에서 Excel 파일을 GUI/입력칸으로 끌어 놓으면 자동 등록
+    SSOK_Expense_CardCompare_HandleDrop(A_GuiEvent, A_GuiControl)
+return
+
+SSOKCardCompareGuiClose:
+SSOKCardCompareGuiEscape:
+    Gui, SSOKCardCompare:Destroy
+return
+
+SSOK_Expense_CardCompare_Show()
+{
+    global SSOK_CardCompareUsePath, SSOK_CardCompareStatementPath
+    global SSOK_CardCompareStatus
+
+    Gui, SSOKCardCompare:Destroy
+    Gui, SSOKCardCompare:New, +ToolWindow, 법인카드내역비교
+    Gui, SSOKCardCompare:Margin, 14, 14
+    Gui, SSOKCardCompare:Color, F7FBFF
+    Gui, SSOKCardCompare:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, w610 h25, 법인카드내역비교
+    Gui, SSOKCardCompare:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, y+0 w610 h28 c555555, 탐색기에서 Excel 파일을 각 입력칸으로 끌어 놓거나 [파일 선택]을 이용하세요.
+
+    Gui, SSOKCardCompare:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, y+10 w160 h22 +0x200, 법인카드사용부
+    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Edit, x130 yp w390 h24 vSSOK_CardCompareUsePath, %SSOK_CardCompareUsePath%
+    Gui, SSOKCardCompare:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_CardCompare_BrowseUse, 파일 선택
+
+    Gui, SSOKCardCompare:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x14 y+12 w160 h22 +0x200, 법인카드이용내역서
+    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Edit, x130 yp w390 h24 vSSOK_CardCompareStatementPath, %SSOK_CardCompareStatementPath%
+    Gui, SSOKCardCompare:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_CardCompare_BrowseStatement, 파일 선택
+
+    Gui, SSOKCardCompare:Add, Text, x14 y+14 w610 h38 +0x200 vSSOK_CardCompareStatus c005BAC, 법인카드사용부와 법인카드이용내역서 Excel을 각각 선택해 주세요.
+    Gui, SSOKCardCompare:Add, Button, x14 y+8 w150 h30 gSSOK_Expense_CardCompare_Check, 파일 확인
+    Gui, SSOKCardCompare:Add, Button, x473 yp w150 h30 gSSOKCardCompareGuiClose, 닫기
+
+    Gui, SSOKCardCompare:Show, w640 h220 Center
+}
+
+
+; ============================================================================
+; 업무추진비공개 - 1차 기본 UI
+; ① 지난달 공개자료 Excel
+; ② 이번달 업무추진비집행내역 Excel
+; 현재는 두 파일 입력/확인 기능까지만 구현
+; ============================================================================
+
+SSOK_Expense_WorkPublic_PastePrev:
+    path := SSOK_Expense_GetCopiedFilePath()
+    if (path = "")
+    {
+        MsgBox, 48, 업무추진비공개, 탐색기에서 지난달 공개자료 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        return
+    }
+    SSOK_WorkPublicPrevPath := path
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %path%
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+return
+
+SSOK_Expense_WorkPublic_PasteCurrent:
+    path := SSOK_Expense_GetCopiedFilePath()
+    if (path = "")
+    {
+        MsgBox, 48, 업무추진비공개, 탐색기에서 이번달 업무추진비집행내역 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        return
+    }
+    SSOK_WorkPublicCurrentPath := path
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, %path%
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+return
+
+SSOK_Expense_WorkPublic_BrowsePrev:
+    FileSelectFile, picked, 3,, 지난달 공개자료 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    if (ErrorLevel)
+        return
+    SSOK_WorkPublicPrevPath := picked
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %picked%
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+return
+
+SSOK_Expense_WorkPublic_BrowseCurrent:
+    FileSelectFile, picked, 3,, 이번달 업무추진비집행내역 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    if (ErrorLevel)
+        return
+    SSOK_WorkPublicCurrentPath := picked
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, %picked%
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+return
+
+SSOK_Expense_WorkPublic_UpdateStatus:
+    Gui, SSOKWorkPublic:Submit, NoHide
+
+    if (FileExist(SSOK_WorkPublicPrevPath) && FileExist(SSOK_WorkPublicCurrentPath))
+        status := "Excel 2개가 선택되었습니다. 지난달 공개자료를 기준 양식으로 사용할 준비가 되었습니다."
+    else if (FileExist(SSOK_WorkPublicPrevPath) || FileExist(SSOK_WorkPublicCurrentPath))
+        status := "Excel 1개가 선택되었습니다. 나머지 파일도 선택해 주세요."
+    else
+        status := "지난달 공개자료와 이번달 업무추진비집행내역 Excel을 각각 선택해 주세요."
+
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, %status%
+return
+
+SSOK_Expense_WorkPublic_Check:
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+
+    if (!FileExist(SSOK_WorkPublicPrevPath))
+    {
+        MsgBox, 48, 업무추진비공개, 지난달 공개자료 Excel을 선택해 주세요.
+        return
+    }
+
+    if (!FileExist(SSOK_WorkPublicCurrentPath))
+    {
+        MsgBox, 48, 업무추진비공개, 이번달 업무추진비집행내역 Excel을 선택해 주세요.
+        return
+    }
+
+    MsgBox, 64, 업무추진비공개, 두 Excel 파일을 정상적으로 불러왔습니다.`n`n다음 단계에서 지난달 공개자료의 양식을 유지하면서 이번달 집행내역을 변환하도록 연결하면 됩니다.
+return
+
+SSOKWorkPublicGuiDropFiles:
+    ; 탐색기에서 Excel 파일을 GUI/입력칸으로 끌어 놓으면 자동 등록
+    SSOK_Expense_WorkPublic_HandleDrop(A_GuiEvent, A_GuiControl)
+return
+
+SSOKWorkPublicGuiClose:
+SSOKWorkPublicGuiEscape:
+    Gui, SSOKWorkPublic:Destroy
+return
+
+SSOK_Expense_WorkPublic_Show()
+{
+    global SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath
+    global SSOK_WorkPublicStatus
+
+    Gui, SSOKWorkPublic:Destroy
+    Gui, SSOKWorkPublic:New, +ToolWindow, 업무추진비공개
+    Gui, SSOKWorkPublic:Margin, 14, 14
+    Gui, SSOKWorkPublic:Color, F7FBFF
+    Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, w610 h25, 업무추진비공개
+    Gui, SSOKWorkPublic:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, y+0 w610 h28 c555555, 탐색기에서 Excel 파일을 각 입력칸으로 끌어 놓거나 [파일 선택]을 이용하세요.
+
+    Gui, SSOKWorkPublic:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, y+10 w160 h22 +0x200, 지난달 공개자료
+    Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Edit, x150 yp w370 h24 vSSOK_WorkPublicPrevPath, %SSOK_WorkPublicPrevPath%
+    Gui, SSOKWorkPublic:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_WorkPublic_BrowsePrev, 파일 선택
+
+    Gui, SSOKWorkPublic:Font, s9 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, x14 y+12 w160 h22 +0x200, 이번달 업무추진비집행내역
+    Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Edit, x150 yp w370 h24 vSSOK_WorkPublicCurrentPath, %SSOK_WorkPublicCurrentPath%
+    Gui, SSOKWorkPublic:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_WorkPublic_BrowseCurrent, 파일 선택
+
+    Gui, SSOKWorkPublic:Add, Text, x14 y+14 w610 h38 +0x200 vSSOK_WorkPublicStatus c005BAC, 지난달 공개자료와 이번달 업무추진비집행내역 Excel을 각각 선택해 주세요.
+    Gui, SSOKWorkPublic:Add, Button, x14 y+8 w150 h30 gSSOK_Expense_WorkPublic_Check, 파일 확인
+    Gui, SSOKWorkPublic:Add, Button, x473 yp w150 h30 gSSOKWorkPublicGuiClose, 닫기
+
+    Gui, SSOKWorkPublic:Show, w640 h220 Center
+}
+
+
+
+; ============================================================================
+; Windows 탐색기에서 Ctrl+C로 복사한 파일 경로 가져오기 (CF_HDROP)
+; ============================================================================
+
+SSOK_Expense_DropExcelFiles(dropText)
+{
+    files := []
+
+    ; GuiDropFiles의 A_GuiEvent는 줄바꿈으로 구분된 전체 경로
+    normalized := StrReplace(dropText, "`r`n", "`n")
+    normalized := StrReplace(normalized, "`r", "`n")
+
+    for _, raw in StrSplit(normalized, "`n")
+    {
+        path := Trim(raw, " `t" . Chr(34))
+        if (path = "")
+            continue
+
+        if !RegExMatch(path, "i)\.(xlsx|xls)$")
+            continue
+
+        if FileExist(path)
+            files.Push(path)
+    }
+
+    return files
+}
+
+SSOK_Expense_CardCompare_HandleDrop(dropText, targetControl := "")
+{
+    global SSOK_CardCompareUsePath, SSOK_CardCompareStatementPath
+
+    files := SSOK_Expense_DropExcelFiles(dropText)
+    if (!IsObject(files) || !files.Length())
+    {
+        MsgBox, 48, 법인카드내역비교, Excel 파일(.xlsx 또는 .xls)만 끌어 놓을 수 있습니다.
+        return
+    }
+
+    ; 정확한 입력칸 위에 놓으면 해당 칸에 우선 등록
+    if (targetControl = "SSOK_CardCompareUsePath")
+    {
+        SSOK_CardCompareUsePath := files[1]
+        GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, % SSOK_CardCompareUsePath
+
+        if (files.Length() >= 2)
+        {
+            SSOK_CardCompareStatementPath := files[2]
+            GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, % SSOK_CardCompareStatementPath
+        }
+    }
+    else if (targetControl = "SSOK_CardCompareStatementPath")
+    {
+        SSOK_CardCompareStatementPath := files[1]
+        GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, % SSOK_CardCompareStatementPath
+
+        if (files.Length() >= 2)
+        {
+            SSOK_CardCompareUsePath := files[2]
+            GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, % SSOK_CardCompareUsePath
+        }
+    }
+    else
+    {
+        ; GUI 빈 곳에 놓거나 두 파일을 한 번에 놓으면 빈 칸부터 순서대로 채움
+        for _, path in files
+        {
+            if (SSOK_CardCompareUsePath = "")
+            {
+                SSOK_CardCompareUsePath := path
+                GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, %path%
+            }
+            else if (SSOK_CardCompareStatementPath = "")
+            {
+                SSOK_CardCompareStatementPath := path
+                GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, %path%
+            }
+            else
+            {
+                ; 두 칸이 모두 찼을 때 한 파일을 다시 드롭하면 첫 번째 칸 교체
+                SSOK_CardCompareUsePath := path
+                GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, %path%
+            }
+        }
+    }
+
+    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+}
+
+SSOK_Expense_WorkPublic_HandleDrop(dropText, targetControl := "")
+{
+    global SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath
+
+    files := SSOK_Expense_DropExcelFiles(dropText)
+    if (!IsObject(files) || !files.Length())
+    {
+        MsgBox, 48, 업무추진비공개, Excel 파일(.xlsx 또는 .xls)만 끌어 놓을 수 있습니다.
+        return
+    }
+
+    if (targetControl = "SSOK_WorkPublicPrevPath")
+    {
+        SSOK_WorkPublicPrevPath := files[1]
+        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, % SSOK_WorkPublicPrevPath
+
+        if (files.Length() >= 2)
+        {
+            SSOK_WorkPublicCurrentPath := files[2]
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, % SSOK_WorkPublicCurrentPath
+        }
+    }
+    else if (targetControl = "SSOK_WorkPublicCurrentPath")
+    {
+        SSOK_WorkPublicCurrentPath := files[1]
+        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, % SSOK_WorkPublicCurrentPath
+
+        if (files.Length() >= 2)
+        {
+            SSOK_WorkPublicPrevPath := files[2]
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, % SSOK_WorkPublicPrevPath
+        }
+    }
+    else
+    {
+        for _, path in files
+        {
+            if (SSOK_WorkPublicPrevPath = "")
+            {
+                SSOK_WorkPublicPrevPath := path
+                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %path%
+            }
+            else if (SSOK_WorkPublicCurrentPath = "")
+            {
+                SSOK_WorkPublicCurrentPath := path
+                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, %path%
+            }
+            else
+            {
+                SSOK_WorkPublicPrevPath := path
+                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %path%
+            }
+        }
+    }
+
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+}
+
+SSOK_Expense_GetCopiedFilePath()
+{
+    format := 15  ; CF_HDROP
+
+    Loop, 4
+    {
+        if DllCall("OpenClipboard", "Ptr", 0)
+            break
+        Sleep, 25
+    }
+
+    if !DllCall("IsClipboardFormatAvailable", "UInt", format)
+    {
+        try DllCall("CloseClipboard")
+        return ""
+    }
+
+    hDrop := DllCall("GetClipboardData", "UInt", format, "Ptr")
+    if (!hDrop)
+    {
+        DllCall("CloseClipboard")
+        return ""
+    }
+
+    count := DllCall("shell32\DragQueryFileW", "Ptr", hDrop, "UInt", 0xFFFFFFFF, "Ptr", 0, "UInt", 0, "UInt")
+
+    if (count < 1)
+    {
+        DllCall("CloseClipboard")
+        return ""
+    }
+
+    ; 한 번에 여러 파일을 복사했으면 첫 번째 Excel 파일을 우선 사용
+    selected := ""
+
+    Loop, %count%
+    {
+        index := A_Index - 1
+        len := DllCall("shell32\DragQueryFileW", "Ptr", hDrop, "UInt", index, "Ptr", 0, "UInt", 0, "UInt")
+        VarSetCapacity(buf, (len + 1) * 2, 0)
+        DllCall("shell32\DragQueryFileW", "Ptr", hDrop, "UInt", index, "Ptr", &buf, "UInt", len + 1, "UInt")
+        path := StrGet(&buf, len, "UTF-16")
+
+        if RegExMatch(path, "i)\.(xlsx|xls)$")
+        {
+            selected := path
+            break
+        }
+
+        if (selected = "")
+            selected := path
+    }
+
+    DllCall("CloseClipboard")
+
+    if (selected != "" && !RegExMatch(selected, "i)\.(xlsx|xls)$"))
+        return ""
+
+    return selected
+}
