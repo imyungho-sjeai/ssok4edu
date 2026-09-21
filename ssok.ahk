@@ -1045,12 +1045,12 @@ SSOK_ShowSidebar:
     Gui, SSOKSide:Add, Text, x84 y8 w7 h14 c7B1FA2 Center gSSOK_Sidebar_StartMove, 듀
     Gui, SSOKSide:Add, Text, x91 y8 w7 h14 c8E24AA Center gSSOK_Sidebar_StartMove, 파
     Gui, SSOKSide:Add, Text, x98 y8 w7 h14 c6A1B9A Center gSSOK_Sidebar_StartMove, 인
-    IniRead, SSOK_OrgName, %SSOK_IniFile%, MajorTodos, OrgName, 세종교
+    IniRead, SSOK_OrgName, %SSOK_IniFile%, MajorTodos, OrgName, 도담중학교
     SSOK_OrgName := Trim(SSOK_OrgName)
     if (SSOK_OrgName = "")
-        SSOK_OrgName := "세종교"
+        SSOK_OrgName := "도담중학교"
     Gui, SSOKSide:Font, s6 norm, Malgun Gothic
-    Gui, SSOKSide:Add, Text, x8 y27 w34 h12 c6B7280 Right gSSOK_SchoolSearch_Show, 기관명
+    Gui, SSOKSide:Add, Text, x8 y27 w34 h12 c6B7280 Right gSSOK_EDU_OpenOrgPicker, 기관명
     Gui, SSOKSide:Font, s6 norm c6B7280, Malgun Gothic
     Gui, SSOKSide:Add, Edit, x45 y24 w%SSOK_SidebarOrgEditW% h18 vSSOK_OrgNameEdit gSSOK_SaveOrgName, %SSOK_OrgName%
 
@@ -1130,42 +1130,48 @@ SSOK_ShowSidebar:
     SSOK_ACC_SideIsPlaceholder := true
     SSOK_WRK_SidePlaceholder := "공무직"
     SSOK_WRK_SideIsPlaceholder := true
+    SSOK_LAW_SidePlaceholder := "법령정보"
+    SSOK_LAW_SideIsPlaceholder := true
+    SSOK_EDU_SidePlaceholder := "교육정보"
+    SSOK_EDU_SideIsPlaceholder := true
     Gui, SSOKSide:Font, s6 norm c808080, Malgun Gothic
     Gui, SSOKSide:Add, Edit, x%SSOK_QASearchX1% y284 w%SSOK_QASearchW% h18 vSSOK_ACC_SideQuery HwndSSOK_ACC_SideQueryEditHwnd, %SSOK_ACC_SidePlaceholder%
     Gui, SSOKSide:Add, Edit, x%SSOK_QASearchX2% y284 w%SSOK_QASearchW% h18 vSSOK_WRK_SideQuery HwndSSOK_WRK_SideQueryEditHwnd, %SSOK_WRK_SidePlaceholder%
+    Gui, SSOKSide:Add, Edit, x%SSOK_QASearchX1% y306 w%SSOK_QASearchW% h18 vSSOK_LAW_SideQuery HwndSSOK_LAW_SideQueryEditHwnd, %SSOK_LAW_SidePlaceholder%
+    Gui, SSOKSide:Add, Edit, x%SSOK_QASearchX2% y306 w%SSOK_QASearchW% h18 vSSOK_EDU_SideQuery HwndSSOK_EDU_SideQueryEditHwnd, %SSOK_EDU_SidePlaceholder%
     Gui, SSOKSide:Add, Button, x-100 y-100 w1 h1 Hidden Default gSSOK_Sidebar_DefaultSearch
 
     Gui, SSOKSide:Font, s6 norm, Malgun Gothic
-    Gui, SSOKSide:Add, Progress, x12 y306 w%SSOK_SidebarSepW% h1 vSSOK_SidebarSepF4 BackgroundE6EAEE cE6EAEE
-    Gui, SSOKSide:Add, Text, x8 y313 w%SSOK_SidebarCaptionW% h12 vSSOK_SidebarHintF4 c6B7280 Center gSSOK_Sidebar_F4, Win + F4
+    Gui, SSOKSide:Add, Progress, x12 y328 w%SSOK_SidebarSepW% h1 vSSOK_SidebarSepF4 BackgroundE6EAEE cE6EAEE
+    Gui, SSOKSide:Add, Text, x8 y335 w%SSOK_SidebarCaptionW% h12 vSSOK_SidebarHintF4 c6B7280 Center gSSOK_Sidebar_F4, Win + F4
     Gui, SSOKSide:Font, s9 bold, Malgun Gothic
-    Gui, SSOKSide:Add, Button, x8 y324 w%SSOK_QFMainButtonW% h25 vSSOK_SidebarBtnFile gSSOK_Sidebar_F4, 파일열기
+    Gui, SSOKSide:Add, Button, x8 y346 w%SSOK_QFMainButtonW% h25 vSSOK_SidebarBtnFile gSSOK_Sidebar_F4, 파일열기
     SSOK_QF_SidePlaceholder := "검색 "
     SSOK_QF_SideIsPlaceholder := true
     Gui, SSOKSide:Font, s6 norm c808080, Malgun Gothic
-    Gui, SSOKSide:Add, Edit, x%SSOK_QFSearchX% y326 w%SSOK_QFSearchW% h21 vSSOK_QF_SideKeyword HwndSSOK_QF_SideKeywordEditHwnd, %SSOK_QF_SidePlaceholder%
+    Gui, SSOKSide:Add, Edit, x%SSOK_QFSearchX% y348 w%SSOK_QFSearchW% h21 vSSOK_QF_SideKeyword HwndSSOK_QF_SideKeywordEditHwnd, %SSOK_QF_SidePlaceholder%
     Gui, SSOKSide:Font, s8 bold, Malgun Gothic
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX1% y350 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF1 gSSOK_Sidebar_QF1, %SSOK_SideQF1%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX2% y350 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF2 gSSOK_Sidebar_QF2, %SSOK_SideQF2%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX3% y350 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF3 gSSOK_Sidebar_QF3, %SSOK_SideQF3%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX4% y350 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF4 gSSOK_Sidebar_QF4, %SSOK_SideQF4%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX5% y350 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF5 gSSOK_Sidebar_QF5, %SSOK_SideQF5%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX1% y372 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF1 gSSOK_Sidebar_QF1, %SSOK_SideQF1%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX2% y372 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF2 gSSOK_Sidebar_QF2, %SSOK_SideQF2%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX3% y372 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF3 gSSOK_Sidebar_QF3, %SSOK_SideQF3%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX4% y372 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF4 gSSOK_Sidebar_QF4, %SSOK_SideQF4%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX5% y372 w%SSOK_SidebarSmallButtonW% h22 vSSOK_SidebarQF5 gSSOK_Sidebar_QF5, %SSOK_SideQF5%
 
     Gui, SSOKSide:Font, s6 norm, Malgun Gothic
-    Gui, SSOKSide:Add, Progress, x12 y373 w%SSOK_SidebarSepW% h1 vSSOK_SidebarSepF5 BackgroundE6EAEE cE6EAEE
-    Gui, SSOKSide:Add, Text, x8 y383 w%SSOK_SidebarCaptionW% h12 vSSOK_SidebarHintF5 c6B7280 Center gSSOK_Sidebar_F5, Win + F5
+    Gui, SSOKSide:Add, Progress, x12 y395 w%SSOK_SidebarSepW% h1 vSSOK_SidebarSepF5 BackgroundE6EAEE cE6EAEE
+    Gui, SSOKSide:Add, Text, x8 y405 w%SSOK_SidebarCaptionW% h12 vSSOK_SidebarHintF5 c6B7280 Center gSSOK_Sidebar_F5, Win + F5
     Gui, SSOKSide:Font, s9 bold, Malgun Gothic
-    Gui, SSOKSide:Add, Button, x8 y396 w%SSOK_QUMainButtonW% h25 vSSOK_SidebarBtnUrl gSSOK_Sidebar_F5, URL열기
+    Gui, SSOKSide:Add, Button, x8 y418 w%SSOK_QUMainButtonW% h25 vSSOK_SidebarBtnUrl gSSOK_Sidebar_F5, URL열기
     SSOK_QU_SidePlaceholder := "검색 "
     SSOK_QU_SideIsPlaceholder := true
     Gui, SSOKSide:Font, s6 norm c808080, Malgun Gothic
-    Gui, SSOKSide:Add, Edit, x%SSOK_QUSearchX% y398 w%SSOK_QUSearchW% h21 vSSOK_QU_SideKeyword HwndSSOK_QU_SideKeywordEditHwnd, %SSOK_QU_SidePlaceholder%
+    Gui, SSOKSide:Add, Edit, x%SSOK_QUSearchX% y420 w%SSOK_QUSearchW% h21 vSSOK_QU_SideKeyword HwndSSOK_QU_SideKeywordEditHwnd, %SSOK_QU_SidePlaceholder%
     Gui, SSOKSide:Font, s8 bold, Malgun Gothic
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX1% y423 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU1 gSSOK_Sidebar_QU1, %SSOK_SideQU1%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX2% y423 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU2 gSSOK_Sidebar_QU2, %SSOK_SideQU2%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX3% y423 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU3 gSSOK_Sidebar_QU3, %SSOK_SideQU3%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX4% y423 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU4 gSSOK_Sidebar_QU4, %SSOK_SideQU4%
-    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX5% y423 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU5 gSSOK_Sidebar_QU5, %SSOK_SideQU5%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX1% y445 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU1 gSSOK_Sidebar_QU1, %SSOK_SideQU1%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX2% y445 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU2 gSSOK_Sidebar_QU2, %SSOK_SideQU2%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX3% y445 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU3 gSSOK_Sidebar_QU3, %SSOK_SideQU3%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX4% y445 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU4 gSSOK_Sidebar_QU4, %SSOK_SideQU4%
+    Gui, SSOKSide:Add, Button, x%SSOK_SidebarSmallButtonX5% y445 w%SSOK_SidebarSmallButtonW% h23 vSSOK_SidebarQU5 gSSOK_Sidebar_QU5, %SSOK_SideQU5%
 
     ; ===== 주요할일 메모 =====
     IniRead, SSOK_MajorTodoRaw, %SSOK_IniFile%, MajorTodos, Memo, __SSOK_EMPTY__
@@ -1177,7 +1183,7 @@ SSOK_ShowSidebar:
     Gui, SSOKSide:Font, s8 norm, Malgun Gothic
     OnMessage(0x0133, "SSOK_WM_CTLCOLOREDIT")
     OnMessage(0x0138, "SSOK_WM_CTLCOLORSTATIC")
-    Gui, SSOKSide:Add, Edit, x8 y456 w%SSOK_SidebarButtonW% h112 vSSOK_MajorTodoEdit HwndSSOK_MajorTodoHwnd gSSOK_SaveMajorTodo +Wrap -VScroll -HScroll -E0x200 BackgroundFFFAE6, %SSOK_MajorTodo%
+    Gui, SSOKSide:Add, Edit, x8 y478 w%SSOK_SidebarButtonW% h90 vSSOK_MajorTodoEdit HwndSSOK_MajorTodoHwnd gSSOK_SaveMajorTodo +Wrap -VScroll -HScroll -E0x200 BackgroundFFFAE6, %SSOK_MajorTodo%
 
     IniRead, SSOK_AlarmRaw, %SSOK_IniFile%, MajorTodos, Alarm, __SSOK_EMPTY__
     SSOK_AlarmTime := SSOK_NormalizeAlarmTime(SSOK_AlarmRaw, "1150")
@@ -1270,6 +1276,38 @@ return
 
 SSOK_SaveOrgNameNow:
     SSOK_SaveUnifiedIni()
+    SSOK_MySchool_AutoMatchCurrentOrg()
+return
+
+; 기관명 글자를 클릭하면 현재 기관명을 나이스 학교정보와 다시 연결합니다.
+SSOK_MySchool_Setting_Show:
+    SetTimer, SSOK_SaveOrgNameNow, Off
+    SSOK_SaveUnifiedIni()
+    SSOK_MySchool_AutoMatchCurrentOrg(true)
+return
+
+SSOK_MySchool_ListEvent:
+    if (A_GuiEvent = "DoubleClick" && A_EventInfo > 0)
+        SSOK_MySchool_SelectPickerRow(A_EventInfo)
+return
+
+SSOK_MySchool_Select:
+    Gui, SSOKMySchool:Default
+    Gui, ListView, SSOK_MySchool_List
+    row := LV_GetNext(0, "F")
+    if (row < 1)
+        row := LV_GetNext()
+    if (row < 1)
+    {
+        MsgBox, 48, SSOK 기관 학교 설정, 학교를 하나 선택해 주세요.
+        return
+    }
+    SSOK_MySchool_SelectPickerRow(row)
+return
+
+SSOK_MySchool_GuiClose:
+SSOK_MySchool_GuiEscape:
+    Gui, SSOKMySchool:Destroy
 return
 
 SSOK_GetOrgName()
@@ -1281,11 +1319,178 @@ SSOK_GetOrgName()
         if (SSOK_OrgNameGuiValue != "")
             return SSOK_OrgNameGuiValue
     }
-    IniRead, SSOK_OrgNameValue, %SSOK_IniFile%, MajorTodos, OrgName, 세종교
+    IniRead, SSOK_OrgNameValue, %SSOK_IniFile%, MajorTodos, OrgName, 도담중학교
     SSOK_OrgNameValue := Trim(SSOK_OrgNameValue)
     if (SSOK_OrgNameValue = "")
-        SSOK_OrgNameValue := "세종교"
+        SSOK_OrgNameValue := "도담중학교"
     return SSOK_OrgNameValue
+}
+
+
+; =========================================================
+; 메인 기관명 -> 나이스 학교 고유코드 연결
+; - 기관명과 정확히 같은 학교가 1개면 자동 저장
+; - 동명이교가 여러 개면 사용자가 한 번 선택
+; - 선택 후에는 [MySchool]의 교육청코드+학교코드로 정확히 식별
+; =========================================================
+SSOK_MySchool_AutoMatchCurrentOrg(force := false)
+{
+    global SSOK_IniFile, SSOK_MySchool_LastAttempt
+
+    orgName := Trim(SSOK_GetOrgName())
+    if (orgName = "" || StrLen(orgName) < 2)
+        return false
+
+    IniRead, savedName, %SSOK_IniFile%, MySchool, Name, __SSOK_EMPTY__
+    IniRead, savedOffice, %SSOK_IniFile%, MySchool, OfficeCode, __SSOK_EMPTY__
+    IniRead, savedSchool, %SSOK_IniFile%, MySchool, SchoolCode, __SSOK_EMPTY__
+    savedName := Trim(savedName)
+    savedOffice := Trim(savedOffice)
+    savedSchool := Trim(savedSchool)
+
+    if (!force && savedName = orgName && savedOffice != "" && savedOffice != "__SSOK_EMPTY__"
+        && savedSchool != "" && savedSchool != "__SSOK_EMPTY__")
+        return true
+
+    if (!force && SSOK_MySchool_LastAttempt = orgName)
+        return false
+    SSOK_MySchool_LastAttempt := orgName
+
+    exact := SSOK_MySchool_FindExact(orgName)
+    cnt := IsObject(exact) ? exact.Length() : 0
+
+    if (cnt = 1)
+    {
+        SSOK_MySchool_SaveSchool(exact[1])
+        return true
+    }
+
+    if (cnt > 1)
+    {
+        exact := SSOK_MySchool_Prioritize(exact)
+        SSOK_MySchool_ShowPicker(exact, orgName)
+        return false
+    }
+
+    ; 기관명이 다른 기관/부서명으로 바뀌었으면 예전 학교코드를 남기지 않습니다.
+    if (savedName != "__SSOK_EMPTY__" && savedName != "" && savedName != orgName)
+        IniDelete, %SSOK_IniFile%, MySchool
+
+    if (force)
+        MsgBox, 48, SSOK 기관 학교 설정, % "나이스 학교정보에서 기관명과 정확히 일치하는 학교를 찾지 못했습니다.`n`n기관명: " . orgName
+    return false
+}
+
+SSOK_MySchool_FindExact(orgName)
+{
+    key := SSOK_EDU_GetApiKey()
+    url := SSOK_EDU_BuildUrl("schoolInfo", Object("SCHUL_NM", orgName), 100, key)
+    resp := SSOK_EDU_HttpGet(url)
+    exact := []
+    if (!resp.ok)
+        return exact
+
+    rows := SSOK_EDU_ParseSchools(resp.text)
+    if !IsObject(rows)
+        return exact
+
+    for idx, item in rows
+    {
+        if (Trim(item.schoolName) = orgName)
+            exact.Push(item)
+    }
+    return exact
+}
+
+SSOK_MySchool_PreferredRegion()
+{
+    global SSOK_IniFile
+    IniRead, region, %SSOK_IniFile%, EduQuickLinks, Neis, 세종
+    region := Trim(region)
+    if (region = "" || region = "ERROR")
+        region := "세종"
+    return region
+}
+
+SSOK_MySchool_Prioritize(items)
+{
+    preferred := []
+    others := []
+    region := SSOK_MySchool_PreferredRegion()
+
+    for idx, item in items
+    {
+        if (region != "" && (InStr(item.officeName, region) || InStr(item.address, region) || InStr(item.location, region)))
+            preferred.Push(item)
+        else
+            others.Push(item)
+    }
+
+    result := []
+    for idx, item in preferred
+        result.Push(item)
+    for idx, item in others
+        result.Push(item)
+    return result
+}
+
+SSOK_MySchool_ShowPicker(items, orgName)
+{
+    global SSOK_MySchool_Candidates, SSOK_MySchool_List
+    SSOK_MySchool_Candidates := items
+
+    Gui, SSOKMySchool:Destroy
+    Gui, SSOKMySchool:New, +AlwaysOnTop +ToolWindow +Resize +MinSize760x350 +LabelSSOK_MySchool_Gui
+    Gui, SSOKMySchool:Color, F7FBFF
+    Gui, SSOKMySchool:Margin, 12, 12
+    Gui, SSOKMySchool:Font, s10 bold c005BAC, Malgun Gothic
+    Gui, SSOKMySchool:Add, Text, x12 y12 w800 h24, % "동일한 학교명이 여러 곳에 있습니다 : " . orgName
+    Gui, SSOKMySchool:Font, s8 norm c666666, Malgun Gothic
+    Gui, SSOKMySchool:Add, Text, x12 y36 w800 h18, 현재 SSOK 지역설정과 가까운 교육청을 위에 표시했습니다. 실제 기관을 한 번 선택해 주세요.
+    Gui, SSOKMySchool:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKMySchool:Add, ListView, x12 y60 w836 h250 vSSOK_MySchool_List gSSOK_MySchool_ListEvent AltSubmit, 학교명|학교급|교육청|지원청|주소
+
+    Gui, SSOKMySchool:Default
+    Gui, ListView, SSOK_MySchool_List
+    for idx, item in items
+        LV_Add("", item.schoolName, item.kind, item.officeName, item.parentOrg, item.address)
+    LV_ModifyCol(1, 150)
+    LV_ModifyCol(2, 70)
+    LV_ModifyCol(3, 145)
+    LV_ModifyCol(4, 160)
+    LV_ModifyCol(5, 285)
+    if (items.Length() > 0)
+        LV_Modify(1, "Select Focus Vis")
+
+    Gui, SSOKMySchool:Add, Button, x748 y320 w100 h30 gSSOK_MySchool_Select Default, 이 학교
+    Gui, SSOKMySchool:Show, w860 h362, SSOK 기관 학교 설정
+}
+
+SSOK_MySchool_SelectPickerRow(row)
+{
+    global SSOK_MySchool_Candidates
+    if (!IsObject(SSOK_MySchool_Candidates) || row < 1 || row > SSOK_MySchool_Candidates.Length())
+        return
+    school := SSOK_MySchool_Candidates[row]
+    SSOK_MySchool_SaveSchool(school)
+    Gui, SSOKMySchool:Destroy
+}
+
+SSOK_MySchool_SaveSchool(school)
+{
+    global SSOK_IniFile, SSOK_MySchool_LastAttempt
+    if !IsObject(school)
+        return false
+
+    IniWrite, % school.schoolName, %SSOK_IniFile%, MySchool, Name
+    IniWrite, % school.officeCode, %SSOK_IniFile%, MySchool, OfficeCode
+    IniWrite, % school.schoolCode, %SSOK_IniFile%, MySchool, SchoolCode
+    IniWrite, % school.officeName, %SSOK_IniFile%, MySchool, OfficeName
+    IniWrite, % school.kind, %SSOK_IniFile%, MySchool, SchoolKind
+    IniWrite, % school.parentOrg, %SSOK_IniFile%, MySchool, SupportOffice
+    IniWrite, % school.address, %SSOK_IniFile%, MySchool, Address
+    SSOK_MySchool_LastAttempt := school.schoolName
+    return true
 }
 
 SSOK_SaveMajorTodo:
@@ -1357,12 +1562,13 @@ SSOK_CheckOneAlarm(index, timeText, enabled, nowMinute)
             {
                 SSOK_AlarmLastKey := key
                 SoundBeep, 880, 180
+                mealLine := SSOK_GetAlarmMealLine(timeText)
                 if (SSOK_IsQuitAlarmTime(timeText))
-                    SSOK_ShowQuitAlarmConfirm(display, target)
+                    SSOK_ShowQuitAlarmConfirm(display, target, mealLine)
                 else if (SSOK_IsLunchAlarmTime(timeText))
-                    SSOK_ShowAlarmCenter(display, "점심 시간 5분 전입니다.")
+                    SSOK_ShowAlarmCenter(display, "점심 시간 5분 전입니다.", mealLine)
                 else
-                    SSOK_ShowAlarmCenter(display)
+                    SSOK_ShowAlarmCenter(display, "5분전입니다.", mealLine)
             }
             return
         }
@@ -1463,8 +1669,38 @@ SSOK_IsQuitAlarmTime(timeText)
     return ((t >= 1620 && t <= 1640) || (t >= 1730 && t <= 1830))
 }
 
-SSOK_ShowAlarmCenter(displayText, messageText := "5분전입니다.")
+SSOK_GetAlarmMealLine(timeText)
 {
+    t := timeText + 0
+    wanted := ""
+    if (t >= 700 && t <= 900)
+        wanted := "조식"
+    else if (t >= 1100 && t <= 1300)
+        wanted := "중식"
+    else if (t >= 1630 && t <= 1900)
+        wanted := "석식"
+    else
+        return ""
+
+    mealInfo := SSOK_AdminCalendar_GetMySchoolTodayMeals()
+    if (!IsObject(mealInfo) || !mealInfo.ok || Trim(mealInfo.text) = "")
+        return ""
+
+    mealTextAll := mealInfo.text
+    Loop, Parse, mealTextAll, `n, `r
+    {
+        line := Trim(A_LoopField)
+        if (SubStr(line, 1, StrLen(wanted) + 1) = wanted . ":")
+            return line
+    }
+    return ""
+}
+
+SSOK_ShowAlarmCenter(displayText, messageText := "5분전입니다.", mealText := "")
+{
+    global SSOK_AlarmMealBody
+    mealDisplay := Trim(mealText)
+
     Gui, SSOKAlarmCenter:Destroy
     Gui, SSOKAlarmCenter:+AlwaysOnTop -Caption +ToolWindow +Border
     Gui, SSOKAlarmCenter:Color, FFF7D6
@@ -1472,17 +1708,39 @@ SSOK_ShowAlarmCenter(displayText, messageText := "5분전입니다.")
     Gui, SSOKAlarmCenter:Add, Text, x0 y48 w720 h116 c111111 Center, %displayText%
     Gui, SSOKAlarmCenter:Font, s18 norm, Malgun Gothic
     Gui, SSOKAlarmCenter:Add, Text, x0 y164 w720 h48 c555555 Center, %messageText%
-    Gui, SSOKAlarmCenter:Font, s18 bold, Malgun Gothic
-    Gui, SSOKAlarmCenter:Add, Button, x284 y220 w152 h48 gSSOK_CloseAlarmCenter, 닫기
+
+    if (mealDisplay = "")
+    {
+        Gui, SSOKAlarmCenter:Font, s18 bold, Malgun Gothic
+        Gui, SSOKAlarmCenter:Add, Button, x284 y220 w152 h48 gSSOK_CloseAlarmCenter, 닫기
+        winH := 280
+    }
+    else
+    {
+        ; 행정업무달력 하단 급식과 동일한 간단 표시
+        Gui, SSOKAlarmCenter:Font, s9 norm c30445A, Malgun Gothic
+        Gui, SSOKAlarmCenter:Add, Text, x24 y220 w672 vSSOK_AlarmMealBody Left, %mealDisplay%
+        GuiControlGet, mealPos, SSOKAlarmCenter:Pos, SSOK_AlarmMealBody
+        mealH := mealPosH
+        if (mealH < 20)
+            mealH := 20
+        buttonY := 220 + mealH + 18
+        Gui, SSOKAlarmCenter:Font, s18 bold, Malgun Gothic
+        Gui, SSOKAlarmCenter:Add, Button, x284 y%buttonY% w152 h48 gSSOK_CloseAlarmCenter, 닫기
+        winH := buttonY + 60
+    }
+
     x := (A_ScreenWidth - 720) // 2
-    y := (A_ScreenHeight - 280) // 2
-    Gui, SSOKAlarmCenter:Show, x%x% y%y% w720 h280, SSOK 알람
+    y := (A_ScreenHeight - winH) // 2
+    Gui, SSOKAlarmCenter:Show, x%x% y%y% w720 h%winH%, SSOK 알람
 }
 
-SSOK_ShowQuitAlarmConfirm(displayText, targetStamp := "")
+SSOK_ShowQuitAlarmConfirm(displayText, targetStamp := "", mealText := "")
 {
-    global SSOK_QuitAlarmTargetStamp
+    global SSOK_QuitAlarmTargetStamp, SSOK_QuitAlarmMealBody
     SSOK_QuitAlarmTargetStamp := targetStamp
+    mealDisplay := Trim(mealText)
+
     Gui, SSOKQuitAlarm:Destroy
     Gui, SSOKQuitAlarm:+AlwaysOnTop -Caption +ToolWindow +Border
     Gui, SSOKQuitAlarm:Color, FFF7D6
@@ -1491,12 +1749,31 @@ SSOK_ShowQuitAlarmConfirm(displayText, targetStamp := "")
     Gui, SSOKQuitAlarm:Font, s24 norm, Malgun Gothic
     Gui, SSOKQuitAlarm:Add, Text, x0 y132 w780 h52 c333333 Center, 퇴근시간 5분전입니다.
     Gui, SSOKQuitAlarm:Add, Text, x0 y186 w780 h52 c333333 Center, PC를 자동으로 끌까요?
+
+    if (mealDisplay = "")
+    {
+        buttonY := 256
+        winH := 340
+    }
+    else
+    {
+        ; 16:30~19:00 알람이면 석식 정보를 질문 하단에 표시
+        Gui, SSOKQuitAlarm:Font, s9 norm c30445A, Malgun Gothic
+        Gui, SSOKQuitAlarm:Add, Text, x24 y240 w732 vSSOK_QuitAlarmMealBody Left, %mealDisplay%
+        GuiControlGet, mealPos, SSOKQuitAlarm:Pos, SSOK_QuitAlarmMealBody
+        mealH := mealPosH
+        if (mealH < 20)
+            mealH := 20
+        buttonY := 240 + mealH + 18
+        winH := buttonY + 84
+    }
+
     Gui, SSOKQuitAlarm:Font, s20 bold, Malgun Gothic
-    Gui, SSOKQuitAlarm:Add, Button, x210 y256 w160 h56 gSSOK_QuitAlarmOK, Y
-    Gui, SSOKQuitAlarm:Add, Button, x410 y256 w160 h56 gSSOK_QuitAlarmNo, NO
+    Gui, SSOKQuitAlarm:Add, Button, x210 y%buttonY% w160 h56 gSSOK_QuitAlarmOK, Y
+    Gui, SSOKQuitAlarm:Add, Button, x410 y%buttonY% w160 h56 gSSOK_QuitAlarmNo, NO
     x := (A_ScreenWidth - 780) // 2
-    y := (A_ScreenHeight - 340) // 2
-    Gui, SSOKQuitAlarm:Show, x%x% y%y% w780 h340, SSOK 퇴근 알람
+    y := (A_ScreenHeight - winH) // 2
+    Gui, SSOKQuitAlarm:Show, x%x% y%y% w780 h%winH%, SSOK 퇴근 알람
 }
 
 SSOK_QuitAlarmOK:
@@ -1753,6 +2030,8 @@ SSOK_Sidebar_ApplyWidth(w)
     GuiControl, SSOKSide:MoveDraw, SSOK_SidebarHintQA, w%captionW%
     GuiControl, SSOKSide:MoveDraw, SSOK_ACC_SideQuery, x%qaSearchX1% w%qaSearchW%
     GuiControl, SSOKSide:MoveDraw, SSOK_WRK_SideQuery, x%qaSearchX2% w%qaSearchW%
+    GuiControl, SSOKSide:MoveDraw, SSOK_LAW_SideQuery, x%qaSearchX1% w%qaSearchW%
+    GuiControl, SSOKSide:MoveDraw, SSOK_EDU_SideQuery, x%qaSearchX2% w%qaSearchW%
 
     GuiControl, SSOKSide:MoveDraw, SSOK_SidebarSepF4, w%sepW%
     GuiControl, SSOKSide:MoveDraw, SSOK_SidebarHintF4, w%captionW%
@@ -1954,6 +2233,16 @@ SSOK_Sidebar_DefaultSearch:
             Gosub, SSOK_WRK_SidebarSearch
             return
         }
+        if (SSOK_SidebarFocusedHwnd = SSOK_LAW_SideQueryEditHwnd)
+        {
+            Gosub, SSOK_LAW_SidebarSearch
+            return
+        }
+        if (SSOK_SidebarFocusedHwnd = SSOK_EDU_SideQueryEditHwnd)
+        {
+            Gosub, SSOK_EDU_SidebarSearch
+            return
+        }
         if (SSOK_SidebarFocusedHwnd = SSOK_ACC_SideQueryEditHwnd)
         {
             Gosub, SSOK_ACC_SidebarSearch
@@ -1977,6 +2266,22 @@ SSOK_WRK_SidebarSearch:
         return
     Gosub, SSOK_WinHelp_BlockWindowsMenu
     SSOK_WRK_RunSearch(SSOK_WRK_SideQuery)
+return
+
+SSOK_LAW_SidebarSearch:
+    Gui, SSOKSide:Submit, NoHide
+    if (SSOK_LAW_SideIsPlaceholder || Trim(SSOK_LAW_SideQuery) = "")
+        return
+    Gosub, SSOK_WinHelp_BlockWindowsMenu
+    SSOK_LAW_RunSearch(SSOK_LAW_SideQuery)
+return
+
+SSOK_EDU_SidebarSearch:
+    Gui, SSOKSide:Submit, NoHide
+    if (SSOK_EDU_SideIsPlaceholder || Trim(SSOK_EDU_SideQuery) = "")
+        return
+    Gosub, SSOK_WinHelp_BlockWindowsMenu
+    SSOK_EDU_RunSearch(SSOK_EDU_SideQuery)
 return
 
 SSOK_QF_SidebarSearch:
@@ -2003,6 +2308,10 @@ SSOK_ACC_CheckSideQueryFocus:
         SSOK_ACC_ClearSideQueryPlaceholder()
     if (SSOK_WRK_SideIsPlaceholder && SSOK_SideMouseCtrlHwnd = SSOK_WRK_SideQueryEditHwnd)
         SSOK_WRK_ClearSideQueryPlaceholder()
+    if (SSOK_LAW_SideIsPlaceholder && SSOK_SideMouseCtrlHwnd = SSOK_LAW_SideQueryEditHwnd)
+        SSOK_LAW_ClearSideQueryPlaceholder()
+    if (SSOK_EDU_SideIsPlaceholder && SSOK_SideMouseCtrlHwnd = SSOK_EDU_SideQueryEditHwnd)
+        SSOK_EDU_ClearSideQueryPlaceholder()
     if (SSOK_QF_SideIsPlaceholder && SSOK_SideMouseCtrlHwnd = SSOK_QF_SideKeywordEditHwnd)
         SSOK_QF_ClearSideKeywordPlaceholder()
     if (SSOK_QU_SideIsPlaceholder && SSOK_SideMouseCtrlHwnd = SSOK_QU_SideKeywordEditHwnd)
@@ -2029,6 +2338,28 @@ SSOK_WRK_ClearSideQueryPlaceholder()
     Gui, SSOKSide:Font, s6 norm c000000, Malgun Gothic
     GuiControl, SSOKSide:Font, SSOK_WRK_SideQuery
     SSOK_WRK_SideIsPlaceholder := false
+}
+
+SSOK_LAW_ClearSideQueryPlaceholder()
+{
+    global SSOK_LAW_SideIsPlaceholder
+    if (!SSOK_LAW_SideIsPlaceholder)
+        return
+    GuiControl, SSOKSide:, SSOK_LAW_SideQuery,
+    Gui, SSOKSide:Font, s6 norm c000000, Malgun Gothic
+    GuiControl, SSOKSide:Font, SSOK_LAW_SideQuery
+    SSOK_LAW_SideIsPlaceholder := false
+}
+
+SSOK_EDU_ClearSideQueryPlaceholder()
+{
+    global SSOK_EDU_SideIsPlaceholder
+    if (!SSOK_EDU_SideIsPlaceholder)
+        return
+    GuiControl, SSOKSide:, SSOK_EDU_SideQuery,
+    Gui, SSOKSide:Font, s6 norm c000000, Malgun Gothic
+    GuiControl, SSOKSide:Font, SSOK_EDU_SideQuery
+    SSOK_EDU_SideIsPlaceholder := false
 }
 
 SSOK_QF_ClearSideKeywordPlaceholder()
@@ -2927,7 +3258,7 @@ SSOK_QF_SaveOneFromGui(index)
 SSOK_SaveUnifiedIni()
 {
     global QIIni, QIText1, QIText2, QIText3, QIText4, QIText5, QIText6, QIText7, QIText10, QIText11, QIText12
-    global QIImage12, QIImage13, QIImage14
+    global QIImage12, QIImage13, QIImage14, QIImage15
     global QIDefault1, QIDefault2, QIDefault3, QIDefault4, QIDefault5, QIDefault6, QIDefault7, QIDefault10, QIDefault11, QIDefault12
     global SSOK_QF_Ini
     global SSOK_QF_Text1, SSOK_QF_Text2, SSOK_QF_Text3, SSOK_QF_Text4, SSOK_QF_Text5, SSOK_QF_Text6, SSOK_QF_Text7, SSOK_QF_Text8, SSOK_QF_Text9, SSOK_QF_Text10, SSOK_QF_Text11, SSOK_QF_Text12
@@ -3285,7 +3616,7 @@ SSOK_SaveUnifiedIni()
     ; - Win+F1 빠른입력 / Win+F5 파일 / Win+F6 URL 저장 시 ssok.ini 전체를 다시 쓰기 때문에
     ;   기존 [MajorTodos] 섹션을 함께 다시 써 주어야 메모/알람이 사라지지 않습니다.
     _majorTodoSave := ""
-    _orgNameSave := "세종교"
+    _orgNameSave := "도담중학교"
     _majorAlarmSave := ""
     _majorAlarmEnabledSave := 1
     _majorAlarm2Save := ""
@@ -3295,7 +3626,7 @@ SSOK_SaveUnifiedIni()
         IniRead, _majorTodoRead, %QIIni%, MajorTodos, Memo, __SSOK_EMPTY__
         if (_majorTodoRead != "__SSOK_EMPTY__")
             _majorTodoSave := _majorTodoRead
-        IniRead, _orgNameRead, %QIIni%, MajorTodos, OrgName, 세종교
+        IniRead, _orgNameRead, %QIIni%, MajorTodos, OrgName, 도담중학교
         _orgNameRead := Trim(_orgNameRead)
         if (_orgNameRead != "")
             _orgNameSave := _orgNameRead
@@ -3316,7 +3647,7 @@ SSOK_SaveUnifiedIni()
     {
         _orgNameSave := Trim(_orgNameGui)
         if (_orgNameSave = "")
-            _orgNameSave := "세종교"
+            _orgNameSave := "도담중학교"
     }
     GuiControlGet, _majorTodoGui, SSOKSide:, SSOK_MajorTodoEdit
     if (!ErrorLevel)
@@ -3347,6 +3678,12 @@ SSOK_SaveUnifiedIni()
     SaveText .= "AlarmEnabled=" . _majorAlarmEnabledSave . "`r`n"
     SaveText .= "Alarm2=" . _majorAlarm2Save . "`r`n"
     SaveText .= "Alarm2Enabled=" . _majorAlarm2EnabledSave . "`r`n"
+
+    ; 메인 기관명과 연결된 나이스 학교 고유코드는 통합 INI 재저장 때도 보존합니다.
+    _mySchoolSection := SSOK_ExtractIniSection(ExistingIniText, "MySchool")
+    if (_mySchoolSection != "")
+        SaveText .= "`r`n" . _mySchoolSection . "`r`n"
+
     _powerOnSave := "0830"
     _powerOffSave := "1630"
     _powerEnabledSave := 0
@@ -8069,6 +8406,2222 @@ SSOK_WRK_Search:
     Gui, SSOKACC:Submit, NoHide
     SSOK_WRK_RunSearch(SSOK_WRK_Query)
 return
+
+; =========================================================
+; SSOK 교육정보 - 나이스 교육정보 개방 포털 OPEN API
+; 메인 검색칸: 학교명 검색 -> 학교 선택 -> 학교정보/식단/시간표/학사일정/학급정보
+; 관할 교육청: 교육청/교육지원청/학교급 선택 -> 관할 학교 목록
+; =========================================================
+SSOK_EDU_OpenOrgPicker:
+    SSOK_EDU_ShowOrgPicker()
+return
+
+SSOK_EDU_OrgOfficeChanged:
+    SSOK_EDU_LoadOrgSchools()
+return
+
+SSOK_EDU_OrgSupportChanged:
+    SSOK_EDU_RefreshOrgSchoolList()
+return
+
+SSOK_EDU_OrgKindChanged:
+    SSOK_EDU_RefreshOrgSchoolList()
+return
+
+SSOK_EDU_OrgExportExcel:
+    SSOK_EDU_ExportOrgSchoolsExcel()
+return
+
+SSOK_EDU_OrgSchoolListEvent:
+    if (A_GuiEvent = "DoubleClick" && A_EventInfo > 0)
+        SSOK_EDU_SelectOrgSchoolRow(A_EventInfo)
+return
+
+SSOK_EDU_OrgSelectSchool:
+    Gui, SSOKEDUOrg:Default
+    Gui, ListView, SSOK_EDU_OrgSchoolList
+    row := LV_GetNext(0, "F")
+    if (row < 1)
+        row := LV_GetNext()
+    if (row < 1)
+    {
+        MsgBox, 48, SSOK 교육정보, 학교를 하나 선택해 주세요.
+        return
+    }
+    SSOK_EDU_SelectOrgSchoolRow(row)
+return
+
+SSOK_EDU_OrgGuiClose:
+SSOK_EDU_OrgGuiEscape:
+    Gui, SSOKEDUOrg:Destroy
+return
+
+SSOK_EDU_SchoolListEvent:
+    if (A_GuiEvent = "DoubleClick" && A_EventInfo > 0)
+        SSOK_EDU_SelectSchoolRow(A_EventInfo)
+return
+
+SSOK_EDU_SelectSchoolButton:
+    Gui, SSOKEDUSchool:Default
+    Gui, ListView, SSOK_EDU_SchoolList
+    row := LV_GetNext(0, "F")
+    if (row < 1)
+        row := LV_GetNext()
+    if (row < 1)
+    {
+        MsgBox, 48, SSOK 교육정보, 학교를 하나 선택해 주세요.
+        return
+    }
+    SSOK_EDU_SelectSchoolRow(row)
+return
+
+SSOK_EDU_SchoolGuiClose:
+SSOK_EDU_SchoolGuiEscape:
+    Gui, SSOKEDUSchool:Destroy
+return
+
+SSOK_EDU_GuiClose:
+SSOK_EDU_GuiEscape:
+    Gui, SSOKEDU:Destroy
+return
+
+SSOK_EDU_MealPrev:
+    SSOK_EDU_MealDate := SSOK_EDU_ShiftDate(SSOK_EDU_MealDate, -1)
+    SSOK_EDU_LoadMeal()
+return
+
+SSOK_EDU_MealToday:
+    SSOK_EDU_MealDate := A_YYYY . A_MM . A_DD
+    SSOK_EDU_LoadMeal()
+return
+
+SSOK_EDU_MealNext:
+    SSOK_EDU_MealDate := SSOK_EDU_ShiftDate(SSOK_EDU_MealDate, 1)
+    SSOK_EDU_LoadMeal()
+return
+
+SSOK_EDU_TTPrev:
+    Gui, SSOKEDU:Submit, NoHide
+    SSOK_EDU_TTDate := SSOK_EDU_ShiftDate(SSOK_EDU_NormalizeDate(SSOK_EDU_TTDate), -1)
+    GuiControl, SSOKEDU:, SSOK_EDU_TTDate, %SSOK_EDU_TTDate%
+    SSOK_EDU_LoadTimetable()
+return
+
+SSOK_EDU_TTToday:
+    SSOK_EDU_TTDate := A_YYYY . A_MM . A_DD
+    GuiControl, SSOKEDU:, SSOK_EDU_TTDate, %SSOK_EDU_TTDate%
+    SSOK_EDU_LoadTimetable()
+return
+
+SSOK_EDU_TTNext:
+    Gui, SSOKEDU:Submit, NoHide
+    SSOK_EDU_TTDate := SSOK_EDU_ShiftDate(SSOK_EDU_NormalizeDate(SSOK_EDU_TTDate), 1)
+    GuiControl, SSOKEDU:, SSOK_EDU_TTDate, %SSOK_EDU_TTDate%
+    SSOK_EDU_LoadTimetable()
+return
+
+SSOK_EDU_TTLoad:
+    Gui, SSOKEDU:Submit, NoHide
+    SSOK_EDU_LoadTimetable()
+return
+
+SSOK_EDU_ClassLoad:
+    Gui, SSOKEDU:Submit, NoHide
+    SSOK_EDU_LoadClassInfo()
+return
+
+SSOK_EDU_SchedulePrev:
+    SSOK_EDU_ScheduleMonth := SSOK_EDU_ShiftMonth(SSOK_EDU_ScheduleMonth, -1)
+    SSOK_EDU_LoadSchedule()
+return
+
+SSOK_EDU_ScheduleThis:
+    SSOK_EDU_ScheduleMonth := A_YYYY . A_MM
+    SSOK_EDU_LoadSchedule()
+return
+
+SSOK_EDU_ScheduleNext:
+    SSOK_EDU_ScheduleMonth := SSOK_EDU_ShiftMonth(SSOK_EDU_ScheduleMonth, 1)
+    SSOK_EDU_LoadSchedule()
+return
+
+SSOK_EDU_OpenHomepage:
+    if (IsObject(SSOK_EDU_SelectedSchool) && Trim(SSOK_EDU_SelectedSchool.homepage) != "")
+    {
+        url := Trim(SSOK_EDU_SelectedSchool.homepage)
+        if (!RegExMatch(url, "i)^https?://"))
+            url := "https://" . url
+        SSOK_OpenUrlPreferred(url)
+    }
+return
+
+SSOK_EDU_OpenPortal:
+    SSOK_OpenUrlPreferred("https://open.neis.go.kr/portal/data/dataset/searchDatasetPage.do")
+return
+
+SSOK_EDU_RunSearch(query)
+{
+    global SSOK_EDU_SchoolResults
+    q := Trim(query)
+    if (q = "")
+        return
+
+    if (q = "교육청" || q = "지원청" || q = "교육지원청" || q = "관할" || q = "관할학교" || q = "관할교육청" || q = "관할 교육청")
+    {
+        SSOK_EDU_ShowOrgPicker()
+        return
+    }
+
+    key := SSOK_EDU_GetApiKey()
+    url := SSOK_EDU_BuildUrl("schoolInfo", Object("SCHUL_NM", q), 100, key)
+    resp := SSOK_EDU_HttpGet(url)
+    if (!resp.ok)
+    {
+        MsgBox, 48, SSOK 교육정보, 나이스 교육정보 OPEN API에 연결하지 못했습니다.`n`n인터넷 연결 또는 인증키를 확인해 주세요.
+        return
+    }
+
+    results := SSOK_EDU_ParseSchools(resp.text)
+    SSOK_EDU_SchoolResults := results
+    if (!IsObject(results) || results.Length() < 1)
+    {
+        msg := SSOK_EDU_ParseResultMessage(resp.text)
+        if (msg = "")
+            msg := "검색된 학교가 없습니다."
+        MsgBox, 48, SSOK 교육정보, %msg%
+        return
+    }
+
+    if (results.Length() = 1)
+    {
+        SSOK_EDU_OpenSchool(results[1])
+        return
+    }
+    SSOK_EDU_ShowSchoolPicker(results, q)
+}
+
+SSOK_EDU_ShowSchoolPicker(results, query)
+{
+    global SSOK_EDU_SchoolList, SSOK_EDU_SchoolResults
+    SSOK_EDU_SchoolResults := results
+
+    Gui, SSOKEDUSchool:Destroy
+    Gui, SSOKEDUSchool:New, +Resize +MinSize700x360 +LabelSSOK_EDU_SchoolGui
+    Gui, SSOKEDUSchool:Color, F7FBFF
+    Gui, SSOKEDUSchool:Margin, 12, 12
+    Gui, SSOKEDUSchool:Font, s10 bold c005BAC, Malgun Gothic
+    Gui, SSOKEDUSchool:Add, Text, x12 y12 w760 h24, 학교 검색 : %query%
+    Gui, SSOKEDUSchool:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDUSchool:Add, ListView, x12 y42 w776 h280 vSSOK_EDU_SchoolList gSSOK_EDU_SchoolListEvent AltSubmit, 학교명|학교급|교육청|지원청|주소
+    Gui, SSOKEDUSchool:Default
+    Gui, ListView, SSOK_EDU_SchoolList
+    for idx, item in results
+        LV_Add("", item.schoolName, item.kind, item.officeName, item.parentOrg, item.address)
+    LV_ModifyCol(1, 155)
+    LV_ModifyCol(2, 75)
+    LV_ModifyCol(3, 130)
+    LV_ModifyCol(4, 155)
+    LV_ModifyCol(5, 260)
+    if (results.Length() > 0)
+        LV_Modify(1, "Select Focus Vis")
+    Gui, SSOKEDUSchool:Add, Button, x688 y330 w100 h30 gSSOK_EDU_SelectSchoolButton Default, 선택
+    Gui, SSOKEDUSchool:Show, w800 h372, SSOK4edu 학교 선택
+}
+
+SSOK_EDU_ShowOrgPicker(defaultOfficeCode := "", defaultSupport := "")
+{
+    global SSOK_EDU_SelectedSchool, SSOK_EDU_OrgOffice, SSOK_EDU_OrgSupport, SSOK_EDU_OrgKind
+    global SSOK_EDU_OrgDefaultSupport, SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgStatus
+
+    if (defaultOfficeCode = "" && IsObject(SSOK_EDU_SelectedSchool))
+    {
+        defaultOfficeCode := SSOK_EDU_SelectedSchool.officeCode
+        if (defaultSupport = "")
+            defaultSupport := SSOK_EDU_SelectedSchool.parentOrg
+    }
+    if (defaultOfficeCode = "")
+        defaultOfficeCode := "I10"
+
+    idx := SSOK_EDU_GetOfficeIndexByCode(defaultOfficeCode)
+    if (idx < 1)
+        idx := 1
+    SSOK_EDU_OrgDefaultSupport := defaultSupport
+    officePipe := SSOK_EDU_GetOfficeNamesPipe()
+
+    Gui, SSOKEDUOrg:Destroy
+    Gui, SSOKEDUOrg:New, +Resize +MinSize1100x430 +LabelSSOK_EDU_OrgGui
+    Gui, SSOKEDUOrg:Color, F7FBFF
+    Gui, SSOKEDUOrg:Margin, 12, 12
+    Gui, SSOKEDUOrg:Font, s10 bold c005BAC, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Text, x12 y14 w48 h20 +0x200, 교육청
+    Gui, SSOKEDUOrg:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, DropDownList, x62 y12 w230 h240 vSSOK_EDU_OrgOffice gSSOK_EDU_OrgOfficeChanged AltSubmit Choose%idx%, %officePipe%
+    Gui, SSOKEDUOrg:Add, Text, x307 y14 w48 h20 +0x200, 지원청
+    Gui, SSOKEDUOrg:Add, DropDownList, x357 y12 w270 h240 vSSOK_EDU_OrgSupport gSSOK_EDU_OrgSupportChanged, 교육청 전체
+    Gui, SSOKEDUOrg:Add, Text, x642 y14 w48 h20 +0x200, 학교급
+    Gui, SSOKEDUOrg:Add, DropDownList, x692 y12 w120 h240 vSSOK_EDU_OrgKind gSSOK_EDU_OrgKindChanged, 전체
+    Gui, SSOKEDUOrg:Font, s8 norm c4B5563, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Text, x825 y14 w180 h20 vSSOK_EDU_OrgStatus +0x200, 학교 목록 불러오는 중...
+    Gui, SSOKEDUOrg:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Button, x1098 y10 w92 h26 gSSOK_EDU_OrgExportExcel, 엑셀 저장
+    Gui, SSOKEDUOrg:Add, Button, x1196 y10 w100 h26 gSSOK_EDU_OrgSelectSchool Default, 학교 열기
+
+    Gui, SSOKEDUOrg:Add, ListView, x12 y45 w1284 h395 vSSOK_EDU_OrgSchoolList gSSOK_EDU_OrgSchoolListEvent AltSubmit NoSortHdr, 학교명|학교급|교육청|지원청|주소|전화|팩스|홈페이지
+    Gui, SSOKEDUOrg:Show, w1308 h452, SSOK4edu 관할 교육청
+    SSOK_EDU_LoadOrgSchools()
+}
+
+SSOK_EDU_GetOfficeNamesPipe()
+{
+    return "세종특별자치시교육청|서울특별시교육청|부산광역시교육청|대구광역시교육청|인천광역시교육청|광주광역시교육청|대전광역시교육청|울산광역시교육청|경기도교육청|강원특별자치도교육청|충청북도교육청|충청남도교육청|전북특별자치도교육청|전라남도교육청|경상북도교육청|경상남도교육청|제주특별자치도교육청"
+}
+
+SSOK_EDU_GetOfficeCodeByIndex(idx)
+{
+    codes := ["I10", "B10", "C10", "D10", "E10", "F10", "G10", "H10", "J10", "K10", "M10", "N10", "P10", "Q10", "R10", "S10", "T10"]
+    if (idx < 1 || idx > codes.Length())
+        return ""
+    return codes[idx]
+}
+
+SSOK_EDU_GetOfficeIndexByCode(code)
+{
+    codes := ["I10", "B10", "C10", "D10", "E10", "F10", "G10", "H10", "J10", "K10", "M10", "N10", "P10", "Q10", "R10", "S10", "T10"]
+    for idx, item in codes
+        if (item = code)
+            return idx
+    return 0
+}
+
+SSOK_EDU_LoadOrgSchools()
+{
+    global SSOK_EDU_OrgOffice, SSOK_EDU_OrgSupport, SSOK_EDU_OrgKind, SSOK_EDU_OrgSchools, SSOK_EDU_OrgDefaultSupport
+    global SSOK_EDU_OrgStatus
+
+    Gui, SSOKEDUOrg:Submit, NoHide
+    officeCode := SSOK_EDU_GetOfficeCodeByIndex(SSOK_EDU_OrgOffice)
+    if (officeCode = "")
+        return
+
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, 학교 목록 불러오는 중...
+    schools := SSOK_EDU_FetchSchoolsByOffice(officeCode)
+    SSOK_EDU_OrgSchools := schools
+
+    supportSeen := {}
+    supportLines := ""
+    kindSeen := {}
+    kindLines := ""
+    if (IsObject(schools))
+    {
+        for idx, item in schools
+        {
+            s := Trim(item.parentOrg)
+            if (s != "" && !supportSeen.HasKey(s))
+            {
+                supportSeen[s] := 1
+                supportLines .= s . "`n"
+            }
+
+            k := Trim(item.kind)
+            if (k != "" && !kindSeen.HasKey(k))
+            {
+                kindSeen[k] := 1
+                kindLines .= k . "`n"
+            }
+        }
+    }
+
+    Sort, supportLines, U
+    supportPipe := "교육청 전체"
+    Loop, Parse, supportLines, `n, `r
+    {
+        s := Trim(A_LoopField)
+        if (s != "")
+            supportPipe .= "|" . s
+    }
+
+    Sort, kindLines, U
+    kindPipe := "전체"
+    Loop, Parse, kindLines, `n, `r
+    {
+        k := Trim(A_LoopField)
+        if (k != "")
+            kindPipe .= "|" . k
+    }
+
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgSupport, |%supportPipe%
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgKind, |%kindPipe%
+
+    if (SSOK_EDU_OrgDefaultSupport != "")
+    {
+        GuiControl, SSOKEDUOrg:ChooseString, SSOK_EDU_OrgSupport, %SSOK_EDU_OrgDefaultSupport%
+        SSOK_EDU_OrgDefaultSupport := ""
+    }
+    else
+        GuiControl, SSOKEDUOrg:Choose, SSOK_EDU_OrgSupport, 1
+
+    GuiControl, SSOKEDUOrg:Choose, SSOK_EDU_OrgKind, 1
+    SSOK_EDU_RefreshOrgSchoolList()
+}
+
+SSOK_EDU_RefreshOrgSchoolList()
+{
+    global SSOK_EDU_OrgSupport, SSOK_EDU_OrgKind, SSOK_EDU_OrgSchools, SSOK_EDU_OrgVisibleSchools
+    global SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgStatus
+
+    Gui, SSOKEDUOrg:Submit, NoHide
+    support := Trim(SSOK_EDU_OrgSupport)
+    kind := Trim(SSOK_EDU_OrgKind)
+    visible := []
+
+    Gui, SSOKEDUOrg:Default
+    Gui, ListView, SSOK_EDU_OrgSchoolList
+    LV_Delete()
+    if (IsObject(SSOK_EDU_OrgSchools))
+    {
+        for idx, item in SSOK_EDU_OrgSchools
+        {
+            if (support != "" && support != "교육청 전체" && item.parentOrg != support)
+                continue
+            if (kind != "" && kind != "전체" && item.kind != kind)
+                continue
+
+            visible.Push(item)
+            LV_Add("", item.schoolName, item.kind, item.officeName, item.parentOrg, item.address, item.tel, item.fax, item.homepage)
+        }
+    }
+
+    SSOK_EDU_OrgVisibleSchools := visible
+    LV_ModifyCol(1, 155)
+    LV_ModifyCol(2, 78)
+    LV_ModifyCol(3, 145)
+    LV_ModifyCol(4, 170)
+    LV_ModifyCol(5, 290)
+    LV_ModifyCol(6, 120)
+    LV_ModifyCol(7, 120)
+    LV_ModifyCol(8, 250)
+
+    if (visible.Length() > 0)
+        LV_Modify(1, "Select Focus Vis")
+
+    status := "학교 " . visible.Length() . "개"
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, %status%
+}
+
+SSOK_EDU_ExportOrgSchoolsExcel()
+{
+    global SSOK_EDU_OrgVisibleSchools, SSOK_EDU_OrgOffice
+
+    if (!IsObject(SSOK_EDU_OrgVisibleSchools) || SSOK_EDU_OrgVisibleSchools.Length() < 1)
+    {
+        MsgBox, 48, SSOK 교육정보, 엑셀로 저장할 학교 목록이 없습니다.
+        return
+    }
+
+    Gui, SSOKEDUOrg:Submit, NoHide
+    officeName := SSOK_EDU_GetOfficeNameByIndex(SSOK_EDU_OrgOffice)
+    safeOffice := RegExReplace(officeName, "[\/:*?""<>|]", "")
+    defaultName := safeOffice . "_학교목록_" . A_YYYY . A_MM . A_DD . ".xlsx"
+    defaultPath := A_Desktop . "\" . defaultName
+
+    FileSelectFile, savePath, S16, %defaultPath%, 관할 교육청 학교목록 저장, Excel 통합문서 (*.xlsx)
+    if (ErrorLevel || Trim(savePath) = "")
+        return
+    if (!RegExMatch(savePath, "i)\.xlsx$"))
+        savePath .= ".xlsx"
+
+    try
+    {
+        xl := ComObjCreate("Excel.Application")
+        xl.Visible := false
+        xl.DisplayAlerts := false
+        wb := xl.Workbooks.Add()
+        ws := wb.Worksheets(1)
+        ws.Name := "학교목록"
+
+        headers := ["학교명", "학교급", "교육청", "지원청", "주소", "전화", "팩스", "홈페이지"]
+        for col, header in headers
+            ws.Cells(1, col).Value := header
+
+        rowNo := 2
+        for idx, item in SSOK_EDU_OrgVisibleSchools
+        {
+            ws.Cells(rowNo, 1).Value := item.schoolName
+            ws.Cells(rowNo, 2).Value := item.kind
+            ws.Cells(rowNo, 3).Value := item.officeName
+            ws.Cells(rowNo, 4).Value := item.parentOrg
+            ws.Cells(rowNo, 5).Value := item.address
+            ws.Cells(rowNo, 6).NumberFormat := "@"
+            ws.Cells(rowNo, 6).Value := item.tel
+            ws.Cells(rowNo, 7).NumberFormat := "@"
+            ws.Cells(rowNo, 7).Value := item.fax
+            ws.Cells(rowNo, 8).Value := item.homepage
+            rowNo++
+        }
+
+        ws.Range("A1:H1").Font.Bold := true
+        ws.Range("A1:H1").AutoFilter()
+        ws.Columns("A:H").EntireColumn.AutoFit()
+        if (ws.Columns("E").ColumnWidth > 45)
+            ws.Columns("E").ColumnWidth := 45
+        if (ws.Columns("H").ColumnWidth > 50)
+            ws.Columns("H").ColumnWidth := 50
+
+        wb.SaveAs(savePath, 51)
+        wb.Close(false)
+        xl.Quit()
+        wb := ""
+        ws := ""
+        xl := ""
+
+        MsgBox, 64, SSOK 교육정보, % "엑셀 파일을 저장했습니다.`n`n" . savePath
+    }
+    catch e
+    {
+        try
+        {
+            if IsObject(wb)
+                wb.Close(false)
+            if IsObject(xl)
+                xl.Quit()
+        }
+        catch e2
+        {
+        }
+        MsgBox, 48, SSOK 교육정보, 엑셀 저장 중 오류가 발생했습니다.`n`nMicrosoft Excel이 설치되어 있는지 확인해 주세요.
+    }
+}
+
+SSOK_EDU_GetOfficeNameByIndex(idx)
+{
+    names := ["세종특별자치시교육청", "서울특별시교육청", "부산광역시교육청", "대구광역시교육청", "인천광역시교육청", "광주광역시교육청", "대전광역시교육청", "울산광역시교육청", "경기도교육청", "강원특별자치도교육청", "충청북도교육청", "충청남도교육청", "전북특별자치도교육청", "전라남도교육청", "경상북도교육청", "경상남도교육청", "제주특별자치도교육청"]
+    if (idx < 1 || idx > names.Length())
+        return "관할교육청"
+    return names[idx]
+}
+
+SSOK_EDU_SelectOrgSchoolRow(row)
+{
+    global SSOK_EDU_OrgVisibleSchools
+    if (!IsObject(SSOK_EDU_OrgVisibleSchools) || row < 1 || row > SSOK_EDU_OrgVisibleSchools.Length())
+        return
+    school := SSOK_EDU_OrgVisibleSchools[row]
+    Gui, SSOKEDUOrg:Destroy
+    SSOK_EDU_OpenSchool(school)
+}
+
+SSOK_EDU_FetchSchoolsByOffice(officeCode)
+{
+    results := []
+    seen := {}
+    pageSize := 1000
+    key := SSOK_EDU_GetApiKey()
+    params := Object("ATPT_OFCDC_SC_CODE", officeCode)
+    url := SSOK_EDU_BuildUrl("schoolInfo", params, pageSize, key, 1)
+    resp := SSOK_EDU_HttpGet(url)
+    if (!resp.ok)
+        return results
+
+    firstRows := SSOK_EDU_ParseSchools(resp.text)
+    if (!IsObject(firstRows) || firstRows.Length() < 1)
+        return results
+    for idx, item in firstRows
+    {
+        k := item.officeCode . "|" . item.schoolCode
+        if (!seen.HasKey(k))
+        {
+            seen[k] := 1
+            results.Push(item)
+        }
+    }
+
+    total := SSOK_EDU_ParseTotalCount(resp.text)
+    perPage := firstRows.Length()
+    if (total <= perPage || perPage < 1)
+        return results
+    pageCount := Ceil(total / perPage)
+    if (pageCount > 50)
+        pageCount := 50
+
+    Loop, % pageCount - 1
+    {
+        pageIndex := A_Index + 1
+        url := SSOK_EDU_BuildUrl("schoolInfo", params, pageSize, key, pageIndex)
+        resp2 := SSOK_EDU_HttpGet(url)
+        if (!resp2.ok)
+            break
+        pageRows := SSOK_EDU_ParseSchools(resp2.text)
+        if (!IsObject(pageRows) || pageRows.Length() < 1)
+            break
+        for idx, item in pageRows
+        {
+            k := item.officeCode . "|" . item.schoolCode
+            if (!seen.HasKey(k))
+            {
+                seen[k] := 1
+                results.Push(item)
+            }
+        }
+    }
+    return results
+}
+
+SSOK_EDU_SelectSchoolRow(row)
+{
+    global SSOK_EDU_SchoolResults
+    if (!IsObject(SSOK_EDU_SchoolResults) || row < 1 || row > SSOK_EDU_SchoolResults.Length())
+        return
+    school := SSOK_EDU_SchoolResults[row]
+    Gui, SSOKEDUSchool:Destroy
+    SSOK_EDU_OpenSchool(school)
+}
+
+SSOK_EDU_OpenSchool(school)
+{
+    global SSOK_EDU_SelectedSchool, SSOK_EDU_MealDate, SSOK_EDU_TTDate
+    global SSOK_EDU_TTGrade, SSOK_EDU_TTClass, SSOK_EDU_ScheduleMonth
+    global SSOK_EDU_ClassYear, SSOK_EDU_ClassGrade, SSOK_EDU_ClassLV
+    global SSOK_EDU_Tab, SSOK_EDU_SchoolInfoText, SSOK_EDU_MealDateText
+    global SSOK_EDU_MealLV, SSOK_EDU_TTLV, SSOK_EDU_ScheduleMonthText, SSOK_EDU_ScheduleLV
+
+    SSOK_EDU_SelectedSchool := school
+    SSOK_EDU_MealDate := A_YYYY . A_MM . A_DD
+    SSOK_EDU_TTDate := SSOK_EDU_MealDate
+    SSOK_EDU_TTGrade := 1
+    SSOK_EDU_TTClass := 1
+    SSOK_EDU_ScheduleMonth := A_YYYY . A_MM
+    SSOK_EDU_ClassYear := A_YYYY
+    SSOK_EDU_ClassGrade := "전체"
+
+    Gui, SSOKEDU:Destroy
+    Gui, SSOKEDU:New, +Resize +MinSize820x560 +LabelSSOK_EDU_Gui
+    Gui, SSOKEDU:Color, F7FBFF
+    Gui, SSOKEDU:Margin, 10, 10
+    Gui, SSOKEDU:Font, s11 bold c005BAC, Malgun Gothic
+    header := school.schoolName . "  ·  " . school.kind . "  ·  " . school.officeName
+    Gui, SSOKEDU:Add, Text, x14 y10 w595 h24, %header%
+    Gui, SSOKEDU:Font, s8 norm c4B5563, Malgun Gothic
+    Gui, SSOKEDU:Add, Text, x14 y34 w760 h18, % school.address
+    Gui, SSOKEDU:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDU:Add, Button, x600 y12 w96 h24 gSSOK_EDU_OpenOrgPicker, 관할 교육청
+    Gui, SSOKEDU:Add, Button, x700 y12 w70 h24 gSSOK_EDU_OpenHomepage, 홈페이지
+    Gui, SSOKEDU:Add, Button, x774 y12 w70 h24 gSSOK_EDU_OpenPortal, NEIS
+
+    Gui, SSOKEDU:Add, Tab3, x12 y58 w836 h470 vSSOK_EDU_Tab, 학교정보|식단정보|시간표|학사일정|학급정보
+
+    Gui, SSOKEDU:Tab, 학교정보
+    schoolText := SSOK_EDU_FormatSchoolInfo(school)
+    Gui, SSOKEDU:Add, Edit, x28 y96 w802 h405 vSSOK_EDU_SchoolInfoText ReadOnly +Multi -WantReturn, %schoolText%
+
+    Gui, SSOKEDU:Tab, 식단정보
+    Gui, SSOKEDU:Add, Button, x28 y94 w70 h26 gSSOK_EDU_MealPrev, ◀ 이전날
+    Gui, SSOKEDU:Add, Button, x102 y94 w60 h26 gSSOK_EDU_MealToday, 오늘
+    Gui, SSOKEDU:Add, Button, x166 y94 w70 h26 gSSOK_EDU_MealNext, 다음날 ▶
+    Gui, SSOKEDU:Font, s10 bold c005BAC, Malgun Gothic
+    Gui, SSOKEDU:Add, Text, x250 y98 w190 h22 vSSOK_EDU_MealDateText, % SSOK_EDU_FormatDate8(SSOK_EDU_MealDate)
+    Gui, SSOKEDU:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDU:Add, ListView, x28 y130 w802 h365 vSSOK_EDU_MealLV, 날짜|구분|식단|칼로리
+
+    Gui, SSOKEDU:Tab, 시간표
+    Gui, SSOKEDU:Add, Button, x28 y94 w60 h26 gSSOK_EDU_TTPrev, ◀ 이전
+    Gui, SSOKEDU:Add, Button, x92 y94 w52 h26 gSSOK_EDU_TTToday, 오늘
+    Gui, SSOKEDU:Add, Button, x148 y94 w60 h26 gSSOK_EDU_TTNext, 다음 ▶
+    Gui, SSOKEDU:Add, Text, x220 y100 w30 h18, 날짜
+    Gui, SSOKEDU:Add, Edit, x252 y96 w82 h24 vSSOK_EDU_TTDate, %SSOK_EDU_TTDate%
+    Gui, SSOKEDU:Add, Text, x348 y100 w30 h18, 학년
+    Gui, SSOKEDU:Add, DropDownList, x380 y96 w58 h220 vSSOK_EDU_TTGrade Choose1, 1|2|3|4|5|6
+    Gui, SSOKEDU:Add, Text, x450 y100 w20 h18, 반
+    Gui, SSOKEDU:Add, Edit, x472 y96 w42 h24 vSSOK_EDU_TTClass, 1
+    Gui, SSOKEDU:Add, Button, x524 y95 w60 h26 gSSOK_EDU_TTLoad Default, 조회
+    Gui, SSOKEDU:Add, ListView, x28 y130 w802 h365 vSSOK_EDU_TTLV, 날짜|학년|반|교시|수업내용
+
+    Gui, SSOKEDU:Tab, 학사일정
+    Gui, SSOKEDU:Add, Button, x28 y94 w70 h26 gSSOK_EDU_SchedulePrev, ◀ 이전달
+    Gui, SSOKEDU:Add, Button, x102 y94 w60 h26 gSSOK_EDU_ScheduleThis, 이번달
+    Gui, SSOKEDU:Add, Button, x166 y94 w70 h26 gSSOK_EDU_ScheduleNext, 다음달 ▶
+    Gui, SSOKEDU:Font, s10 bold c005BAC, Malgun Gothic
+    Gui, SSOKEDU:Add, Text, x250 y98 w190 h22 vSSOK_EDU_ScheduleMonthText, % SSOK_EDU_FormatMonth(SSOK_EDU_ScheduleMonth)
+    Gui, SSOKEDU:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDU:Add, ListView, x28 y130 w802 h365 vSSOK_EDU_ScheduleLV, 날짜|행사명|내용
+
+    Gui, SSOKEDU:Tab, 학급정보
+    Gui, SSOKEDU:Add, Text, x28 y100 w42 h18, 학년도
+    Gui, SSOKEDU:Add, Edit, x72 y96 w62 h24 vSSOK_EDU_ClassYear, %SSOK_EDU_ClassYear%
+    Gui, SSOKEDU:Add, Text, x150 y100 w30 h18, 학년
+    Gui, SSOKEDU:Add, DropDownList, x182 y96 w70 h220 vSSOK_EDU_ClassGrade Choose1, 전체|1|2|3|4|5|6
+    Gui, SSOKEDU:Add, Button, x266 y95 w60 h26 gSSOK_EDU_ClassLoad, 조회
+    Gui, SSOKEDU:Add, ListView, x28 y130 w802 h365 vSSOK_EDU_ClassLV, 학년도|학년|반|학교과정|계열|학과|주야
+
+    Gui, SSOKEDU:Tab
+    Gui, SSOKEDU:Show, w860 h545, SSOK4edu 교육정보
+
+    SSOK_EDU_LoadMeal()
+    SSOK_EDU_LoadTimetable()
+    SSOK_EDU_LoadSchedule()
+    SSOK_EDU_LoadClassInfo()
+}
+
+SSOK_EDU_LoadMeal()
+{
+    global SSOK_EDU_SelectedSchool, SSOK_EDU_MealDate, SSOK_EDU_MealDateText, SSOK_EDU_MealLV
+    if (!IsObject(SSOK_EDU_SelectedSchool))
+        return
+
+    GuiControl, SSOKEDU:, SSOK_EDU_MealDateText, % SSOK_EDU_FormatDate8(SSOK_EDU_MealDate)
+    p := Object("ATPT_OFCDC_SC_CODE", SSOK_EDU_SelectedSchool.officeCode
+              , "SD_SCHUL_CODE", SSOK_EDU_SelectedSchool.schoolCode
+              , "MLSV_YMD", SSOK_EDU_MealDate)
+    url := SSOK_EDU_BuildUrl("mealServiceDietInfo", p, 50, SSOK_EDU_GetApiKey())
+    resp := SSOK_EDU_HttpGet(url)
+    rows := resp.ok ? SSOK_EDU_ParseMeal(resp.text) : []
+
+    Gui, SSOKEDU:Default
+    Gui, ListView, SSOK_EDU_MealLV
+    LV_Delete()
+    if (!IsObject(rows) || rows.Length() < 1)
+        LV_Add("", SSOK_EDU_FormatDate8(SSOK_EDU_MealDate), "-", "급식 정보가 없습니다.", "")
+    else
+    {
+        for idx, item in rows
+            LV_Add("", SSOK_EDU_FormatDate8(item.date), item.mealName, item.dish, item.calorie)
+    }
+    LV_ModifyCol(1, 95)
+    LV_ModifyCol(2, 80)
+    LV_ModifyCol(3, 500)
+    LV_ModifyCol(4, 90)
+}
+
+SSOK_EDU_LoadTimetable()
+{
+    global SSOK_EDU_SelectedSchool, SSOK_EDU_TTDate, SSOK_EDU_TTGrade, SSOK_EDU_TTClass, SSOK_EDU_TTLV
+    if (!IsObject(SSOK_EDU_SelectedSchool))
+        return
+
+    Gui, SSOKEDU:Submit, NoHide
+    date := SSOK_EDU_NormalizeDate(SSOK_EDU_TTDate)
+    if (StrLen(date) != 8)
+    {
+        MsgBox, 48, SSOK 교육정보, 날짜를 20260921 또는 2026.9.21 형식으로 입력해 주세요.
+        return
+    }
+    SSOK_EDU_TTDate := date
+    GuiControl, SSOKEDU:, SSOK_EDU_TTDate, %date%
+    endpoint := SSOK_EDU_TimetableEndpoint(SSOK_EDU_SelectedSchool.kind)
+
+    Gui, SSOKEDU:Default
+    Gui, ListView, SSOK_EDU_TTLV
+    LV_Delete()
+    if (endpoint = "")
+    {
+        LV_Add("", SSOK_EDU_FormatDate8(date), "-", "-", "해당 학교급의 시간표 API를 지원하지 않습니다.")
+        return
+    }
+
+    p := Object("ATPT_OFCDC_SC_CODE", SSOK_EDU_SelectedSchool.officeCode
+              , "SD_SCHUL_CODE", SSOK_EDU_SelectedSchool.schoolCode
+              , "ALL_TI_YMD", date
+              , "GRADE", SSOK_EDU_TTGrade
+              , "CLASS_NM", SSOK_EDU_TTClass)
+    url := SSOK_EDU_BuildUrl(endpoint, p, 100, SSOK_EDU_GetApiKey())
+    resp := SSOK_EDU_HttpGet(url)
+    rows := resp.ok ? SSOK_EDU_ParseTimetable(resp.text) : []
+    if (!IsObject(rows) || rows.Length() < 1)
+        LV_Add("", SSOK_EDU_FormatDate8(date), SSOK_EDU_TTGrade, SSOK_EDU_TTClass, "시간표 정보가 없습니다.")
+    else
+    {
+        for idx, item in rows
+            LV_Add("", SSOK_EDU_FormatDate8(item.date), item.grade, item.className, item.period . "교시  " . item.content)
+    }
+    LV_ModifyCol(1, 100)
+    LV_ModifyCol(2, 60)
+    LV_ModifyCol(3, 60)
+    LV_ModifyCol(4, 80)
+    LV_ModifyCol(5, 470)
+}
+
+SSOK_EDU_LoadSchedule()
+{
+    global SSOK_EDU_SelectedSchool, SSOK_EDU_ScheduleMonth, SSOK_EDU_ScheduleMonthText, SSOK_EDU_ScheduleLV
+    if (!IsObject(SSOK_EDU_SelectedSchool))
+        return
+
+    GuiControl, SSOKEDU:, SSOK_EDU_ScheduleMonthText, % SSOK_EDU_FormatMonth(SSOK_EDU_ScheduleMonth)
+    fromDate := SSOK_EDU_ScheduleMonth . "01"
+    nextMonth := SSOK_EDU_ShiftMonth(SSOK_EDU_ScheduleMonth, 1)
+    toDate := SSOK_EDU_ShiftDate(nextMonth . "01", -1)
+    p := Object("ATPT_OFCDC_SC_CODE", SSOK_EDU_SelectedSchool.officeCode
+              , "SD_SCHUL_CODE", SSOK_EDU_SelectedSchool.schoolCode
+              , "AA_FROM_YMD", fromDate
+              , "AA_TO_YMD", toDate)
+    url := SSOK_EDU_BuildUrl("SchoolSchedule", p, 100, SSOK_EDU_GetApiKey())
+    resp := SSOK_EDU_HttpGet(url)
+    rows := resp.ok ? SSOK_EDU_ParseSchedule(resp.text) : []
+
+    Gui, SSOKEDU:Default
+    Gui, ListView, SSOK_EDU_ScheduleLV
+    LV_Delete()
+    if (!IsObject(rows) || rows.Length() < 1)
+        LV_Add("", SSOK_EDU_FormatMonth(SSOK_EDU_ScheduleMonth), "-", "학사일정 정보가 없습니다.")
+    else
+    {
+        for idx, item in rows
+            LV_Add("", SSOK_EDU_FormatDate8(item.date), item.eventName, item.content)
+    }
+    LV_ModifyCol(1, 100)
+    LV_ModifyCol(2, 210)
+    LV_ModifyCol(3, 470)
+}
+
+SSOK_EDU_LoadClassInfo()
+{
+    global SSOK_EDU_SelectedSchool, SSOK_EDU_ClassYear, SSOK_EDU_ClassGrade, SSOK_EDU_ClassLV
+    if (!IsObject(SSOK_EDU_SelectedSchool))
+        return
+
+    Gui, SSOKEDU:Submit, NoHide
+    year := RegExReplace(Trim(SSOK_EDU_ClassYear), "[^0-9]", "")
+    if (StrLen(year) != 4)
+    {
+        MsgBox, 48, SSOK 교육정보, 학년도를 2026처럼 4자리로 입력해 주세요.
+        return
+    }
+    SSOK_EDU_ClassYear := year
+    GuiControl, SSOKEDU:, SSOK_EDU_ClassYear, %year%
+
+    p := Object("ATPT_OFCDC_SC_CODE", SSOK_EDU_SelectedSchool.officeCode
+              , "SD_SCHUL_CODE", SSOK_EDU_SelectedSchool.schoolCode
+              , "AY", year)
+    grade := Trim(SSOK_EDU_ClassGrade)
+    if (grade != "" && grade != "전체")
+        p["GRADE"] := grade
+
+    url := SSOK_EDU_BuildUrl("classInfo", p, 500, SSOK_EDU_GetApiKey())
+    resp := SSOK_EDU_HttpGet(url)
+    rows := resp.ok ? SSOK_EDU_ParseClassInfo(resp.text) : []
+
+    Gui, SSOKEDU:Default
+    Gui, ListView, SSOK_EDU_ClassLV
+    LV_Delete()
+    if (!IsObject(rows) || rows.Length() < 1)
+        LV_Add("", year, grade, "-", "-", "-", "학급정보가 없습니다.", "-")
+    else
+    {
+        for idx, item in rows
+            LV_Add("", item.year, item.grade, item.className, item.course, item.series, item.department, item.dayNight)
+    }
+    LV_ModifyCol(1, 70)
+    LV_ModifyCol(2, 55)
+    LV_ModifyCol(3, 55)
+    LV_ModifyCol(4, 120)
+    LV_ModifyCol(5, 100)
+    LV_ModifyCol(6, 300)
+    LV_ModifyCol(7, 70)
+}
+
+SSOK_EDU_GetApiKey()
+{
+    ; SSOK4edu 공용 나이스 교육정보 개방 포털 인증키를 프로그램에서 직접 사용합니다.
+    return "bdf805328d4546d1a4574fd266f5ae63"
+}
+
+SSOK_EDU_BuildUrl(endpoint, params, pageSize := 100, key := "", pageIndex := 1)
+{
+    if (key = "")
+        key := SSOK_EDU_GetApiKey()
+    url := "https://open.neis.go.kr/hub/" . endpoint
+         . "?KEY=" . SSOK_QU_UrlEncode(key)
+         . "&Type=xml&pIndex=" . pageIndex . "&pSize=" . pageSize
+    if (IsObject(params))
+    {
+        for k, v in params
+        {
+            v := Trim(v)
+            if (v != "")
+                url .= "&" . k . "=" . SSOK_QU_UrlEncode(v)
+        }
+    }
+    return url
+}
+
+SSOK_EDU_HttpGet(url)
+{
+    out := Object("ok", false, "text", "", "status", 0)
+    try
+    {
+        http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        http.SetTimeouts(1500, 3000, 5000, 7000)
+        http.Open("GET", url, false)
+        http.SetRequestHeader("User-Agent", "SSOK4edu")
+        http.Send()
+        out.status := http.Status
+        if (http.Status = 200)
+        {
+            out.text := http.ResponseText
+            out.ok := true
+        }
+    }
+    catch e
+    {
+        out.ok := false
+    }
+    return out
+}
+
+SSOK_EDU_ParseTotalCount(xml)
+{
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return 0
+        node := dom.selectSingleNode("//*[local-name()='list_total_count']")
+        if (IsObject(node))
+            return Trim(node.text) + 0
+    }
+    catch
+    {
+    }
+    return 0
+}
+
+SSOK_EDU_ParseSchools(xml)
+{
+    results := []
+    seen := {}
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            schoolName := SSOK_EDU_XmlText(row, "SCHUL_NM")
+            officeCode := SSOK_EDU_XmlText(row, "ATPT_OFCDC_SC_CODE")
+            schoolCode := SSOK_EDU_XmlText(row, "SD_SCHUL_CODE")
+            if (schoolName = "" || officeCode = "" || schoolCode = "")
+                continue
+            key := officeCode . "|" . schoolCode
+            if (seen.HasKey(key))
+                continue
+            seen[key] := 1
+            results.Push(Object("schoolName", SSOK_EDU_CleanText(schoolName)
+                              , "officeCode", officeCode
+                              , "officeName", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ATPT_OFCDC_SC_NM"))
+                              , "schoolCode", schoolCode
+                              , "kind", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "SCHUL_KND_SC_NM"))
+                              , "location", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "LCTN_SC_NM"))
+                              , "parentOrg", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "JU_ORG_NM"))
+                              , "foundation", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "FOND_SC_NM"))
+                              , "address", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ORG_RDNMA"))
+                              , "addressDetail", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ORG_RDNDA"))
+                              , "tel", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ORG_TELNO"))
+                              , "fax", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ORG_FAXNO"))
+                              , "homepage", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "HMPG_ADRES"))
+                              , "coedu", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "COEDU_SC_NM"))
+                              , "dayNight", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "DGHT_SC_NM"))
+                              , "foundDate", SSOK_EDU_XmlText(row, "FOND_YMD")
+                              , "anniversary", SSOK_EDU_XmlText(row, "FOAS_MEMRD")))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_EDU_ParseMeal(xml)
+{
+    results := []
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            date := SSOK_EDU_XmlText(row, "MLSV_YMD")
+            dish := SSOK_EDU_CleanMealText(SSOK_EDU_XmlText(row, "DDISH_NM"))
+            if (date = "" && dish = "")
+                continue
+            results.Push(Object("date", date
+                              , "mealName", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "MMEAL_SC_NM"))
+                              , "dish", dish
+                              , "calorie", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "CAL_INFO"))))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_EDU_ParseTimetable(xml)
+{
+    results := []
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            date := SSOK_EDU_XmlText(row, "ALL_TI_YMD")
+            content := SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ITRT_CNTNT"))
+            if (date = "" && content = "")
+                continue
+            results.Push(Object("date", date
+                              , "grade", SSOK_EDU_XmlText(row, "GRADE")
+                              , "className", SSOK_EDU_XmlText(row, "CLASS_NM")
+                              , "period", SSOK_EDU_XmlText(row, "PERIO")
+                              , "content", content))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_EDU_ParseClassInfo(xml)
+{
+    results := []
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            year := SSOK_EDU_XmlText(row, "AY")
+            grade := SSOK_EDU_XmlText(row, "GRADE")
+            className := SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "CLASS_NM"))
+            if (year = "" && grade = "" && className = "")
+                continue
+            results.Push(Object("year", year
+                              , "grade", grade
+                              , "className", className
+                              , "course", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "SCHUL_CRSE_SC_NM"))
+                              , "series", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "ORD_SC_NM"))
+                              , "department", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "DDDEP_NM"))
+                              , "dayNight", SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "DGHT_CRSE_SC_NM"))))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_EDU_ParseSchedule(xml)
+{
+    results := []
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            date := SSOK_EDU_XmlText(row, "AA_YMD")
+            eventName := SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "EVENT_NM"))
+            content := SSOK_EDU_CleanText(SSOK_EDU_XmlText(row, "EVENT_CNTNT"))
+            if (date = "" && eventName = "")
+                continue
+            results.Push(Object("date", date, "eventName", eventName, "content", content))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_EDU_XmlText(parent, tagName)
+{
+    if (!IsObject(parent) || tagName = "")
+        return ""
+    try
+    {
+        node := parent.selectSingleNode(".//*[local-name()='" . tagName . "']")
+        if (IsObject(node))
+            return Trim(node.text)
+    }
+    catch
+    {
+    }
+    return ""
+}
+
+SSOK_EDU_ParseResultMessage(xml)
+{
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return ""
+        node := dom.selectSingleNode("//*[local-name()='MESSAGE']")
+        if (IsObject(node))
+            return Trim(node.text)
+    }
+    catch
+    {
+    }
+    return ""
+}
+
+SSOK_EDU_CleanText(text)
+{
+    text := StrReplace(text, "`r", " ")
+    text := StrReplace(text, "`n", " ")
+    text := RegExReplace(text, "\s+", " ")
+    return Trim(text)
+}
+
+SSOK_EDU_CleanMealText(text)
+{
+    text := StrReplace(text, "<br/>", " / ")
+    text := StrReplace(text, "<br />", " / ")
+    text := StrReplace(text, "<br>", " / ")
+    text := RegExReplace(text, "<[^>]+>", "")
+    text := RegExReplace(text, "\s+", " ")
+    return Trim(text)
+}
+
+SSOK_EDU_FormatSchoolInfo(school)
+{
+    if (!IsObject(school))
+        return ""
+    txt := "학교명 : " . school.schoolName . "`r`n"
+    txt .= "학교급 : " . school.kind . "`r`n"
+    txt .= "교육청 : " . school.officeName . "`r`n"
+    if (school.parentOrg != "")
+        txt .= "관할기관 : " . school.parentOrg . "`r`n"
+    if (school.foundation != "")
+        txt .= "설립구분 : " . school.foundation . "`r`n"
+    if (school.coedu != "")
+        txt .= "남녀공학 : " . school.coedu . "`r`n"
+    if (school.dayNight != "")
+        txt .= "주야구분 : " . school.dayNight . "`r`n"
+    txt .= "주소 : " . school.address
+    if (school.addressDetail != "")
+        txt .= " " . school.addressDetail
+    txt .= "`r`n"
+    if (school.tel != "")
+        txt .= "전화 : " . school.tel . "`r`n"
+    if (school.fax != "")
+        txt .= "팩스 : " . school.fax . "`r`n"
+    if (school.homepage != "")
+        txt .= "홈페이지 : " . school.homepage . "`r`n"
+    if (school.foundDate != "")
+        txt .= "설립일 : " . SSOK_EDU_FormatDate8(school.foundDate) . "`r`n"
+    if (school.anniversary != "")
+        txt .= "개교기념일 : " . school.anniversary . "`r`n"
+    txt .= "교육청코드 : " . school.officeCode . "`r`n학교코드 : " . school.schoolCode
+    return txt
+}
+
+SSOK_EDU_TimetableEndpoint(kind)
+{
+    if InStr(kind, "초등")
+        return "elsTimetable"
+    if InStr(kind, "중")
+        return "misTimetable"
+    if InStr(kind, "고등")
+        return "hisTimetable"
+    if InStr(kind, "고")
+        return "hisTimetable"
+    return ""
+}
+
+SSOK_EDU_NormalizeDate(s)
+{
+    d := RegExReplace(Trim(s), "[^0-9]", "")
+    if (StrLen(d) = 8)
+        return d
+    return ""
+}
+
+SSOK_EDU_FormatDate8(ymd)
+{
+    d := SSOK_EDU_NormalizeDate(ymd)
+    if (StrLen(d) != 8)
+        return ymd
+    return SubStr(d, 1, 4) . ". " . (SubStr(d, 5, 2) + 0) . ". " . (SubStr(d, 7, 2) + 0) . "."
+}
+
+SSOK_EDU_FormatMonth(yyyymm)
+{
+    d := RegExReplace(Trim(yyyymm), "[^0-9]", "")
+    if (StrLen(d) != 6)
+        return yyyymm
+    return SubStr(d, 1, 4) . ". " . (SubStr(d, 5, 2) + 0) . "."
+}
+
+SSOK_EDU_ShiftDate(ymd, days)
+{
+    d := SSOK_EDU_NormalizeDate(ymd)
+    if (StrLen(d) != 8)
+        d := A_YYYY . A_MM . A_DD
+    ts := d . "000000"
+    EnvAdd, ts, %days%, Days
+    return SubStr(ts, 1, 8)
+}
+
+SSOK_EDU_ShiftMonth(yyyymm, delta)
+{
+    d := RegExReplace(Trim(yyyymm), "[^0-9]", "")
+    if (StrLen(d) != 6)
+        d := A_YYYY . A_MM
+    y := SubStr(d, 1, 4) + 0
+    m := SubStr(d, 5, 2) + 0
+    total := y * 12 + (m - 1) + delta
+    newY := Floor(total / 12)
+    newM := Mod(total, 12) + 1
+    return Format("{:04}{:02}", newY, newM)
+}
+
+SSOK_LAW_ResultEvent:
+    if (A_GuiEvent = "Normal" || A_GuiEvent = "DoubleClick")
+    {
+        ctrl := A_GuiControl
+        row := A_EventInfo
+        if (row < 1)
+        {
+            Gui, SSOKLaw:ListView, %ctrl%
+            row := LV_GetNext(0, "F")
+        }
+        if (row > 0)
+        {
+            SSOK_LAW_UpdateDetailForControl(ctrl, row)
+            if (A_GuiEvent = "DoubleClick")
+                SSOK_LAW_OpenSelected(ctrl)
+        }
+    }
+return
+
+SSOK_LAW_TabChanged:
+    SSOK_LAW_UpdateDetailForCurrentTab()
+return
+
+SSOK_LAW_OpenSelectedButton:
+    SSOK_LAW_OpenSelected()
+return
+
+SSOK_LAW_OpenWebSearch:
+    if (Trim(SSOK_LAW_LastQuery) != "")
+    {
+        url := "https://www.law.go.kr/LSW/ais/searchList.do?aiBoardQuery=" . SSOK_QU_UrlEncode(SSOK_LAW_LastQuery) . "&pageIndex=1"
+        SSOK_OpenUrlPreferred(url)
+    }
+return
+
+SSOK_LAW_GuiClose:
+SSOK_LAW_GuiEscape:
+    Gui, SSOKLaw:Destroy
+return
+
+SSOK_LAW_RunSearch(query)
+{
+    global SSOK_IniFile, SSOK_LAW_LastQuery
+    global SSOK_LAW_LawResults, SSOK_LAW_AdminResults, SSOK_LAW_OrdinResults
+    global SSOK_LAW_PrecResults, SSOK_LAW_DetcResults, SSOK_LAW_ExpcResults, SSOK_LAW_DeccResults
+    global SSOK_LAW_MoeResults, SSOK_LAW_BylResults, SSOK_LAW_SelectedRows
+
+    q := Trim(query)
+    if (q = "")
+        return
+
+    ; 법제처 국가법령정보 공동활용 OPEN API 인증값
+    oc := "ssok4edu"
+    if (FileExist(SSOK_IniFile))
+    {
+        IniRead, savedOc, %SSOK_IniFile%, LawApi, OC, __SSOK_EMPTY__
+        savedOc := Trim(savedOc)
+        if (savedOc != "" && savedOc != "ERROR" && savedOc != "__SSOK_EMPTY__")
+            oc := savedOc
+    }
+
+    ; 1) 법령: 지능형 법령검색(조문)
+    lawUrl := "https://www.law.go.kr/DRF/lawSearch.do?OC=" . SSOK_QU_UrlEncode(oc)
+           . "&target=aiSearch&type=XML&search=0&query=" . SSOK_QU_UrlEncode(q)
+           . "&display=30&page=1"
+
+    ; 2) 행정규칙 / 3) 자치법규 / 4) 판례 / 5) 헌재결정례
+    ; 6) 법령해석례 / 7) 행정심판례 / 8) 교육부해석
+    adminUrl := SSOK_LAW_BuildSearchUrl(oc, "admrul", q, 2, 25)
+    ordinUrl := SSOK_LAW_BuildSearchUrl(oc, "ordin", q, 2, 25)
+    precUrl  := SSOK_LAW_BuildSearchUrl(oc, "prec", q, 2, 25)
+    detcUrl  := SSOK_LAW_BuildSearchUrl(oc, "detc", q, 2, 25)
+    expcUrl  := SSOK_LAW_BuildSearchUrl(oc, "expc", q, 2, 25)
+    deccUrl  := SSOK_LAW_BuildSearchUrl(oc, "decc", q, 2, 25)
+    moeUrl   := SSOK_LAW_BuildSearchUrl(oc, "moeCgmExpc", q, 2, 25)
+
+    ; 9) 별표서식: 별표서식명 + 해당 법령명 검색을 합쳐서 표시
+    bylNameUrl := SSOK_LAW_BuildSearchUrl(oc, "licbyl", q, 1, 25)
+    bylLawUrl  := SSOK_LAW_BuildSearchUrl(oc, "licbyl", q, 2, 25)
+
+    lawResp     := SSOK_LAW_HttpGet(lawUrl)
+    adminResp   := SSOK_LAW_HttpGet(adminUrl)
+    ordinResp   := SSOK_LAW_HttpGet(ordinUrl)
+    precResp    := SSOK_LAW_HttpGet(precUrl)
+    detcResp    := SSOK_LAW_HttpGet(detcUrl)
+    expcResp    := SSOK_LAW_HttpGet(expcUrl)
+    deccResp    := SSOK_LAW_HttpGet(deccUrl)
+    moeResp     := SSOK_LAW_HttpGet(moeUrl)
+    bylNameResp := SSOK_LAW_HttpGet(bylNameUrl)
+    bylLawResp  := SSOK_LAW_HttpGet(bylLawUrl)
+
+    SSOK_LAW_LawResults   := lawResp.ok   ? SSOK_LAW_ParseAiSearchXml(lawResp.text)              : []
+    SSOK_LAW_AdminResults := adminResp.ok ? SSOK_LAW_ParseCategoryXml(adminResp.text, "admrul") : []
+    SSOK_LAW_OrdinResults := ordinResp.ok ? SSOK_LAW_ParseCategoryXml(ordinResp.text, "ordin")  : []
+    SSOK_LAW_PrecResults  := precResp.ok  ? SSOK_LAW_ParseReferenceXml(precResp.text, "prec")   : []
+    SSOK_LAW_DetcResults  := detcResp.ok  ? SSOK_LAW_ParseReferenceXml(detcResp.text, "detc")   : []
+    SSOK_LAW_ExpcResults  := expcResp.ok  ? SSOK_LAW_ParseReferenceXml(expcResp.text, "expc")   : []
+    SSOK_LAW_DeccResults  := deccResp.ok  ? SSOK_LAW_ParseReferenceXml(deccResp.text, "decc")   : []
+    SSOK_LAW_MoeResults   := moeResp.ok   ? SSOK_LAW_ParseCategoryXml(moeResp.text, "moe")      : []
+    SSOK_LAW_BylResults   := bylNameResp.ok ? SSOK_LAW_ParseBylXml(bylNameResp.text) : []
+    if (bylLawResp.ok)
+        SSOK_LAW_BylResults := SSOK_LAW_MergeUnique(SSOK_LAW_BylResults, SSOK_LAW_ParseBylXml(bylLawResp.text))
+
+    total := SSOK_LAW_Count(SSOK_LAW_LawResults)
+           + SSOK_LAW_Count(SSOK_LAW_AdminResults)
+           + SSOK_LAW_Count(SSOK_LAW_OrdinResults)
+           + SSOK_LAW_Count(SSOK_LAW_PrecResults)
+           + SSOK_LAW_Count(SSOK_LAW_DetcResults)
+           + SSOK_LAW_Count(SSOK_LAW_ExpcResults)
+           + SSOK_LAW_Count(SSOK_LAW_DeccResults)
+           + SSOK_LAW_Count(SSOK_LAW_MoeResults)
+           + SSOK_LAW_Count(SSOK_LAW_BylResults)
+
+    SSOK_LAW_LastQuery := q
+    SSOK_LAW_SelectedRows := Object("law", 1, "admrul", 1, "ordin", 1, "prec", 1, "detc", 1, "expc", 1, "decc", 1, "moe", 1, "byl", 1)
+
+    if (total < 1)
+    {
+        allFailed := !lawResp.ok && !adminResp.ok && !ordinResp.ok && !precResp.ok && !detcResp.ok
+                  && !expcResp.ok && !deccResp.ok && !moeResp.ok && !bylNameResp.ok && !bylLawResp.ok
+        if (allFailed)
+        {
+            MsgBox, 48, SSOK 법령정보 검색, 법령정보 OPEN API에 연결하지 못했습니다.`n`n국가법령정보센터 검색 페이지를 엽니다.
+            url2 := "https://www.law.go.kr/LSW/ais/searchList.do?aiBoardQuery=" . SSOK_QU_UrlEncode(q) . "&pageIndex=1"
+            SSOK_OpenUrlPreferred(url2)
+            return
+        }
+        MsgBox, 48, SSOK 법령정보 검색, 법령·행정규칙·자치법규·판례·헌재결정례·법령해석례·행정심판례·교육부해석·별표서식에서 검색 결과를 찾지 못했습니다.
+        return
+    }
+
+    SSOK_LAW_ShowResults(q)
+}
+
+SSOK_LAW_BuildSearchUrl(oc, target, query, searchMode := 2, display := 25)
+{
+    return "https://www.law.go.kr/DRF/lawSearch.do?OC=" . SSOK_QU_UrlEncode(oc)
+         . "&target=" . SSOK_QU_UrlEncode(target)
+         . "&type=XML&search=" . searchMode
+         . "&query=" . SSOK_QU_UrlEncode(query)
+         . "&display=" . display . "&page=1"
+}
+
+SSOK_LAW_HttpGet(url)
+{
+    out := Object("ok", false, "text", "", "status", 0)
+    try
+    {
+        http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        http.SetTimeouts(1500, 3000, 5000, 7000)
+        http.Open("GET", url, false)
+        http.Send()
+        out.status := http.Status
+        if (http.Status = 200)
+        {
+            out.text := http.ResponseText
+            out.ok := true
+        }
+    }
+    catch e
+    {
+        out.ok := false
+    }
+    return out
+}
+
+SSOK_LAW_ParseAiSearchXml(xml)
+{
+    results := []
+    seen := {}
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+
+        nodes := dom.selectNodes("//*[local-name()='법령명']")
+        Loop, % nodes.length
+        {
+            nameNode := nodes.item(A_Index - 1)
+            parent := nameNode.parentNode
+            lawName := SSOK_LAW_XmlText(parent, "법령명")
+            if (lawName = "")
+                lawName := Trim(nameNode.text)
+            if (lawName = "")
+                continue
+
+            seq := SSOK_LAW_XmlText(parent, "법령일련번호")
+            lawId := SSOK_LAW_XmlText(parent, "법령ID")
+            jo := SSOK_LAW_XmlText(parent, "조문번호")
+            joBranch := SSOK_LAW_XmlText(parent, "조문가지번호")
+            joTitle := SSOK_LAW_XmlText(parent, "조문제목")
+            joText := SSOK_LAW_XmlText(parent, "조문내용")
+            dept := SSOK_LAW_XmlText(parent, "소관부처명")
+            eff := SSOK_LAW_XmlText(parent, "시행일자")
+            lawType := SSOK_LAW_XmlText(parent, "법령종류명")
+
+            key := seq . "|" . lawId . "|" . jo . "|" . joBranch . "|" . joTitle
+            if (seen.HasKey(key))
+                continue
+            seen[key] := 1
+
+            results.Push(Object("category", "law"
+                              , "lawName", SSOK_LAW_CleanText(lawName)
+                              , "seq", seq
+                              , "lawId", lawId
+                              , "jo", jo
+                              , "joBranch", joBranch
+                              , "joTitle", SSOK_LAW_CleanText(joTitle)
+                              , "joText", SSOK_LAW_CleanText(joText)
+                              , "dept", SSOK_LAW_CleanText(dept)
+                              , "eff", eff
+                              , "lawType", SSOK_LAW_CleanText(lawType)
+                              , "detailLink", ""
+                              , "itemNo", ""
+                              , "relatedName", ""))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_LAW_ParseCategoryXml(xml, category)
+{
+    results := []
+    seen := {}
+
+    if (category = "admrul")
+    {
+        keyTag := "행정규칙일련번호"
+        nameTag := "행정규칙명"
+        typeTag := "행정규칙종류"
+        deptTag := "소관부처명"
+        dateTag := "시행일자"
+        idTag := "행정규칙ID"
+        linkTag := "행정규칙상세링크"
+    }
+    else if (category = "ordin")
+    {
+        keyTag := "자치법규일련번호"
+        nameTag := "자치법규명"
+        typeTag := "자치법규종류"
+        deptTag := "지자체기관명"
+        dateTag := "시행일자"
+        idTag := "자치법규ID"
+        linkTag := "자치법규상세링크"
+    }
+    else if (category = "moe")
+    {
+        keyTag := "법령해석일련번호"
+        nameTag := "안건명"
+        typeTag := ""
+        deptTag := "해석기관명"
+        dateTag := "해석일자"
+        idTag := ""
+        linkTag := "법령해석상세링크"
+    }
+    else
+        return results
+
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+
+        nodes := dom.selectNodes("//*[local-name()='" . keyTag . "']")
+        Loop, % nodes.length
+        {
+            seqNode := nodes.item(A_Index - 1)
+            parent := seqNode.parentNode
+            seq := Trim(seqNode.text)
+            name := SSOK_LAW_XmlText(parent, nameTag)
+            if (name = "")
+                continue
+
+            lawId := (idTag != "") ? SSOK_LAW_XmlText(parent, idTag) : ""
+            lawType := (typeTag != "") ? SSOK_LAW_XmlText(parent, typeTag) : "교육부해석"
+            dept := SSOK_LAW_XmlText(parent, deptTag)
+            eff := SSOK_LAW_XmlText(parent, dateTag)
+            detailLink := SSOK_LAW_XmlText(parent, linkTag)
+            itemNo := (category = "moe") ? SSOK_LAW_XmlText(parent, "안건번호") : ""
+
+            key := category . "|" . seq . "|" . name
+            if (seen.HasKey(key))
+                continue
+            seen[key] := 1
+
+            results.Push(Object("category", category
+                              , "lawName", SSOK_LAW_CleanText(name)
+                              , "seq", seq
+                              , "lawId", lawId
+                              , "jo", ""
+                              , "joBranch", ""
+                              , "joTitle", ""
+                              , "joText", ""
+                              , "dept", SSOK_LAW_CleanText(dept)
+                              , "eff", eff
+                              , "lawType", SSOK_LAW_CleanText(lawType)
+                              , "detailLink", Trim(detailLink)
+                              , "itemNo", SSOK_LAW_CleanText(itemNo)
+                              , "relatedName", ""))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_LAW_ParseReferenceXml(xml, category)
+{
+    results := []
+    seen := {}
+
+    if (category = "prec")
+    {
+        nameTag := "사건명"
+        seqTags := "판례일련번호|판례정보일련번호"
+        itemTag := "사건번호"
+        dateTag := "선고일자"
+        deptTag := "법원명"
+        typeTag := "판결유형"
+        linkTag := "판례상세링크"
+        defaultType := "판례"
+    }
+    else if (category = "detc")
+    {
+        nameTag := "사건명"
+        seqTags := "헌재결정례일련번호"
+        itemTag := "사건번호"
+        dateTag := "종국일자"
+        deptTag := ""
+        typeTag := "사건종류명"
+        linkTag := "헌재결정례상세링크"
+        defaultType := "헌재결정례"
+    }
+    else if (category = "expc")
+    {
+        nameTag := "안건명"
+        seqTags := "법령해석례일련번호"
+        itemTag := "안건번호"
+        dateTag := "회신일자"
+        deptTag := "회신기관명"
+        typeTag := ""
+        linkTag := "법령해석례상세링크"
+        defaultType := "법령해석례"
+    }
+    else if (category = "decc")
+    {
+        nameTag := "사건명"
+        seqTags := "행정심판재결례일련번호|행정심판례일련번호"
+        itemTag := "사건번호"
+        dateTag := "의결일자"
+        deptTag := "재결청"
+        typeTag := "재결구분명"
+        linkTag := "행정심판례상세링크"
+        defaultType := "행정심판례"
+    }
+    else
+        return results
+
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+
+        nodes := dom.selectNodes("//*[local-name()='" . nameTag . "']")
+        Loop, % nodes.length
+        {
+            nameNode := nodes.item(A_Index - 1)
+            parent := nameNode.parentNode
+            name := Trim(nameNode.text)
+            if (name = "")
+                continue
+
+            seq := SSOK_LAW_XmlTextAny(parent, seqTags)
+            itemNo := SSOK_LAW_XmlText(parent, itemTag)
+            eff := SSOK_LAW_XmlText(parent, dateTag)
+            dept := (deptTag != "") ? SSOK_LAW_XmlText(parent, deptTag) : ""
+            lawType := (typeTag != "") ? SSOK_LAW_XmlText(parent, typeTag) : ""
+            if (lawType = "")
+                lawType := defaultType
+            if (category = "detc" && dept = "")
+                dept := "헌법재판소"
+            detailLink := SSOK_LAW_XmlText(parent, linkTag)
+
+            key := category . "|" . seq . "|" . name . "|" . itemNo
+            if (seen.HasKey(key))
+                continue
+            seen[key] := 1
+
+            results.Push(Object("category", category
+                              , "lawName", SSOK_LAW_CleanText(name)
+                              , "seq", seq
+                              , "lawId", ""
+                              , "jo", ""
+                              , "joBranch", ""
+                              , "joTitle", ""
+                              , "joText", ""
+                              , "dept", SSOK_LAW_CleanText(dept)
+                              , "eff", eff
+                              , "lawType", SSOK_LAW_CleanText(lawType)
+                              , "detailLink", Trim(detailLink)
+                              , "itemNo", SSOK_LAW_CleanText(itemNo)
+                              , "relatedName", ""))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_LAW_ParseBylXml(xml)
+{
+    results := []
+    seen := {}
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+
+        nodes := dom.selectNodes("//*[local-name()='별표일련번호']")
+        Loop, % nodes.length
+        {
+            seqNode := nodes.item(A_Index - 1)
+            parent := seqNode.parentNode
+            seq := Trim(seqNode.text)
+            name := SSOK_LAW_XmlText(parent, "별표명")
+            if (name = "")
+                continue
+
+            relatedName := SSOK_LAW_XmlText(parent, "관련법령명")
+            lawType := SSOK_LAW_XmlText(parent, "별표종류")
+            dept := SSOK_LAW_XmlText(parent, "소관부처명")
+            eff := SSOK_LAW_XmlText(parent, "공포일자")
+            pdfLink := SSOK_LAW_XmlText(parent, "별표서식PDF파일링크")
+            fileLink := SSOK_LAW_XmlText(parent, "별표서식파일링크")
+            detailLink := SSOK_LAW_XmlText(parent, "별표법령상세링크")
+            if (pdfLink != "")
+                openLink := pdfLink
+            else if (fileLink != "")
+                openLink := fileLink
+            else
+                openLink := detailLink
+
+            key := seq . "|" . name . "|" . relatedName
+            if (seen.HasKey(key))
+                continue
+            seen[key] := 1
+
+            results.Push(Object("category", "byl"
+                              , "lawName", SSOK_LAW_CleanText(name)
+                              , "seq", seq
+                              , "lawId", ""
+                              , "jo", ""
+                              , "joBranch", ""
+                              , "joTitle", ""
+                              , "joText", ""
+                              , "dept", SSOK_LAW_CleanText(dept)
+                              , "eff", eff
+                              , "lawType", SSOK_LAW_CleanText(lawType)
+                              , "detailLink", Trim(openLink)
+                              , "itemNo", ""
+                              , "relatedName", SSOK_LAW_CleanText(relatedName)))
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_LAW_MergeUnique(base, extra)
+{
+    if (!IsObject(base))
+        base := []
+    seen := {}
+    for idx, item in base
+        seen[item.category . "|" . item.seq . "|" . item.lawName . "|" . item.relatedName] := 1
+
+    if (IsObject(extra))
+    {
+        for idx, item in extra
+        {
+            key := item.category . "|" . item.seq . "|" . item.lawName . "|" . item.relatedName
+            if (!seen.HasKey(key))
+            {
+                seen[key] := 1
+                base.Push(item)
+            }
+        }
+    }
+    return base
+}
+
+SSOK_LAW_XmlTextAny(parent, tagNames)
+{
+    Loop, Parse, tagNames, |
+    {
+        t := SSOK_LAW_XmlText(parent, A_LoopField)
+        if (t != "")
+            return t
+    }
+    return ""
+}
+
+SSOK_LAW_XmlText(parent, tagName)
+{
+    if (!IsObject(parent) || tagName = "")
+        return ""
+    try
+    {
+        node := parent.selectSingleNode(".//*[local-name()='" . tagName . "']")
+        if (!node)
+            node := parent.selectSingleNode("*[local-name()='" . tagName . "']")
+        if (node)
+            return Trim(node.text)
+    }
+    catch
+    {
+    }
+    return ""
+}
+
+SSOK_LAW_CleanText(text)
+{
+    t := StrReplace(text, "`r", " ")
+    t := StrReplace(t, "`n", " ")
+    t := StrReplace(t, "`t", " ")
+    t := RegExReplace(t, "\s+", " ")
+    return Trim(t)
+}
+
+SSOK_LAW_FormatArticle(item)
+{
+    jo := Trim(item.jo)
+    branch := Trim(item.joBranch)
+    if (jo = "")
+        return ""
+    jo := RegExReplace(jo, "^0+")
+    if (jo = "")
+        jo := "0"
+    out := "제" . jo . "조"
+    if (branch != "")
+    {
+        branch := RegExReplace(branch, "^0+")
+        if (branch != "" && branch != "0")
+            out .= "의" . branch
+    }
+    return out
+}
+
+SSOK_LAW_FormatDate8(value)
+{
+    d := RegExReplace(value, "[^0-9]")
+    if (StrLen(d) = 8)
+        return SubStr(d, 1, 4) . "." . (SubStr(d, 5, 2) + 0) . "." . (SubStr(d, 7, 2) + 0) . "."
+    return value
+}
+
+SSOK_LAW_BuildDetail(item)
+{
+    category := item.category
+    if (category = "law")
+    {
+        article := SSOK_LAW_FormatArticle(item)
+        title := item.lawName
+        if (article != "")
+            title .= " " . article
+        if (item.joTitle != "")
+            title .= "(" . item.joTitle . ")"
+
+        meta := "법령"
+        if (item.lawType != "")
+            meta .= " / " . item.lawType
+        if (item.dept != "")
+            meta .= " / " . item.dept
+        if (item.eff != "")
+            meta .= " / 시행 " . SSOK_LAW_FormatDate8(item.eff)
+
+        detail := title . "`r`n" . meta
+        if (item.joText != "")
+            detail .= "`r`n`r`n" . item.joText
+        return detail
+    }
+
+    if (category = "admrul")
+    {
+        label := "행정규칙"
+        dateLabel := "시행"
+    }
+    else if (category = "ordin")
+    {
+        label := "자치법규"
+        dateLabel := "시행"
+    }
+    else if (category = "prec")
+    {
+        label := "판례"
+        dateLabel := "선고"
+    }
+    else if (category = "detc")
+    {
+        label := "헌재결정례"
+        dateLabel := "종국"
+    }
+    else if (category = "expc")
+    {
+        label := "법령해석례"
+        dateLabel := "회신"
+    }
+    else if (category = "decc")
+    {
+        label := "행정심판례"
+        dateLabel := "의결"
+    }
+    else if (category = "moe")
+    {
+        label := "교육부해석"
+        dateLabel := "해석"
+    }
+    else if (category = "byl")
+    {
+        label := "별표서식"
+        dateLabel := "공포"
+    }
+    else
+    {
+        label := "법령정보"
+        dateLabel := "일자"
+    }
+
+    detail := item.lawName . "`r`n" . label
+    if (item.relatedName != "")
+        detail .= " / 관련법령 " . item.relatedName
+    if (item.itemNo != "")
+    {
+        if (category = "prec" || category = "detc" || category = "decc")
+            detail .= " / 사건번호 " . item.itemNo
+        else
+            detail .= " / 안건번호 " . item.itemNo
+    }
+    if (item.lawType != "" && item.lawType != label)
+        detail .= " / " . item.lawType
+    if (item.dept != "")
+        detail .= " / " . item.dept
+    if (item.eff != "")
+        detail .= " / " . dateLabel . " " . SSOK_LAW_FormatDate8(item.eff)
+    detail .= "`r`n`r`n더블클릭하거나 [선택 항목 열기]를 누르면 국가법령정보센터 원문을 엽니다."
+    return detail
+}
+
+SSOK_LAW_Count(arr)
+{
+    if (!IsObject(arr))
+        return 0
+    n := arr.MaxIndex()
+    return (n = "" ? 0 : n)
+}
+
+SSOK_LAW_ShowResults(query)
+{
+    global SSOK_LAW_LawResults, SSOK_LAW_AdminResults, SSOK_LAW_OrdinResults
+    global SSOK_LAW_PrecResults, SSOK_LAW_DetcResults, SSOK_LAW_ExpcResults, SSOK_LAW_DeccResults
+    global SSOK_LAW_MoeResults, SSOK_LAW_BylResults
+    global SSOK_LAW_LawList, SSOK_LAW_AdminList, SSOK_LAW_OrdinList
+    global SSOK_LAW_PrecList, SSOK_LAW_DetcList, SSOK_LAW_ExpcList, SSOK_LAW_DeccList
+    global SSOK_LAW_MoeList, SSOK_LAW_BylList, SSOK_LAW_Tab, SSOK_LAW_Detail
+
+    lawCnt := SSOK_LAW_Count(SSOK_LAW_LawResults)
+    adminCnt := SSOK_LAW_Count(SSOK_LAW_AdminResults)
+    ordinCnt := SSOK_LAW_Count(SSOK_LAW_OrdinResults)
+    precCnt := SSOK_LAW_Count(SSOK_LAW_PrecResults)
+    detcCnt := SSOK_LAW_Count(SSOK_LAW_DetcResults)
+    expcCnt := SSOK_LAW_Count(SSOK_LAW_ExpcResults)
+    deccCnt := SSOK_LAW_Count(SSOK_LAW_DeccResults)
+    moeCnt := SSOK_LAW_Count(SSOK_LAW_MoeResults)
+    bylCnt := SSOK_LAW_Count(SSOK_LAW_BylResults)
+
+    tabNames := "법령 (" . lawCnt . ")|행정규칙 (" . adminCnt . ")|자치법규 (" . ordinCnt . ")|판례 (" . precCnt . ")|헌재결정례 (" . detcCnt . ")|법령해석례 (" . expcCnt . ")|행정심판례 (" . deccCnt . ")|교육부해석 (" . moeCnt . ")|별표서식 (" . bylCnt . ")"
+
+    Gui, SSOKLaw:Destroy
+    Gui, SSOKLaw:New, +Resize +MinSize960x500 +LabelSSOK_LAW_Gui
+    Gui, SSOKLaw:Color, F7FBFF
+    Gui, SSOKLaw:Margin, 12, 12
+    Gui, SSOKLaw:Font, s11 bold c005BAC, Malgun Gothic
+    Gui, SSOKLaw:Add, Text, x12 y12 w1040 h24, % "법령정보 통합검색 : " . query
+    Gui, SSOKLaw:Font, s9 norm c333333, Malgun Gothic
+    Gui, SSOKLaw:Add, Tab2, x12 y42 w1056 h282 vSSOK_LAW_Tab gSSOK_LAW_TabChanged, %tabNames%
+
+    Gui, SSOKLaw:Tab, 1
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_LawList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 법령명|조문|조문제목|소관부처|시행일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_LawList
+    for idx, item in SSOK_LAW_LawResults
+        LV_Add("", item.lawName, SSOK_LAW_FormatArticle(item), item.joTitle, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 290)
+    LV_ModifyCol(2, 70)
+    LV_ModifyCol(3, 280)
+    LV_ModifyCol(4, 220)
+    LV_ModifyCol(5, 110)
+
+    Gui, SSOKLaw:Tab, 2
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_AdminList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 행정규칙명|종류|소관부처|시행일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_AdminList
+    for idx, item in SSOK_LAW_AdminResults
+        LV_Add("", item.lawName, item.lawType, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 450)
+    LV_ModifyCol(2, 120)
+    LV_ModifyCol(3, 300)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 3
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_OrdinList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 자치법규명|종류|기관|시행일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_OrdinList
+    for idx, item in SSOK_LAW_OrdinResults
+        LV_Add("", item.lawName, item.lawType, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 450)
+    LV_ModifyCol(2, 120)
+    LV_ModifyCol(3, 300)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 4
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_PrecList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 사건명|사건번호|법원|선고일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_PrecList
+    for idx, item in SSOK_LAW_PrecResults
+        LV_Add("", item.lawName, item.itemNo, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 520)
+    LV_ModifyCol(2, 180)
+    LV_ModifyCol(3, 210)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 5
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_DetcList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 사건명|사건번호|기관|종국일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_DetcList
+    for idx, item in SSOK_LAW_DetcResults
+        LV_Add("", item.lawName, item.itemNo, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 520)
+    LV_ModifyCol(2, 180)
+    LV_ModifyCol(3, 210)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 6
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_ExpcList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 안건명|안건번호|회신기관|회신일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_ExpcList
+    for idx, item in SSOK_LAW_ExpcResults
+        LV_Add("", item.lawName, item.itemNo, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 500)
+    LV_ModifyCol(2, 150)
+    LV_ModifyCol(3, 250)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 7
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_DeccList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 사건명|사건번호|재결청|의결일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_DeccList
+    for idx, item in SSOK_LAW_DeccResults
+        LV_Add("", item.lawName, item.itemNo, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 480)
+    LV_ModifyCol(2, 180)
+    LV_ModifyCol(3, 240)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 8
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_MoeList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 안건명|안건번호|해석기관|해석일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_MoeList
+    for idx, item in SSOK_LAW_MoeResults
+        LV_Add("", item.lawName, item.itemNo, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 500)
+    LV_ModifyCol(2, 150)
+    LV_ModifyCol(3, 250)
+    LV_ModifyCol(4, 110)
+
+    Gui, SSOKLaw:Tab, 9
+    Gui, SSOKLaw:Add, ListView, x24 y86 w1032 h218 vSSOK_LAW_BylList gSSOK_LAW_ResultEvent AltSubmit Grid -Multi, 별표서식명|관련법령|종류|소관부처|공포일
+    Gui, SSOKLaw:Default
+    Gui, ListView, SSOK_LAW_BylList
+    for idx, item in SSOK_LAW_BylResults
+        LV_Add("", item.lawName, item.relatedName, item.lawType, item.dept, SSOK_LAW_FormatDate8(item.eff))
+    LV_ModifyCol(1, 300)
+    LV_ModifyCol(2, 300)
+    LV_ModifyCol(3, 90)
+    LV_ModifyCol(4, 210)
+    LV_ModifyCol(5, 110)
+
+    Gui, SSOKLaw:Tab
+    Gui, SSOKLaw:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKLaw:Add, Edit, x12 y334 w1056 h130 vSSOK_LAW_Detail ReadOnly +Wrap +VScroll
+    Gui, SSOKLaw:Font, s9 bold, Malgun Gothic
+    Gui, SSOKLaw:Add, Button, x12 y474 w115 h28 gSSOK_LAW_OpenSelectedButton, 선택 항목 열기
+    Gui, SSOKLaw:Add, Button, x136 y474 w170 h28 gSSOK_LAW_OpenWebSearch, 국가법령정보센터 검색
+    Gui, SSOKLaw:Add, Button, x978 y474 w90 h28 gSSOK_LAW_GuiClose, 닫기
+
+    ; 첫 번째 결과가 있는 탭을 자동 선택
+    firstTab := 1
+    if (lawCnt > 0)
+        firstTab := 1
+    else if (adminCnt > 0)
+        firstTab := 2
+    else if (ordinCnt > 0)
+        firstTab := 3
+    else if (precCnt > 0)
+        firstTab := 4
+    else if (detcCnt > 0)
+        firstTab := 5
+    else if (expcCnt > 0)
+        firstTab := 6
+    else if (deccCnt > 0)
+        firstTab := 7
+    else if (moeCnt > 0)
+        firstTab := 8
+    else if (bylCnt > 0)
+        firstTab := 9
+
+    GuiControl, SSOKLaw:Choose, SSOK_LAW_Tab, %firstTab%
+    Gui, SSOKLaw:Show, w1080 h514, SSOK 법령정보 통합검색
+    SSOK_LAW_UpdateDetailForCurrentTab()
+}
+
+SSOK_LAW_GetResultsByControl(ctrl)
+{
+    global SSOK_LAW_LawResults, SSOK_LAW_AdminResults, SSOK_LAW_OrdinResults
+    global SSOK_LAW_PrecResults, SSOK_LAW_DetcResults, SSOK_LAW_ExpcResults, SSOK_LAW_DeccResults
+    global SSOK_LAW_MoeResults, SSOK_LAW_BylResults
+
+    if (ctrl = "SSOK_LAW_LawList")
+        return SSOK_LAW_LawResults
+    if (ctrl = "SSOK_LAW_AdminList")
+        return SSOK_LAW_AdminResults
+    if (ctrl = "SSOK_LAW_OrdinList")
+        return SSOK_LAW_OrdinResults
+    if (ctrl = "SSOK_LAW_PrecList")
+        return SSOK_LAW_PrecResults
+    if (ctrl = "SSOK_LAW_DetcList")
+        return SSOK_LAW_DetcResults
+    if (ctrl = "SSOK_LAW_ExpcList")
+        return SSOK_LAW_ExpcResults
+    if (ctrl = "SSOK_LAW_DeccList")
+        return SSOK_LAW_DeccResults
+    if (ctrl = "SSOK_LAW_MoeList")
+        return SSOK_LAW_MoeResults
+    if (ctrl = "SSOK_LAW_BylList")
+        return SSOK_LAW_BylResults
+    return []
+}
+
+SSOK_LAW_CategoryByControl(ctrl)
+{
+    if (ctrl = "SSOK_LAW_LawList")
+        return "law"
+    if (ctrl = "SSOK_LAW_AdminList")
+        return "admrul"
+    if (ctrl = "SSOK_LAW_OrdinList")
+        return "ordin"
+    if (ctrl = "SSOK_LAW_PrecList")
+        return "prec"
+    if (ctrl = "SSOK_LAW_DetcList")
+        return "detc"
+    if (ctrl = "SSOK_LAW_ExpcList")
+        return "expc"
+    if (ctrl = "SSOK_LAW_DeccList")
+        return "decc"
+    if (ctrl = "SSOK_LAW_MoeList")
+        return "moe"
+    if (ctrl = "SSOK_LAW_BylList")
+        return "byl"
+    return ""
+}
+
+SSOK_LAW_ControlForCurrentTab()
+{
+    GuiControlGet, tabText, SSOKLaw:, SSOK_LAW_Tab
+    if (InStr(tabText, "헌재결정례"))
+        return "SSOK_LAW_DetcList"
+    if (InStr(tabText, "법령해석례"))
+        return "SSOK_LAW_ExpcList"
+    if (InStr(tabText, "행정심판례"))
+        return "SSOK_LAW_DeccList"
+    if (InStr(tabText, "교육부해석"))
+        return "SSOK_LAW_MoeList"
+    if (InStr(tabText, "별표서식"))
+        return "SSOK_LAW_BylList"
+    if (InStr(tabText, "행정규칙"))
+        return "SSOK_LAW_AdminList"
+    if (InStr(tabText, "자치법규"))
+        return "SSOK_LAW_OrdinList"
+    if (InStr(tabText, "판례"))
+        return "SSOK_LAW_PrecList"
+    return "SSOK_LAW_LawList"
+}
+
+SSOK_LAW_UpdateDetailForCurrentTab()
+{
+    ctrl := SSOK_LAW_ControlForCurrentTab()
+    SSOK_LAW_UpdateDetailForControl(ctrl, 0)
+}
+
+SSOK_LAW_UpdateDetailForControl(ctrl, preferredRow := 0)
+{
+    global SSOK_LAW_SelectedRows
+    results := SSOK_LAW_GetResultsByControl(ctrl)
+    category := SSOK_LAW_CategoryByControl(ctrl)
+    count := SSOK_LAW_Count(results)
+    if (count < 1)
+    {
+        GuiControl, SSOKLaw:, SSOK_LAW_Detail, 검색 결과가 없습니다.
+        return
+    }
+
+    Gui, SSOKLaw:Default
+    Gui, SSOKLaw:ListView, %ctrl%
+    row := preferredRow
+    if (row < 1)
+        row := LV_GetNext(0, "F")
+    if (row < 1 && IsObject(SSOK_LAW_SelectedRows) && SSOK_LAW_SelectedRows.HasKey(category))
+        row := SSOK_LAW_SelectedRows[category]
+    if (row < 1 || row > count)
+        row := 1
+
+    LV_Modify(row, "Select Focus Vis")
+    if (!IsObject(SSOK_LAW_SelectedRows))
+        SSOK_LAW_SelectedRows := {}
+    SSOK_LAW_SelectedRows[category] := row
+
+    detail := SSOK_LAW_BuildDetail(results[row])
+    GuiControl, SSOKLaw:, SSOK_LAW_Detail, %detail%
+}
+
+SSOK_LAW_NormalizeLink(link)
+{
+    u := Trim(link)
+    if (u = "")
+        return ""
+    if (RegExMatch(u, "i)^https?://"))
+        return u
+    if (SubStr(u, 1, 2) = "//")
+        return "https:" . u
+    if (SubStr(u, 1, 1) = "/")
+        return "https://www.law.go.kr" . u
+    return "https://www.law.go.kr/" . u
+}
+
+SSOK_LAW_OpenSelected(ctrl := "")
+{
+    global SSOK_LAW_SelectedRows, SSOK_LAW_LastQuery
+    if (ctrl = "")
+        ctrl := SSOK_LAW_ControlForCurrentTab()
+
+    results := SSOK_LAW_GetResultsByControl(ctrl)
+    if (SSOK_LAW_Count(results) < 1)
+        return
+
+    category := SSOK_LAW_CategoryByControl(ctrl)
+    Gui, SSOKLaw:Default
+    Gui, SSOKLaw:ListView, %ctrl%
+    row := LV_GetNext(0, "F")
+    if (row < 1 && IsObject(SSOK_LAW_SelectedRows) && SSOK_LAW_SelectedRows.HasKey(category))
+        row := SSOK_LAW_SelectedRows[category]
+    if (row < 1)
+        row := 1
+    if (!IsObject(results[row]))
+        return
+
+    item := results[row]
+    url := SSOK_LAW_NormalizeLink(item.detailLink)
+
+    if (url = "" && category = "law" && Trim(item.seq) != "")
+        url := "https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=" . SSOK_QU_UrlEncode(item.seq)
+
+    if (url = "")
+    {
+        term := Trim(item.lawName)
+        if (term = "")
+            term := SSOK_LAW_LastQuery
+        url := "https://www.law.go.kr/LSW/ais/searchList.do?aiBoardQuery=" . SSOK_QU_UrlEncode(term) . "&pageIndex=1"
+    }
+    SSOK_OpenUrlPreferred(url)
+}
 
 SSOK_QA_PopupDefaultSearch:
     ControlGetFocus, SSOK_QA_FocusedCtrl, ahk_id %SSOK_ACC_GuiHwnd%

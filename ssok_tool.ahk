@@ -871,29 +871,41 @@ QI_ShowGui:
     Gui, QIQuick:Add, Edit, x35 y380 w550 h45 vQIEdit7 +Multi +WantReturn, %QIText7%
     Gui, QIQuick:Add, Button, x595 y388 w70 h28 gQI_Input7, 저장&&입력
 
-    ; 8번 날짜 처리
-    Gui, QIQuick:Add, Text, x15 y440 w18 h24 c003366, 8.
-    Gui, QIQuick:Font, s8 norm c003366, Malgun Gothic
-    Gui, QIQuick:Add, Text, x35 y440 w550 h38, [오늘 날짜(요일) 현재 시간] 입력 또는 [선택 범위 날짜(요일)] 교정
+    ; 8번
+    Gui, QIQuick:Add, Text, x15 y440 w18 h24, 8.
+    Gui, QIQuick:Add, Edit, x35 y435 w550 h45 vQIEdit10 +Multi +WantReturn, %QIText10%
+    Gui, QIQuick:Add, Button, x595 y443 w70 h28 gQI_Input10, 저장&&실행
+
+    ; 9번
+    Gui, QIQuick:Add, Text, x15 y490 w18 h24, 9.
+    Gui, QIQuick:Add, Edit, x35 y485 w550 h45 vQIEdit11 +Multi +WantReturn, %QIText11%
+    Gui, QIQuick:Add, Button, x595 y493 w70 h28 gQI_Input11, 저장&&실행
+
+    ; 10번 날짜 기능 - 5개 버튼 바로 실행
+    Gui, QIQuick:Add, Text, x15 y540 w18 h24 c003366, 10.
     Gui, QIQuick:Font, s9 norm c000000, Malgun Gothic
-    Gui, QIQuick:Add, Button, x595 y438 w70 h28 gQI_Input8, 저장&&실행
+    Gui, QIQuick:Add, Button, x35  y535 w70  h28 gQI_DateToday, 오늘
+    Gui, QIQuick:Add, Button, x110 y535 w95  h28 gQI_DateThisWeek, 이번 월금
+    Gui, QIQuick:Add, Button, x210 y535 w80  h28 gQI_DateAge, 만나이
+    Gui, QIQuick:Add, Button, x295 y535 w70  h28 gQI_DateWeekday, 요일
+    Gui, QIQuick:Add, Button, x370 y535 w95  h28 gQI_DateFormatToggle, 날짜 형식
 
-    ; 9번 특수문자
-    Gui, QIQuick:Add, Text, x15 y490 w18 h24 c003366, 9.
-    Gui, QIQuick:Font, s8 norm c003366, Malgun Gothic
-    Gui, QIQuick:Add, Text, x35 y488 w550 h40, 특수문자 자동입력: 「법」【근거】〔 〕《 》『』?√◎º?·???○○□□◇△▽▷■■●◆▶▲▼
+    ; 11번 특수문자 - 별도 선택창 없이 바로 클릭 입력
+    Gui, QIQuick:Add, Text, x15 y595 w18 h24 c003366, 11.
+    QISymbolMap := StrSplit("·|√|☞|⇒|※|▷|▶|○|●|◎|□|■|▣|「|」|【|】|〔|〕|《|》|『|』|◇|◆|★|△|▲|▽|▼|←|↑|↓|↔|☎|Ⅰ|Ⅱ|Ⅲ|Ⅳ|Ⅴ|①|②|③|④|⑤|℃|㎜|㎝|㎞|㎡|㎤|㎟|㎏|㈜|÷|×", "|")
+    Gui, QIQuick:Font, s8 norm c000000, Malgun Gothic
+    Loop, % QISymbolMap.Length()
+    {
+        QISymbolIndex := A_Index
+        QISymbol := QISymbolMap[QISymbolIndex]
+        QISymbolCol := Mod(QISymbolIndex - 1, 19)
+        QISymbolRow := Floor((QISymbolIndex - 1) / 19)
+        QISymbolX := 35 + (QISymbolCol * 32)
+        QISymbolY := 590 + (QISymbolRow * 20)
+        QISymbolCtrl := "QIQuickSymbolBtn" . QISymbolIndex
+        Gui, QIQuick:Add, Button, x%QISymbolX% y%QISymbolY% w30 h18 v%QISymbolCtrl% gQI_QuickSpecialPick, %QISymbol%
+    }
     Gui, QIQuick:Font, s9 norm c000000, Malgun Gothic
-    Gui, QIQuick:Add, Button, x595 y488 w70 h28 gQI_Input9, 저장&&입력
-
-    ; 10번
-    Gui, QIQuick:Add, Text, x15 y540 w18 h24, 10.
-    Gui, QIQuick:Add, Edit, x35 y535 w550 h45 vQIEdit10 +Multi +WantReturn, %QIText10%
-    Gui, QIQuick:Add, Button, x595 y543 w70 h28 gQI_Input10, 저장&&실행
-
-    ; 11번
-    Gui, QIQuick:Add, Text, x15 y595 w18 h24, 11.
-    Gui, QIQuick:Add, Edit, x35 y590 w550 h45 vQIEdit11 +Multi +WantReturn, %QIText11%
-    Gui, QIQuick:Add, Button, x595 y598 w70 h28 gQI_Input11, 저장&&실행
 
     ; 12~15번 이미지 전용
     Gui, QIQuick:Font, s9 bold, Malgun Gothic
@@ -985,7 +997,6 @@ QI_UpdatePinButtons:
         GuiControl, QIQuick:, QIPinOffChoice, ● 해제
     }
 return
-
 
 ; =========================================================
 ; 아무 동작 안 하는 초점용 버튼
@@ -1227,9 +1238,9 @@ QI_NumberPressed:
     else if (QINumber = "7")
         Gosub, QI_Input7
     else if (QINumber = "8")
-        Gosub, QI_Input8
+        Gosub, QI_Input10
     else if (QINumber = "9")
-        Gosub, QI_Input9
+        Gosub, QI_Input11
 return
 
 
@@ -1987,7 +1998,7 @@ catch {
     FileDelete, %tmpPs%
     FileAppend, %ps%, %tmpPs%, UTF-8
 
-    RunWait, %ComSpec% /c powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "%tmpPs%",, Hide UseErrorLevel
+RunWait, %ComSpec% /c powershell.exe -NoProfile -STA -ExecutionPolicy Bypass -File "%tmpPs%",, Hide UseErrorLevel
     exitCode := ErrorLevel
     FileDelete, %tmpPs%
 
@@ -2082,6 +2093,181 @@ QI_GdipShutdown(token)
 
 
 ; =========================================================
+; 10번 날짜 기능
+; - 오늘: 오늘 날짜(요일) + 현재 시간
+; - 이번 월금: 이번 주 월요일~금요일
+; - 만나이: 선택한 생년월일 옆에 오늘 기준 만나이 표시
+; - 요일: 선택한 날짜 옆에 요일 표시
+; - 날짜 형식: 2026.9.21. -> 2026. 9. 21. -> 2026-09-21 순환
+; =========================================================
+QI_DateToday:
+    Gosub, QI_MakeTodayDate
+    QIInputText := QITodayText
+    Gosub, QI_PasteText
+return
+
+QI_DateThisWeek:
+    QIWeekMonday := A_Now
+    QIWeekOffset := Mod(A_WDay + 5, 7)
+    QIWeekOffset := -QIWeekOffset
+    EnvAdd, QIWeekMonday, %QIWeekOffset%, Days
+
+    QIWeekFriday := QIWeekMonday
+    EnvAdd, QIWeekFriday, 4, Days
+
+    FormatTime, QIWY1, %QIWeekMonday%, yyyy
+    FormatTime, QIWM1, %QIWeekMonday%, M
+    FormatTime, QIWD1, %QIWeekMonday%, d
+    FormatTime, QIWW1, %QIWeekMonday%, WDay
+    FormatTime, QIWM2, %QIWeekFriday%, M
+    FormatTime, QIWD2, %QIWeekFriday%, d
+    FormatTime, QIWW2, %QIWeekFriday%, WDay
+
+    QIWeekDays := ["일", "월", "화", "수", "목", "금", "토"]
+    QIInputText := QIWY1 . ". " . QIWM1 . ". " . QIWD1 . ".(" . QIWeekDays[QIWW1] . ")~" . QIWM2 . ". " . QIWD2 . ".(" . QIWeekDays[QIWW2] . ")"
+    Gosub, QI_PasteText
+return
+
+QI_DateAge:
+    if (!QI_DateGetSelection(QISelectedDateText, QISelectedOldClip))
+    {
+        ToolTip, 만나이는 생년월일을 먼저 블록 지정해야 합니다.
+        SetTimer, QI_RemoveToolTip, -1600
+        return
+    }
+
+    if (!QI_ParseSimpleDate(QISelectedDateText, QIBirthY, QIBirthM, QIBirthD, QIBirthStyle))
+    {
+        ToolTip, 선택한 날짜를 인식하지 못했습니다. 예: 2026. 1.1.
+        SetTimer, QI_RemoveToolTip, -1700
+        return
+    }
+
+    QITodayNumber := (A_YYYY + 0) * 10000 + (A_MM + 0) * 100 + (A_DD + 0)
+    QIBirthNumber := QIBirthY * 10000 + QIBirthM * 100 + QIBirthD
+    if (QIBirthNumber > QITodayNumber)
+    {
+        ToolTip, 생년월일이 오늘보다 늦습니다.
+        SetTimer, QI_RemoveToolTip, -1500
+        return
+    }
+
+    QIAge := (A_YYYY + 0) - QIBirthY
+    if (((A_MM + 0) * 100 + (A_DD + 0)) < (QIBirthM * 100 + QIBirthD))
+        QIAge -= 1
+
+    QISelectedDateText := Trim(QISelectedDateText, " `t`r`n")
+    QIBaseY := A_YYYY + 0
+    QIBaseM := A_MM + 0
+    QIBaseD := A_DD + 0
+    QIInputText := QISelectedDateText . " (만" . QIAge . "세, " . QIBaseY . "." . QIBaseM . "." . QIBaseD . ".기준)"
+    Gosub, QI_PasteText
+return
+
+QI_DateWeekday:
+    if (!QI_DateGetSelection(QISelectedDateText, QISelectedOldClip))
+    {
+        ToolTip, 요일을 표시할 날짜를 먼저 블록 지정해야 합니다.
+        SetTimer, QI_RemoveToolTip, -1600
+        return
+    }
+
+    if (!QI_ParseSimpleDate(QISelectedDateText, QIDateY, QIDateM, QIDateD, QIDateStyle))
+    {
+        ToolTip, 선택한 날짜를 인식하지 못했습니다.
+        SetTimer, QI_RemoveToolTip, -1500
+        return
+    }
+
+    QIDateStamp := Format("{:04}{:02}{:02}000000", QIDateY, QIDateM, QIDateD)
+    FormatTime, QIDateWDay, %QIDateStamp%, WDay
+    QIDateDays := ["일", "월", "화", "수", "목", "금", "토"]
+    QISelectedDateText := Trim(QISelectedDateText, " `t`r`n")
+    QIInputText := QISelectedDateText . "(" . QIDateDays[QIDateWDay] . ")"
+    Gosub, QI_PasteText
+return
+
+QI_DateFormatToggle:
+    if (!QI_DateGetSelection(QISelectedDateText, QISelectedOldClip))
+    {
+        ToolTip, 형식을 바꿀 날짜를 먼저 블록 지정해야 합니다.
+        SetTimer, QI_RemoveToolTip, -1600
+        return
+    }
+
+    if (!QI_ParseSimpleDate(QISelectedDateText, QIDateY, QIDateM, QIDateD, QIDateStyle))
+    {
+        ToolTip, 날짜 형식을 인식하지 못했습니다.
+        SetTimer, QI_RemoveToolTip, -1500
+        return
+    }
+
+    if (QIDateStyle = "compact")
+        QIInputText := QIDateY . ". " . QIDateM . ". " . QIDateD . "."
+    else if (QIDateStyle = "spaced")
+        QIInputText := Format("{:04}-{:02}-{:02}", QIDateY, QIDateM, QIDateD)
+    else
+        QIInputText := QIDateY . "." . QIDateM . "." . QIDateD . "."
+
+    Gosub, QI_PasteText
+return
+
+QI_DateGetSelection(ByRef outText, ByRef oldClip)
+{
+    global QILastTargetHwnd
+
+    oldClip := ClipboardAll
+    outText := ""
+
+    if (QILastTargetHwnd != "")
+    {
+        WinActivate, ahk_id %QILastTargetHwnd%
+        WinWaitActive, ahk_id %QILastTargetHwnd%,, 0.6
+        Sleep, 80
+    }
+
+    if (!SSOK_Tool_CopyClipboardText(QIDateSelectionRaw, 0.35, 2))
+    {
+        Clipboard := oldClip
+        return false
+    }
+
+    outText := Trim(QIDateSelectionRaw, " `t`r`n")
+    Clipboard := oldClip
+    return (outText != "")
+}
+
+QI_ParseSimpleDate(dateText, ByRef y, ByRef m, ByRef d, ByRef style)
+{
+    dateText := Trim(dateText, " `t`r`n")
+    style := ""
+
+    if (RegExMatch(dateText, "^(\d{4})\.(\d{1,2})\.(\d{1,2})\.$", md))
+        style := "compact"
+    else if (RegExMatch(dateText, "^(\d{4})\.\s+(\d{1,2})\.\s+(\d{1,2})\.$", md))
+        style := "spaced"
+    else if (RegExMatch(dateText, "^(\d{4})-(\d{1,2})-(\d{1,2})$", md))
+        style := "dash"
+    else if (RegExMatch(dateText, "^(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.$", md))
+        style := "compact"
+    else
+        return false
+
+    y := md1 + 0
+    m := md2 + 0
+    d := md3 + 0
+
+    if (m < 1 || m > 12 || d < 1 || d > 31)
+        return false
+
+    stamp := Format("{:04}{:02}{:02}000000", y, m, d)
+    expected := Format("{:04}{:02}{:02}", y, m, d)
+    FormatTime, checked, %stamp%, yyyyMMdd
+    return (checked = expected)
+}
+
+
+; =========================================================
 ; 8번 저장 && 실행
 ; - 1~7번 현재 수정 내용은 저장
 ; - 원래 작업 창으로 돌아가 Shift+F2 날짜/요일/기간 기능 실행
@@ -2108,17 +2294,61 @@ return
 
 
 ; =========================================================
-; 9번 저장 && 입력
-; - 1~7번 현재 수정 내용은 저장
-; - 9번은 특수문자 자동 입력
+; 11번 특수문자 바로 클릭 입력
+; =========================================================
+QI_QuickSpecialPick:
+    QISymbolIndex := RegExReplace(A_GuiControl, "\D")
+    if (QISymbolIndex = "" || !IsObject(QISymbolMap))
+        return
+
+    QIInputText := QISymbolMap[QISymbolIndex]
+    Gosub, QI_PasteText
+return
+
+
+; =========================================================
+; 11번 특수문자 개별 선택 입력
 ; =========================================================
 QI_Input9:
-    ; 해제 상태에서만 문구를 저장하고, 고정 상태에서는 입력만 합니다.
-    if (!QIPinMode)
-        Gosub, QI_SaveFromGui
-    Gosub, QI_MakeSpecialText
-    QIInputText := QISpecialText
+    Gosub, QI_ShowSpecialPicker
+return
+
+QI_ShowSpecialPicker:
+    Gui, QISpecial:Destroy
+    QISymbolMap := StrSplit("·|√|☞|⇒|※|▷|▶|○|●|◎|□|■|▣|「|」|【|】|〔|〕|《|》|『|』|◇|◆|★|△|▲|▽|▼|←|↑|↓|↔|☎|Ⅰ|Ⅱ|Ⅲ|Ⅳ|Ⅴ|①|②|③|④|⑤|℃|㎜|㎝|㎞|㎡|㎤|㎟|㎏|㈜|÷|×", "|")
+
+    Gui, QISpecial:New, +AlwaysOnTop +ToolWindow, 특수문자 선택
+    Gui, QISpecial:Font, s11 norm, Malgun Gothic
+
+    Loop, % QISymbolMap.Length()
+    {
+        QISymbolIndex := A_Index
+        QISymbol := QISymbolMap[QISymbolIndex]
+        QISymbolCol := Mod(QISymbolIndex - 1, 3)
+        QISymbolRow := Floor((QISymbolIndex - 1) / 3)
+        QISymbolX := 10 + (QISymbolCol * 72)
+        QISymbolY := 10 + (QISymbolRow * 30)
+        QISymbolCtrl := "QISymbolBtn" . QISymbolIndex
+        Gui, QISpecial:Add, Button, x%QISymbolX% y%QISymbolY% w62 h24 v%QISymbolCtrl% gQI_SpecialPick, %QISymbol%
+    }
+
+    Gui, QISpecial:Show, AutoSize, 특수문자 선택
+return
+
+QI_SpecialPick:
+    QISymbolIndex := RegExReplace(A_GuiControl, "\D")
+    if (QISymbolIndex = "" || !IsObject(QISymbolMap))
+        return
+
+    QIInputText := QISymbolMap[QISymbolIndex]
+    Gui, QISpecial:Destroy
     Gosub, QI_PasteText
+return
+
+QISpecialGuiClose:
+QISpecialGuiEscape:
+    Gui, QISpecial:Destroy
+    QI_RestorePinnedGuiFocus()
 return
 
 
@@ -2767,7 +2997,8 @@ SSOK_ShowCalculator:
         else if (idx = 3)
             Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD3, -
         else if (idx = 4)
-            Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD4, -
+
+Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD4, -
         else if (idx = 5)
             Gui, SSOKCalc:Add, Text, x550 y%y% w105 h28 Center +0x200 Hidden HwndhCareerYMD vSSOK_CareerYMD5, -
         else if (idx = 6)
@@ -3767,7 +3998,8 @@ SSOK_CareerCalcYMD(a, b)
     endDT := SubStr(b, 1, 8) . "000000"
 
     ; 종료일 포함: 종료일 다음날을 기준으로 계산
-    EnvAdd, endDT, 1, Days
+
+EnvAdd, endDT, 1, Days
     if (ErrorLevel)
         return "0년 0월 0일"
 
@@ -4767,7 +4999,8 @@ SSOK_CalcDate(in1, in2 := "", rate := 100)
         pos := InStr(s1, "~")
         p1 := SubStr(s1, 1, pos - 1)
         p2 := SubStr(s1, pos + 1)
-        d1 := SSOK_CalcParseSingleDate(p1)
+
+d1 := SSOK_CalcParseSingleDate(p1)
         d2 := SSOK_CalcParseSingleDate(p2)
         if (d1 && d2)
             return SSOK_CalcDateRange(d1, d2, rate)
@@ -5518,6 +5751,11 @@ SSOK_ShowWorkToolsGui:
     SSOK_WorkToolsCalendarW := SSOK_WorkToolsButtonW - SSOK_WorkToolsSettingsW - SSOK_WorkToolsGap
     SSOK_WorkToolsSettingsX := 8 + SSOK_WorkToolsCalendarW + SSOK_WorkToolsGap
 
+    ; 숫자 기능 2개는 같은 줄에 반씩 배치
+    SSOK_WorkToolsNumGap := 4
+    SSOK_WorkToolsNumW := Floor((SSOK_WorkToolsButtonW - SSOK_WorkToolsNumGap) / 2)
+    SSOK_WorkToolsNumX2 := 8 + SSOK_WorkToolsNumW + SSOK_WorkToolsNumGap
+
     Gui, SSOKWorkTools:Destroy
     Gui, SSOKWorkTools:+AlwaysOnTop +ToolWindow +HwndSSOK_WorkToolsHwnd
     Gui, SSOKWorkTools:Color, F7FBFF
@@ -5528,22 +5766,26 @@ SSOK_ShowWorkToolsGui:
     Gui, SSOKWorkTools:Add, Button, x8 y39  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Travel, 여비정산서
     Gui, SSOKWorkTools:Add, Button, x8 y70  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Calc, 계산기
     Gui, SSOKWorkTools:Add, Button, x8 y101 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_AutoClick, 마우스 매크로
-    Gui, SSOKWorkTools:Add, Button, x8 y132 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CompanyInfo, 국세청·조달청 업체조회
-    Gui, SSOKWorkTools:Add, Button, x8 y163 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Privacy, 개인정보 숨기기
-    Gui, SSOKWorkTools:Add, Button, x8 y194 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CommaToggle, 숫자 천 단위 토글
-    Gui, SSOKWorkTools:Add, Button, x8 y225 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearch, 학교검색 (전국)
-    Gui, SSOKWorkTools:Add, Button, x8 y256 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearchNational, 학교검색 (세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y287 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_LocalFinanceInfo, 지방교육재정정보
-    Gui, SSOKWorkTools:Add, Button, x8 y318 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractG2B, 계약현황 (나라장터)
-    Gui, SSOKWorkTools:Add, Button, x8 y349 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractLofin365, 계약현황 (지방재정365)
-    Gui, SSOKWorkTools:Add, Button, x8 y380 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractSejong, 계약현황 (세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y411 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Exit gSSOK_Tool_SidebarDeleteProxy, 종료
-    Gui, SSOKWorkTools:Add, Button, x8 y442 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
-    Gui, SSOKWorkTools:Add, Button, x8 y504 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
-    Gui, SSOKWorkTools:Add, Button, x8 y535 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
-    Gui, SSOKWorkTools:Add, Button, x8 y566 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
+    Gui, SSOKWorkTools:Add, Button, x8 y132 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Timer, 업무용 타이머
+    Gui, SSOKWorkTools:Add, Button, x8 y163 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CompanyInfo, 국세청·조달청 업체조회
+    Gui, SSOKWorkTools:Add, Button, x8 y194 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Privacy, 개인정보 숨기기
+    Gui, SSOKWorkTools:Add, Button, x8 y225 w%SSOK_WorkToolsNumW% h25 gSSOK_WorkTools_CommaToggle, 숫자-천원
+    Gui, SSOKWorkTools:Add, Button, x%SSOK_WorkToolsNumX2% y225 w%SSOK_WorkToolsNumW% h25 gSSOK_WorkTools_MoneyToggle, 숫자-금액
+    Gui, SSOKWorkTools:Add, Button, x8 y256 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CardCompare, 법인카드내역비교
+    Gui, SSOKWorkTools:Add, Button, x8 y287 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_WorkPublic, 업무추진비공개
+    Gui, SSOKWorkTools:Add, Button, x8 y318 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearch, 학교검색 (전국)
+    Gui, SSOKWorkTools:Add, Button, x8 y349 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearchNational, 학교검색 (세종)
+    Gui, SSOKWorkTools:Add, Button, x8 y380 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_LocalFinanceInfo, 지방교육재정정보
+    Gui, SSOKWorkTools:Add, Button, x8 y411 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractG2B, 계약현황 (나라장터)
+    Gui, SSOKWorkTools:Add, Button, x8 y442 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractLofin365, 계약현황 (지방재정365)
+    Gui, SSOKWorkTools:Add, Button, x8 y473 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractSejong, 계약현황 (세종)
+    Gui, SSOKWorkTools:Add, Button, x8 y504 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Exit gSSOK_Tool_SidebarDeleteProxy, 종료
+    Gui, SSOKWorkTools:Add, Button, x8 y535 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
+    Gui, SSOKWorkTools:Add, Button, x8 y597 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
+    Gui, SSOKWorkTools:Add, Button, x8 y628 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
+    Gui, SSOKWorkTools:Add, Button, x8 y659 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
 
-    SSOK_WorkToolsH := 474
+    SSOK_WorkToolsH := 567
     SSOK_WorkToolsBetaExpanded := 0
 
     SSOK_WorkToolsX := SSOK_SidebarX - SSOK_WorkToolsW
@@ -5604,6 +5846,10 @@ SSOK_WorkTools_AutoClick:
     Gosub, SSOK_Advanced_AutoClick
 return
 
+SSOK_WorkTools_Timer:
+    Gosub, SSOK_WorkTimer_Show
+return
+
 SSOK_WorkTools_CompanyInfo:
     SSOK_CompanyInfo_Show()
 return
@@ -5614,6 +5860,22 @@ return
 
 SSOK_WorkTools_CommaToggle:
     Gosub, SSOK_Advanced_CommaToggle
+return
+
+SSOK_WorkTools_MoneyToggle:
+    Gosub, SSOK_Advanced_MoneyToggle
+return
+
+SSOK_WorkTools_CardCompare:
+    SSOK_ToolDynamicLabel := "SSOK_Expense_Tools_CardCompare"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+return
+
+SSOK_WorkTools_WorkPublic:
+    SSOK_ToolDynamicLabel := "SSOK_Expense_Tools_WorkPublic"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_WorkTools_SchoolSearch:
@@ -5650,7 +5912,10 @@ SSOK_WorkTools_ContractG2B:
     }
 
     if IsFunc("SSOK_Expense_G2B_Show")
-        SSOK_Expense_G2B_Show()
+    {
+        SSOK_G2B_ShowFunc := Func("SSOK_Expense_G2B_Show")
+        SSOK_G2B_ShowFunc.Call()
+    }
     else
         MsgBox, 48, SSOK 안내, 나라장터 교육청 선택 기능을 불러오지 못했습니다.
 return
@@ -5765,10 +6030,360 @@ SSOK_Advanced_CommaToggle:
         Gosub, %SSOK_ToolDynamicLabel%
 return
 
+SSOK_Advanced_MoneyToggle:
+    Gosub, SSOK_Advanced_SaveMovedPos
+    SSOK_ToolDynamicLabel := "SSOK_Sidebar_PrepareAction"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+    ; Win+F2와 동일한 기존 금액 한글화/토글 로직 사용
+    SSOK_ToolDynamicLabel := "SSOK_DoF2"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
+return
+
 SSOK_Advanced_AutoClick:
     Gosub, SSOK_Advanced_SaveMovedPos
     Gosub, SSOK_AutoClick_Show
 return
+
+SSOK_WorkTimer_Show:
+    if (SSOK_WorkTimerHwnd && WinExist("ahk_id " . SSOK_WorkTimerHwnd))
+    {
+        Gui, SSOKWorkTimer:Show
+        WinActivate, ahk_id %SSOK_WorkTimerHwnd%
+        return
+    }
+
+    SSOK_WorkTimerRunning := 0
+    SSOK_WorkTimerPaused := 0
+    SSOK_WorkTimerInitialSec := 180
+    SSOK_WorkTimerRemainingSec := 180
+    SSOK_WorkTimerStartTick := 0
+    SSOK_WorkTimerDurationMs := 0
+    SSOK_WorkTimerAlarmActive := 0
+
+    Gui, SSOKWorkTimer:Destroy
+    Gui, SSOKWorkTimer:+AlwaysOnTop +ToolWindow +HwndSSOK_WorkTimerHwnd
+    Gui, SSOKWorkTimer:Color, F7FBFF
+
+    Gui, SSOKWorkTimer:Font, s11 bold, Malgun Gothic
+    Gui, SSOKWorkTimer:Add, Text, x0 y10 w540 h26 Center c005BAC, 교육행정 업무용 타이머
+
+    Gui, SSOKWorkTimer:Font, s9 norm, Malgun Gothic
+    Gui, SSOKWorkTimer:Add, GroupBox, x12 y42 w516 h58, Presets
+    Gui, SSOKWorkTimer:Add, Radio, x24  y64 w58 h22 Group vSSOK_WorkTimerPreset gSSOK_WorkTimer_Preset Checked, 3분
+    Gui, SSOKWorkTimer:Add, Radio, x84  y64 w58 h22 gSSOK_WorkTimer_Preset, 5분
+    Gui, SSOKWorkTimer:Add, Radio, x144 y64 w58 h22 gSSOK_WorkTimer_Preset, 10분
+    Gui, SSOKWorkTimer:Add, Radio, x204 y64 w58 h22 gSSOK_WorkTimer_Preset, 15분
+    Gui, SSOKWorkTimer:Add, Radio, x264 y64 w58 h22 gSSOK_WorkTimer_Preset, 30분
+    Gui, SSOKWorkTimer:Add, Radio, x324 y64 w58 h22 gSSOK_WorkTimer_Preset, 45분
+    Gui, SSOKWorkTimer:Add, Radio, x384 y64 w58 h22 gSSOK_WorkTimer_Preset, 50분
+    Gui, SSOKWorkTimer:Add, Radio, x444 y64 w58 h22 gSSOK_WorkTimer_Preset, 60분
+
+    Gui, SSOKWorkTimer:Add, GroupBox, x12 y108 w350 h84, 직접 설정
+    Gui, SSOKWorkTimer:Add, Text, x34 y128 w72 h20 Center, 시
+    Gui, SSOKWorkTimer:Add, Text, x142 y128 w72 h20 Center, 분
+    Gui, SSOKWorkTimer:Add, Text, x250 y128 w72 h20 Center, 초
+    Gui, SSOKWorkTimer:Add, Edit, x34 y150 w72 h24 Center Number Limit2 vSSOK_WorkTimerHours gSSOK_WorkTimer_EditChanged, 0
+    Gui, SSOKWorkTimer:Add, UpDown, Range0-99, 0
+    Gui, SSOKWorkTimer:Add, Edit, x142 y150 w72 h24 Center Number Limit2 vSSOK_WorkTimerMinutes gSSOK_WorkTimer_EditChanged, 3
+    Gui, SSOKWorkTimer:Add, UpDown, Range0-59, 3
+    Gui, SSOKWorkTimer:Add, Edit, x250 y150 w72 h24 Center Number Limit2 vSSOK_WorkTimerSeconds gSSOK_WorkTimer_EditChanged, 0
+    Gui, SSOKWorkTimer:Add, UpDown, Range0-59, 0
+
+    Gui, SSOKWorkTimer:Add, Button, x382 y120 w126 h30 vSSOK_WorkTimerStartStop gSSOK_WorkTimer_StartStop, 시작
+    Gui, SSOKWorkTimer:Add, Button, x382 y158 w126 h30 gSSOK_WorkTimer_Reset, 초기화
+
+    Gui, SSOKWorkTimer:Font, s30 bold, Malgun Gothic
+    Gui, SSOKWorkTimer:Add, Text, x20 y202 w500 h52 Center vSSOK_WorkTimerDisplay, 00:03:00
+    Gui, SSOKWorkTimer:Font, s9 norm, Malgun Gothic
+    Gui, SSOKWorkTimer:Add, Progress, x20 y258 w500 h24 Range0-100 c00B050 BackgroundE6E6E6 vSSOK_WorkTimerProgress, 100
+
+    Gui, SSOKWorkTimer:Add, CheckBox, x302 y292 w105 h22 vSSOK_WorkTimerAutoRestart, 자동 재시작
+    Gui, SSOKWorkTimer:Add, CheckBox, x416 y292 w104 h22 vSSOK_WorkTimerRingForever, 알림 계속
+    Gui, SSOKWorkTimer:Add, Text, x20 y294 w260 h20 c666666 vSSOK_WorkTimerStatus, 대기 중
+
+    SSOK_Tool_GetSidebarAttachedGuiPos(540, 324, SSOK_WorkTimerWinX, SSOK_WorkTimerWinY)
+    Gui, SSOKWorkTimer:Show, x%SSOK_WorkTimerWinX% y%SSOK_WorkTimerWinY% w540 h324, 교육행정 업무용 타이머
+return
+
+SSOK_WorkTimer_Preset:
+    if (SSOK_WorkTimerRunning)
+    {
+        SetTimer, SSOK_WorkTimer_Tick, Off
+        SSOK_WorkTimerRunning := 0
+    }
+    Gosub, SSOK_WorkTimer_StopAlarm
+    SSOK_WorkTimerPaused := 0
+    Gui, SSOKWorkTimer:Submit, NoHide
+
+    if (SSOK_WorkTimerPreset = 1)
+        SSOK_WorkTimerPresetMin := 3
+    else if (SSOK_WorkTimerPreset = 2)
+        SSOK_WorkTimerPresetMin := 5
+    else if (SSOK_WorkTimerPreset = 3)
+        SSOK_WorkTimerPresetMin := 10
+    else if (SSOK_WorkTimerPreset = 4)
+        SSOK_WorkTimerPresetMin := 15
+    else if (SSOK_WorkTimerPreset = 5)
+        SSOK_WorkTimerPresetMin := 30
+    else if (SSOK_WorkTimerPreset = 6)
+        SSOK_WorkTimerPresetMin := 45
+    else if (SSOK_WorkTimerPreset = 7)
+        SSOK_WorkTimerPresetMin := 50
+    else
+        SSOK_WorkTimerPresetMin := 60
+
+    SSOK_WorkTimerPresetH := Floor(SSOK_WorkTimerPresetMin / 60)
+    SSOK_WorkTimerPresetM := Mod(SSOK_WorkTimerPresetMin, 60)
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerHours, %SSOK_WorkTimerPresetH%
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerMinutes, %SSOK_WorkTimerPresetM%
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerSeconds, 0
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 시작
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 대기 중
+    SSOK_WorkTimerInitialSec := SSOK_WorkTimerPresetMin * 60
+    SSOK_WorkTimerRemainingSec := SSOK_WorkTimerInitialSec
+    Gosub, SSOK_WorkTimer_UpdateDisplay
+return
+
+SSOK_WorkTimer_EditChanged:
+    if (SSOK_WorkTimerRunning)
+    {
+        SetTimer, SSOK_WorkTimer_Tick, Off
+        SSOK_WorkTimerRunning := 0
+        Gosub, SSOK_WorkTimer_StopAlarm
+        GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 시작
+    }
+
+    SSOK_WorkTimerPaused := 0
+    Gui, SSOKWorkTimer:Submit, NoHide
+    SSOK_WorkTimerH := SSOK_WorkTimerHours + 0
+    SSOK_WorkTimerM := SSOK_WorkTimerMinutes + 0
+    SSOK_WorkTimerS := SSOK_WorkTimerSeconds + 0
+    if (SSOK_WorkTimerH < 0)
+        SSOK_WorkTimerH := 0
+    if (SSOK_WorkTimerM < 0)
+        SSOK_WorkTimerM := 0
+    if (SSOK_WorkTimerM > 59)
+        SSOK_WorkTimerM := 59
+    if (SSOK_WorkTimerS < 0)
+        SSOK_WorkTimerS := 0
+    if (SSOK_WorkTimerS > 59)
+        SSOK_WorkTimerS := 59
+
+    SSOK_WorkTimerInitialSec := (SSOK_WorkTimerH * 3600) + (SSOK_WorkTimerM * 60) + SSOK_WorkTimerS
+    SSOK_WorkTimerRemainingSec := SSOK_WorkTimerInitialSec
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 대기 중
+    Gosub, SSOK_WorkTimer_UpdateDisplay
+return
+
+SSOK_WorkTimer_StartStop:
+    if (SSOK_WorkTimerAlarmActive && !SSOK_WorkTimerRunning)
+    {
+        Gosub, SSOK_WorkTimer_StopAlarm
+        GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 시작
+        GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 알림 중지
+        return
+    }
+
+    if (SSOK_WorkTimerRunning)
+    {
+        Gosub, SSOK_WorkTimer_Pause
+        return
+    }
+
+    Gosub, SSOK_WorkTimer_StopAlarm
+
+    if (!SSOK_WorkTimerPaused)
+    {
+        Gui, SSOKWorkTimer:Submit, NoHide
+        SSOK_WorkTimerH := SSOK_WorkTimerHours + 0
+        SSOK_WorkTimerM := SSOK_WorkTimerMinutes + 0
+        SSOK_WorkTimerS := SSOK_WorkTimerSeconds + 0
+
+        if (SSOK_WorkTimerM > 59 || SSOK_WorkTimerS > 59)
+        {
+            MsgBox, 48, 교육행정 업무용 타이머, 분과 초는 0~59 범위로 입력해 주세요.
+            return
+        }
+
+        SSOK_WorkTimerInitialSec := (SSOK_WorkTimerH * 3600) + (SSOK_WorkTimerM * 60) + SSOK_WorkTimerS
+        SSOK_WorkTimerRemainingSec := SSOK_WorkTimerInitialSec
+    }
+
+    if (SSOK_WorkTimerRemainingSec <= 0)
+    {
+        MsgBox, 48, 교육행정 업무용 타이머, 시간을 1초 이상 설정해 주세요.
+        return
+    }
+
+    if (SSOK_WorkTimerInitialSec <= 0)
+        SSOK_WorkTimerInitialSec := SSOK_WorkTimerRemainingSec
+
+    SSOK_WorkTimerDurationMs := SSOK_WorkTimerRemainingSec * 1000
+    SSOK_WorkTimerStartTick := A_TickCount
+    SSOK_WorkTimerRunning := 1
+    SSOK_WorkTimerPaused := 0
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 중지
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 실행 중
+    SetTimer, SSOK_WorkTimer_Tick, 200
+    Gosub, SSOK_WorkTimer_UpdateDisplay
+return
+
+SSOK_WorkTimer_Pause:
+    if (!SSOK_WorkTimerRunning)
+        return
+
+    SSOK_WorkTimerElapsedMs := A_TickCount - SSOK_WorkTimerStartTick
+    if (SSOK_WorkTimerElapsedMs < 0)
+        SSOK_WorkTimerElapsedMs += 4294967296
+    SSOK_WorkTimerRemainMs := SSOK_WorkTimerDurationMs - SSOK_WorkTimerElapsedMs
+    if (SSOK_WorkTimerRemainMs < 0)
+        SSOK_WorkTimerRemainMs := 0
+
+    SSOK_WorkTimerRemainingSec := Ceil(SSOK_WorkTimerRemainMs / 1000)
+    SSOK_WorkTimerRunning := 0
+    SSOK_WorkTimerPaused := 1
+    SetTimer, SSOK_WorkTimer_Tick, Off
+    Gosub, SSOK_WorkTimer_StopAlarm
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 시작
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 일시 정지
+    Gosub, SSOK_WorkTimer_UpdateDisplay
+return
+
+SSOK_WorkTimer_Reset:
+    SetTimer, SSOK_WorkTimer_Tick, Off
+    SSOK_WorkTimerRunning := 0
+    SSOK_WorkTimerPaused := 0
+    Gosub, SSOK_WorkTimer_StopAlarm
+    Gui, SSOKWorkTimer:Submit, NoHide
+
+    SSOK_WorkTimerH := SSOK_WorkTimerHours + 0
+    SSOK_WorkTimerM := SSOK_WorkTimerMinutes + 0
+    SSOK_WorkTimerS := SSOK_WorkTimerSeconds + 0
+    if (SSOK_WorkTimerM > 59)
+        SSOK_WorkTimerM := 59
+    if (SSOK_WorkTimerS > 59)
+        SSOK_WorkTimerS := 59
+    SSOK_WorkTimerInitialSec := (SSOK_WorkTimerH * 3600) + (SSOK_WorkTimerM * 60) + SSOK_WorkTimerS
+    SSOK_WorkTimerRemainingSec := SSOK_WorkTimerInitialSec
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 시작
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 대기 중
+    Gosub, SSOK_WorkTimer_UpdateDisplay
+return
+
+SSOK_WorkTimer_Tick:
+    if (!SSOK_WorkTimerRunning)
+        return
+
+    SSOK_WorkTimerElapsedMs := A_TickCount - SSOK_WorkTimerStartTick
+    if (SSOK_WorkTimerElapsedMs < 0)
+        SSOK_WorkTimerElapsedMs += 4294967296
+    SSOK_WorkTimerRemainMs := SSOK_WorkTimerDurationMs - SSOK_WorkTimerElapsedMs
+
+    if (SSOK_WorkTimerRemainMs <= 0)
+    {
+        SSOK_WorkTimerRemainingSec := 0
+        Gosub, SSOK_WorkTimer_UpdateDisplay
+        Gui, SSOKWorkTimer:Submit, NoHide
+
+        if (SSOK_WorkTimerRingForever)
+        {
+            SSOK_WorkTimerAlarmActive := 1
+            SetTimer, SSOK_WorkTimer_Ring, 850
+            Gosub, SSOK_WorkTimer_Ring
+        }
+        else
+        {
+            SoundBeep, 1200, 180
+            SoundBeep, 1600, 180
+            SoundBeep, 1200, 180
+        }
+
+        if (SSOK_WorkTimerAutoRestart && SSOK_WorkTimerInitialSec > 0)
+        {
+            SSOK_WorkTimerRemainingSec := SSOK_WorkTimerInitialSec
+            SSOK_WorkTimerDurationMs := SSOK_WorkTimerInitialSec * 1000
+            SSOK_WorkTimerStartTick := A_TickCount
+            SSOK_WorkTimerRunning := 1
+            SSOK_WorkTimerPaused := 0
+            GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 중지
+            GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 자동 재시작
+            Gosub, SSOK_WorkTimer_UpdateDisplay
+            return
+        }
+
+        SSOK_WorkTimerRunning := 0
+        SSOK_WorkTimerPaused := 0
+        SetTimer, SSOK_WorkTimer_Tick, Off
+        if (SSOK_WorkTimerAlarmActive)
+        {
+            GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 중지
+            GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 시간 종료 - 알림 중
+        }
+        else
+        {
+            GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStartStop, 시작
+            GuiControl, SSOKWorkTimer:, SSOK_WorkTimerStatus, 시간 종료
+        }
+        return
+    }
+
+    SSOK_WorkTimerRemainingSec := Ceil(SSOK_WorkTimerRemainMs / 1000)
+    Gosub, SSOK_WorkTimer_UpdateDisplay
+return
+
+SSOK_WorkTimer_Ring:
+    if (!SSOK_WorkTimerAlarmActive)
+    {
+        SetTimer, SSOK_WorkTimer_Ring, Off
+        return
+    }
+    SoundBeep, 1450, 180
+return
+
+SSOK_WorkTimer_StopAlarm:
+    SSOK_WorkTimerAlarmActive := 0
+    SetTimer, SSOK_WorkTimer_Ring, Off
+return
+
+SSOK_WorkTimer_UpdateDisplay:
+    SSOK_WorkTimerDisplayText := SSOK_WorkTimer_FormatTime(SSOK_WorkTimerRemainingSec)
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerDisplay, %SSOK_WorkTimerDisplayText%
+
+    if (SSOK_WorkTimerInitialSec > 0)
+        SSOK_WorkTimerPercent := Floor((SSOK_WorkTimerRemainingSec * 100) / SSOK_WorkTimerInitialSec)
+    else
+        SSOK_WorkTimerPercent := 0
+
+    if (SSOK_WorkTimerPercent < 0)
+        SSOK_WorkTimerPercent := 0
+    if (SSOK_WorkTimerPercent > 100)
+        SSOK_WorkTimerPercent := 100
+    GuiControl, SSOKWorkTimer:, SSOK_WorkTimerProgress, %SSOK_WorkTimerPercent%
+return
+
+SSOKWorkTimerGuiClose:
+SSOKWorkTimerGuiEscape:
+    Gui, SSOKWorkTimer:Hide
+return
+
+SSOK_WorkTimer_FormatTime(totalSec)
+{
+    totalSec := Floor(totalSec + 0)
+    if (totalSec < 0)
+        totalSec := 0
+    hours := Floor(totalSec / 3600)
+    minutes := Floor(Mod(totalSec, 3600) / 60)
+    seconds := Mod(totalSec, 60)
+    return SSOK_WorkTimer_Pad2(hours) . ":" . SSOK_WorkTimer_Pad2(minutes) . ":" . SSOK_WorkTimer_Pad2(seconds)
+}
+
+SSOK_WorkTimer_Pad2(value)
+{
+    value := Floor(value + 0)
+    return (value < 10 ? "0" . value : value)
+}
 
 SSOK_Advanced_SchoolSearch:
     Gosub, SSOK_Advanced_SaveMovedPos
@@ -6385,7 +7000,8 @@ SSOK_SchoolSearch_Show:
     SSOK_SchoolSearch_AutoRetryDone := 0
     SetTimer, SSOK_SchoolSearch_AutoLoad, -700
     ; 데이터포털 메타데이터는 별도로 읽어 상단 제목/날짜/건수를 최신화
-    SetTimer, SSOK_SchoolSearch_LoadPortalMeta, -120
+
+SetTimer, SSOK_SchoolSearch_LoadPortalMeta, -120
 return
 
 SSOK_SchoolSearch_LoadPortalMeta:
@@ -7385,7 +8001,8 @@ SSOK_DoF3:
         SSOK_AI_TargetHwnd := SSOK_SidebarTargetHwnd
 
     ClipSaved := ClipboardAll
-    Clipboard := ""
+
+Clipboard := ""
 
     ; 기존 방식 지원: 블록 지정/복사 후 Win+F3 실행
     ; 포커스가 늦게 돌아오는 경우가 있어 2회 확인
@@ -8188,6 +8805,13 @@ SSOK_AdminCalendar_PopupHide:
     Gui, SSOKAdminCalPopup:Destroy
 return
 
+; 행정업무 달력 팝업의 [식단정보 바로가기]
+; 메인에 저장된 우리학교를 SSOK 교육정보 창으로 열고 식단정보 탭을 바로 선택합니다.
+SSOK_AdminCalendar_OpenMealInfo:
+    Gui, SSOKAdminCalPopup:Destroy
+    SSOK_AdminCalendar_OpenMySchoolMealInfo()
+return
+
 SSOK_AdminCalendar_Save:
     Gui, SSOKAdminCalSettings:Submit, NoHide
 
@@ -8385,7 +9009,8 @@ SSOK_AdminCalendar_ShowSettings()
 
     Gui, SSOKAdminCalSettings:Font, s9 Bold, Malgun Gothic
     Gui, SSOKAdminCalSettings:Add, Text, x16 y+15 w390 h22, 지역
-    Gui, SSOKAdminCalSettings:Font, s9 Norm, Malgun Gothic
+
+Gui, SSOKAdminCalSettings:Font, s9 Norm, Malgun Gothic
     Gui, SSOKAdminCalSettings:Add, Checkbox, x24 y+2 w80 h24 vSSOK_AdminCalCfgSeoul, 서울
     Gui, SSOKAdminCalSettings:Add, Checkbox, x112 yp w80 h24 vSSOK_AdminCalCfgJeonbuk, 전북
     GuiControl, SSOKAdminCalSettings:, SSOK_AdminCalCfgSeoul, %SSOK_AdminCalUseSeoul%
@@ -8624,11 +9249,29 @@ SSOK_AdminCalendar_ShowTodayPopup(manual := false)
     FormatTime, dateTitle,, M월 d일
     title := dateTitle . " 오늘의 행정업무 달력"
 
-    if (result.ok)
+    ; 서울/전북 일정과 별개로, 설정된 기관의 학교 일정/급식은 항상 조회합니다.
+    schoolWeek := SSOK_AdminCalendar_GetMySchoolWeekSchedule()
+    schoolLine := IsObject(schoolWeek) ? schoolWeek.text : ""
+    schoolHasSchedule := IsObject(schoolWeek) && schoolWeek.hasEvents
+    schoolMeal := SSOK_AdminCalendar_GetMySchoolTodayMeals()
+    mealLine := IsObject(schoolMeal) ? schoolMeal.text : ""
+
+    ; 설정된 학교에 금주 학사일정이 있으면 서울/전북 일정은 표시하지 않습니다.
+    ; 학교 학사일정 + 오늘 급식만 간단히 표시합니다.
+    if (schoolHasSchedule)
+    {
+        SSOK_AdminCalendar_ShowSchoolOnlyPopup(title, schoolLine, mealLine)
+    }
+    else if (result.ok)
     {
         seoulEvents := IsObject(result.seoulEvents) ? result.seoulEvents : []
         jeonbukEvents := IsObject(result.jeonbukEvents) ? result.jeonbukEvents : []
-        SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents)
+        SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLine, mealLine)
+    }
+    else if (Trim(schoolLine) != "" || Trim(mealLine) != "")
+    {
+        ; 지역 행정달력 조회에 실패해도 학교 일정/급식이 있으면 그 정보는 표시합니다.
+        SSOK_AdminCalendar_ShowPopupColumns(title, [], [], schoolLine, mealLine)
     }
     else
     {
@@ -8677,57 +9320,45 @@ SSOK_AdminCalendar_ShowPopup(title, body, duration := 8500)
     Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
 }
 
-SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents)
+SSOK_AdminCalendar_ShowSchoolOnlyPopup(title, schoolLine, mealLine := "")
 {
-    global SSOK_AdminCalPopupHwnd, SSOK_AdminCalSeoulBody, SSOK_AdminCalJeonbukBody
+    global SSOK_AdminCalPopupHwnd, SSOK_AdminCalSchoolBody
 
-    seoulText := SSOK_AdminCalendar_FormatEventsAll(seoulEvents)
-    jeonbukText := SSOK_AdminCalendar_FormatEventsAll(jeonbukEvents)
-
-    ; 서울/전북 모두 오늘 일정이 없으면 팝업을 띄우지 않는다.
-    if (seoulText = "" && jeonbukText = "")
-    {
-        Gui, SSOKAdminCalPopup:Destroy
+    schoolDisplay := Trim(schoolLine)
+    mealDisplay := Trim(mealLine)
+    if (schoolDisplay = "" && mealDisplay = "")
         return
-    }
-
-    ; 일정이 없는 지역은 "일정 없음" 문구를 표시하지 않고 빈칸으로 둔다.
-    seoulDisplay := (seoulText = "" ? " " : seoulText)
-    jeonbukDisplay := (jeonbukText = "" ? " " : jeonbukText)
-
-    bodyY := 66
 
     Gui, SSOKAdminCalPopup:Destroy
     Gui, SSOKAdminCalPopup:New, +AlwaysOnTop -Caption +ToolWindow +Border +HwndSSOK_AdminCalPopupHwnd
     Gui, SSOKAdminCalPopup:Color, FFF8D8
-    Gui, SSOKAdminCalPopup:Margin, 20, 16
+    Gui, SSOKAdminCalPopup:Margin, 18, 12
 
-    ; 제목은 기본 크기, 지역명은 작고 연한 회색으로 각 칸 좌측 상단에 표시
-    Gui, SSOKAdminCalPopup:Font, s9 Bold, Malgun Gothic
-    Gui, SSOKAdminCalPopup:Add, Text, x20 y16 w740 h24 Center, %title%
+    ; 가로폭은 유지하고, 본문 글꼴은 주간일정 기준 8pt로 통일
+    Gui, SSOKAdminCalPopup:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x20 y13 w920 h22 Center, %title%
 
-    Gui, SSOKAdminCalPopup:Font, s6 Normal c909090, Malgun Gothic
-    Gui, SSOKAdminCalPopup:Add, Text, x24 y47 w350 h14 Left, 서울
-    Gui, SSOKAdminCalPopup:Add, Text, x404 y47 w350 h14 Left, 전북
+    nextY := 45
+    if (schoolDisplay != "")
+    {
+        Gui, SSOKAdminCalPopup:Font, s8 Bold c30445A, Malgun Gothic
+        Gui, SSOKAdminCalPopup:Add, Text, x24 y%nextY% w910 vSSOK_AdminCalSchoolBody Left, %schoolDisplay%
+        GuiControlGet, schoolPos, Pos, SSOK_AdminCalSchoolBody
+        schoolH := schoolPosH
+        if (schoolH < 18)
+            schoolH := 18
+        nextY += schoolH + 4
+    }
 
-    ; 일정 본문은 높이를 고정하지 않는다. 실제 표시되는 문구 수/줄바꿈에 맞춰 자동 높이로 생성한다.
-    Gui, SSOKAdminCalPopup:Font, s9 Normal c000000, Malgun Gothic
-    Gui, SSOKAdminCalPopup:Add, Text, x24 y%bodyY% w350 +0x80 Left vSSOK_AdminCalSeoulBody, %seoulDisplay%
-    Gui, SSOKAdminCalPopup:Add, Text, x404 y%bodyY% w350 +0x80 Left vSSOK_AdminCalJeonbukBody, %jeonbukDisplay%
+    ; 조식/중식/석식은 라벨과 내용을 분리해 줄바꿈되어도 내용 시작점에 맞춰 들여쓰기
+    if (mealDisplay != "")
+        nextY := SSOK_AdminCalendar_AddMealRows(mealDisplay, 24, nextY, 910)
 
-    GuiControlGet, seoulPos, Pos, SSOK_AdminCalSeoulBody
-    GuiControlGet, jeonbukPos, Pos, SSOK_AdminCalJeonbukBody
-    contentH := (seoulPosH > jeonbukPosH ? seoulPosH : jeonbukPosH)
-    if (contentH < 20)
-        contentH := 20
-
-    ; 가운데 구분선만 아주 옅게 표시하고, 서울/전북 아래 가로선은 사용하지 않는다.
-    sepY := 46
-    sepH := bodyY + contentH - sepY + 2
-    Gui, SSOKAdminCalPopup:Add, Progress, x390 y%sepY% w1 h%sepH% cE8E3D3 BackgroundE8E3D3, 100
-
-    buttonY := bodyY + contentH + 16
-    Gui, SSOKAdminCalPopup:Add, Button, x330 y%buttonY% w120 h30 gSSOK_AdminCalendar_PopupHide, 확인
+    buttonY := nextY + 4
+    Gui, SSOKAdminCalPopup:Add, Button, x420 y%buttonY% w120 h28 gSSOK_AdminCalendar_PopupHide, 확인
+    linkY := buttonY + 4
+    Gui, SSOKAdminCalPopup:Font, s8 underline c0066CC, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x550 y%linkY% w135 h20 +0x200 Center gSSOK_AdminCalendar_OpenMealInfo, 식단정보 바로가기
 
     SysGet, SSOK_AdminWork, MonitorWorkArea
     workLeft := SSOK_AdminWorkLeft
@@ -8740,9 +9371,9 @@ SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents)
     if (workTop = "")
         workTop := 0
 
-    popupOuterW := 800
+    popupOuterW := 960
     popupX := workLeft + ((workRight - workLeft - popupOuterW) // 2)
-    popupY := workTop + 28
+    popupY := workTop + 24
     if (popupX < workLeft)
         popupX := workLeft
     if (popupY < workTop)
@@ -8752,6 +9383,152 @@ SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents)
     Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
 }
 
+SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLine := "", mealLine := "")
+{
+    global SSOK_AdminCalPopupHwnd, SSOK_AdminCalSeoulBody, SSOK_AdminCalJeonbukBody
+    global SSOK_AdminCalSchoolBody
+
+    seoulText := SSOK_AdminCalendar_FormatEventsAll(seoulEvents)
+    jeonbukText := SSOK_AdminCalendar_FormatEventsAll(jeonbukEvents)
+    schoolDisplay := Trim(schoolLine)
+    mealDisplay := Trim(mealLine)
+
+    ; 서울/전북 일정이 없어도 학교 학사일정 또는 급식이 있으면 팝업을 표시합니다.
+    if (seoulText = "" && jeonbukText = "" && schoolDisplay = "" && mealDisplay = "")
+    {
+        Gui, SSOKAdminCalPopup:Destroy
+        return
+    }
+
+    ; 일정이 없는 지역은 "일정 없음" 문구를 표시하지 않고 빈칸으로 둔다.
+    seoulDisplay := (seoulText = "" ? " " : seoulText)
+    jeonbukDisplay := (jeonbukText = "" ? " " : jeonbukText)
+
+    bodyY := 59
+
+    Gui, SSOKAdminCalPopup:Destroy
+    Gui, SSOKAdminCalPopup:New, +AlwaysOnTop -Caption +ToolWindow +Border +HwndSSOK_AdminCalPopupHwnd
+    Gui, SSOKAdminCalPopup:Color, FFF8D8
+    Gui, SSOKAdminCalPopup:Margin, 18, 12
+
+    ; 서울/전북 일정이 많아져도 줄바꿈을 줄이도록 폭은 유지하고, 주간일정/급식 본문은 8pt로 통일
+    Gui, SSOKAdminCalPopup:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x20 y13 w920 h22 Center, %title%
+
+    Gui, SSOKAdminCalPopup:Font, s6 Normal c909090, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x24 y40 w435 h13 Left, 서울
+    Gui, SSOKAdminCalPopup:Add, Text, x505 y40 w435 h13 Left, 전북
+
+    Gui, SSOKAdminCalPopup:Font, s8 Normal c000000, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x24 y%bodyY% w435 +0x80 Left vSSOK_AdminCalSeoulBody, %seoulDisplay%
+    Gui, SSOKAdminCalPopup:Add, Text, x505 y%bodyY% w435 +0x80 Left vSSOK_AdminCalJeonbukBody, %jeonbukDisplay%
+
+    GuiControlGet, seoulPos, Pos, SSOK_AdminCalSeoulBody
+    GuiControlGet, jeonbukPos, Pos, SSOK_AdminCalJeonbukBody
+    contentH := (seoulPosH > jeonbukPosH ? seoulPosH : jeonbukPosH)
+    if (contentH < 18)
+        contentH := 18
+
+    ; 세로 구분선은 실제 서울/전북 일정 높이에 맞춰 자동 연장
+    sepY := 39
+    sepH := bodyY + contentH - sepY + 2
+    Gui, SSOKAdminCalPopup:Add, Progress, x482 y%sepY% w1 h%sepH% cE8E3D3 BackgroundE8E3D3, 100
+
+    nextY := bodyY + contentH + 7
+
+    ; 메인 상단 기관명에 연결된 학교의 이번 주(월~일) 학사일정
+    if (schoolDisplay != "")
+    {
+        Gui, SSOKAdminCalPopup:Font, s8 Bold c30445A, Malgun Gothic
+        Gui, SSOKAdminCalPopup:Add, Text, x24 y%nextY% w916 vSSOK_AdminCalSchoolBody Left, %schoolDisplay%
+        GuiControlGet, schoolPos, Pos, SSOK_AdminCalSchoolBody
+        schoolH := schoolPosH
+        if (schoolH < 18)
+            schoolH := 18
+        nextY += schoolH + 3
+    }
+
+    ; 오늘 급식: 조식/중식/석식 모두 같은 들여쓰기 규칙 적용
+    if (mealDisplay != "")
+        nextY := SSOK_AdminCalendar_AddMealRows(mealDisplay, 24, nextY, 916)
+
+    buttonY := nextY + 3
+    Gui, SSOKAdminCalPopup:Add, Button, x420 y%buttonY% w120 h28 gSSOK_AdminCalendar_PopupHide, 확인
+    linkY := buttonY + 4
+    Gui, SSOKAdminCalPopup:Font, s8 underline c0066CC, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x550 y%linkY% w135 h20 +0x200 Center gSSOK_AdminCalendar_OpenMealInfo, 식단정보 바로가기
+
+    SysGet, SSOK_AdminWork, MonitorWorkArea
+    workLeft := SSOK_AdminWorkLeft
+    workRight := SSOK_AdminWorkRight
+    workTop := SSOK_AdminWorkTop
+    if (workLeft = "")
+        workLeft := 0
+    if (workRight = "" || workRight <= workLeft)
+        workRight := A_ScreenWidth
+    if (workTop = "")
+        workTop := 0
+
+    popupOuterW := 960
+    popupX := workLeft + ((workRight - workLeft - popupOuterW) // 2)
+    popupY := workTop + 24
+    if (popupX < workLeft)
+        popupX := workLeft
+    if (popupY < workTop)
+        popupY := workTop
+
+    SetTimer, SSOK_AdminCalendar_PopupHide, Off
+    Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
+}
+
+
+; 급식 행을 "조식:/중식:/석식:" 라벨과 내용으로 나눠 그립니다.
+; 내용이 두 줄 이상으로 내려가도 첫 줄의 메뉴 시작 위치에 맞춰 자동 들여쓰기됩니다.
+SSOK_AdminCalendar_AddMealRows(mealDisplay, x, y, totalW)
+{
+    lines := StrSplit(StrReplace(mealDisplay, "`r", ""), "`n")
+    labelW := 38
+    gap := 5
+    bodyX := x + labelW + gap
+    bodyW := totalW - labelW - gap
+
+    Gui, SSOKAdminCalPopup:Font, s8 Normal c30445A, Malgun Gothic
+
+    for _, rawLine in lines
+    {
+        line := Trim(rawLine)
+        if (line = "")
+            continue
+
+        colonPos := InStr(line, ":")
+        if (colonPos > 0)
+        {
+            label := Trim(SubStr(line, 1, colonPos))
+            body := Trim(SubStr(line, colonPos + 1))
+        }
+        else
+        {
+            label := ""
+            body := line
+        }
+
+        if (label != "")
+        {
+            Gui, SSOKAdminCalPopup:Font, s8 Bold c30445A, Malgun Gothic
+            Gui, SSOKAdminCalPopup:Add, Text, x%x% y%y% w%labelW% h18 Left, %label%
+        }
+
+        Gui, SSOKAdminCalPopup:Font, s8 Normal c30445A, Malgun Gothic
+        Gui, SSOKAdminCalPopup:Add, Text, x%bodyX% y%y% w%bodyW% hwndhMealBody Left, %body%
+        GuiControlGet, mealPos, Pos, %hMealBody%
+        rowH := mealPosH
+        if (rowH < 18)
+            rowH := 18
+        y += rowH + 2
+    }
+
+    return y + 2
+}
 SSOK_AdminCalendar_GetTodaySchedule()
 {
     global SSOK_AdminCalCacheDate
@@ -8840,6 +9617,579 @@ SSOK_AdminCalendar_GetTodaySchedule()
     SSOK_AdminCalCacheSeoulEvents := seoulEvents
     SSOK_AdminCalCacheJeonbukEvents := jeonbukEvents
     return result
+}
+
+
+; =========================================================
+; 행정업무 달력 -> SSOK 교육정보 -> 우리학교 식단정보 바로가기
+; - [MySchool]에 저장된 학교를 우선 사용
+; - 학교코드가 없으면 메인 기관명을 정확히 검색하여 자동 연결
+; - SSOK 본체의 교육정보 창을 열고 '식단정보' 탭(2번)을 바로 선택
+; =========================================================
+SSOK_AdminCalendar_OpenMySchoolMealInfo()
+{
+    ini := SSOK_AdminCalendar_GetIniFile()
+
+    IniRead, orgName, %ini%, MajorTodos, OrgName, __SSOK_EMPTY__
+    IniRead, schoolName, %ini%, MySchool, Name, __SSOK_EMPTY__
+    IniRead, officeCode, %ini%, MySchool, OfficeCode, __SSOK_EMPTY__
+    IniRead, schoolCode, %ini%, MySchool, SchoolCode, __SSOK_EMPTY__
+    IniRead, officeName, %ini%, MySchool, OfficeName, __SSOK_EMPTY__
+    IniRead, schoolKind, %ini%, MySchool, SchoolKind, __SSOK_EMPTY__
+    IniRead, supportOffice, %ini%, MySchool, SupportOffice, __SSOK_EMPTY__
+    IniRead, schoolAddress, %ini%, MySchool, Address, __SSOK_EMPTY__
+
+    orgName := Trim(orgName)
+    schoolName := Trim(schoolName)
+    officeCode := Trim(officeCode)
+    schoolCode := Trim(schoolCode)
+    officeName := Trim(officeName)
+    schoolKind := Trim(schoolKind)
+    supportOffice := Trim(supportOffice)
+    schoolAddress := Trim(schoolAddress)
+
+    needResolve := (schoolName = "" || schoolName = "__SSOK_EMPTY__"
+        || officeCode = "" || officeCode = "__SSOK_EMPTY__"
+        || schoolCode = "" || schoolCode = "__SSOK_EMPTY__")
+
+    if (!needResolve && orgName != "" && orgName != "__SSOK_EMPTY__" && schoolName != orgName)
+        needResolve := true
+
+    if (needResolve)
+    {
+        if (orgName = "" || orgName = "__SSOK_EMPTY__")
+        {
+            MsgBox, 48, SSOK 안내, 메인 화면의 기관명을 먼저 설정해 주세요.
+            return false
+        }
+
+        exact := SSOK_AdminCalendar_FindExactSchool(orgName)
+        cnt := IsObject(exact) ? exact.Length() : 0
+        if (cnt != 1)
+        {
+            MsgBox, 48, SSOK 안내, 현재 기관명과 정확히 일치하는 학교를 찾지 못했습니다.`n`n기관명: %orgName%
+            return false
+        }
+
+        school := exact[1]
+        schoolName := school.schoolName
+        officeCode := school.officeCode
+        schoolCode := school.schoolCode
+        officeName := school.officeName
+        schoolKind := school.kind
+        supportOffice := school.parentOrg
+        schoolAddress := school.address
+
+        IniWrite, %schoolName%, %ini%, MySchool, Name
+        IniWrite, %officeCode%, %ini%, MySchool, OfficeCode
+        IniWrite, %schoolCode%, %ini%, MySchool, SchoolCode
+        IniWrite, %officeName%, %ini%, MySchool, OfficeName
+        IniWrite, %schoolKind%, %ini%, MySchool, SchoolKind
+        IniWrite, %supportOffice%, %ini%, MySchool, SupportOffice
+        IniWrite, %schoolAddress%, %ini%, MySchool, Address
+    }
+
+    if (!IsFunc("SSOK_EDU_OpenSchool"))
+    {
+        MsgBox, 48, SSOK 안내, 이 바로가기는 SSOK 본체의 [교육정보] 기능과 함께 사용할 때 동작합니다.
+        return false
+    }
+
+    school := {schoolName:schoolName
+             , officeCode:officeCode
+             , schoolCode:schoolCode
+             , officeName:(officeName = "__SSOK_EMPTY__" ? "" : officeName)
+             , kind:(schoolKind = "__SSOK_EMPTY__" ? "" : schoolKind)
+             , parentOrg:(supportOffice = "__SSOK_EMPTY__" ? "" : supportOffice)
+             , address:(schoolAddress = "__SSOK_EMPTY__" ? "" : schoolAddress)
+             , homepage:""}
+
+    fn := Func("SSOK_EDU_OpenSchool")
+    fn.Call(school)
+
+    ; SSOK 교육정보 창이 만들어진 뒤 두 번째 탭인 '식단정보'를 선택합니다.
+    GuiControl, SSOKEDU:Choose, SSOK_EDU_Tab, 2
+    if (IsFunc("SSOK_EDU_LoadMeal"))
+    {
+        fnMeal := Func("SSOK_EDU_LoadMeal")
+        fnMeal.Call()
+    }
+    return true
+}
+
+; =========================================================
+; 메인 기관명에 연결된 학교의 금주(월~일) 학사일정 - 나이스 OPEN API
+; [MySchool]의 교육청코드/학교코드를 우선 사용하고, 없을 때만 기관명을 정확히 검색합니다.
+; =========================================================
+SSOK_AdminCalendar_GetMySchoolWeekSchedule()
+{
+    global SSOK_AdminCalSchoolWeekCacheKey, SSOK_AdminCalSchoolWeekCacheText, SSOK_AdminCalSchoolWeekCacheHasEvents
+
+    ini := SSOK_AdminCalendar_GetIniFile()
+    IniRead, orgName, %ini%, MajorTodos, OrgName, __SSOK_EMPTY__
+    orgName := Trim(orgName)
+    if (orgName = "" || orgName = "__SSOK_EMPTY__")
+        return {ok:false, text:""}
+
+    IniRead, savedName, %ini%, MySchool, Name, __SSOK_EMPTY__
+    IniRead, officeCode, %ini%, MySchool, OfficeCode, __SSOK_EMPTY__
+    IniRead, schoolCode, %ini%, MySchool, SchoolCode, __SSOK_EMPTY__
+    savedName := Trim(savedName)
+    officeCode := Trim(officeCode)
+    schoolCode := Trim(schoolCode)
+
+    ; 기관명이 바뀌었거나 아직 학교코드가 없으면 정확히 같은 학교명을 한 번 자동 검색합니다.
+    if (savedName != orgName || officeCode = "" || officeCode = "__SSOK_EMPTY__"
+        || schoolCode = "" || schoolCode = "__SSOK_EMPTY__")
+    {
+        exact := SSOK_AdminCalendar_FindExactSchool(orgName)
+        cnt := IsObject(exact) ? exact.Length() : 0
+        if (cnt = 1)
+        {
+            school := exact[1]
+            officeCode := school.officeCode
+            schoolCode := school.schoolCode
+            IniWrite, % school.schoolName, %ini%, MySchool, Name
+            IniWrite, % officeCode, %ini%, MySchool, OfficeCode
+            IniWrite, % schoolCode, %ini%, MySchool, SchoolCode
+            IniWrite, % school.officeName, %ini%, MySchool, OfficeName
+            IniWrite, % school.kind, %ini%, MySchool, SchoolKind
+            IniWrite, % school.parentOrg, %ini%, MySchool, SupportOffice
+            IniWrite, % school.address, %ini%, MySchool, Address
+        }
+        else if (cnt > 1)
+            return {ok:false, text:orgName . ": 동명이교 선택 필요"}
+        else
+            return {ok:false, text:orgName . ": 나이스 학교정보 없음"}
+    }
+
+    SSOK_AdminCalendar_GetWeekRange(weekFrom, weekTo)
+    cacheKey := orgName . "|" . officeCode . "|" . schoolCode . "|" . weekFrom
+    if (SSOK_AdminCalSchoolWeekCacheKey = cacheKey && SSOK_AdminCalSchoolWeekCacheText != "")
+        return {ok:true, text:SSOK_AdminCalSchoolWeekCacheText, hasEvents:SSOK_AdminCalSchoolWeekCacheHasEvents}
+
+    params := Object("ATPT_OFCDC_SC_CODE", officeCode
+                   , "SD_SCHUL_CODE", schoolCode
+                   , "AA_FROM_YMD", weekFrom
+                   , "AA_TO_YMD", weekTo)
+    url := SSOK_AdminCalendar_NeisBuildUrl("SchoolSchedule", params, 100)
+    resp := SSOK_AdminCalendar_NeisHttpGet(url)
+
+    if (!resp.ok)
+        return {ok:false, text:orgName . ": 학사일정 조회 실패"}
+
+    events := SSOK_AdminCalendar_ParseNeisSchoolSchedule(resp.text)
+    hasEvents := IsObject(events) && events.Length() > 0
+    if (!hasEvents)
+        line := "주간일정: 금주 학사일정 없음"
+    else
+        line := "주간일정: " . SSOK_AdminCalendar_FormatSchoolWeekEvents(events)
+
+    SSOK_AdminCalSchoolWeekCacheKey := cacheKey
+    SSOK_AdminCalSchoolWeekCacheText := line
+    SSOK_AdminCalSchoolWeekCacheHasEvents := hasEvents
+    return {ok:true, text:line, hasEvents:hasEvents}
+}
+
+; =========================================================
+; 메인 기관명에 연결된 학교의 오늘 급식 - 나이스 OPEN API
+; 조식/중식/석식 중 실제로 제공되는 급식만 표시합니다.
+; =========================================================
+SSOK_AdminCalendar_GetMySchoolTodayMeals()
+{
+    global SSOK_AdminCalMealCacheKey, SSOK_AdminCalMealCacheText
+
+    ini := SSOK_AdminCalendar_GetIniFile()
+    IniRead, orgName, %ini%, MajorTodos, OrgName, __SSOK_EMPTY__
+    orgName := Trim(orgName)
+    if (orgName = "" || orgName = "__SSOK_EMPTY__")
+        return {ok:false, text:""}
+
+    IniRead, savedName, %ini%, MySchool, Name, __SSOK_EMPTY__
+    IniRead, officeCode, %ini%, MySchool, OfficeCode, __SSOK_EMPTY__
+    IniRead, schoolCode, %ini%, MySchool, SchoolCode, __SSOK_EMPTY__
+    savedName := Trim(savedName)
+    officeCode := Trim(officeCode)
+    schoolCode := Trim(schoolCode)
+
+    ; 학교코드가 없거나 기관명이 바뀌었으면 정확히 같은 학교명을 자동 검색합니다.
+    if (savedName != orgName || officeCode = "" || officeCode = "__SSOK_EMPTY__"
+        || schoolCode = "" || schoolCode = "__SSOK_EMPTY__")
+    {
+        exact := SSOK_AdminCalendar_FindExactSchool(orgName)
+        cnt := IsObject(exact) ? exact.Length() : 0
+        if (cnt = 1)
+        {
+            school := exact[1]
+            officeCode := school.officeCode
+            schoolCode := school.schoolCode
+            IniWrite, % school.schoolName, %ini%, MySchool, Name
+            IniWrite, % officeCode, %ini%, MySchool, OfficeCode
+            IniWrite, % schoolCode, %ini%, MySchool, SchoolCode
+            IniWrite, % school.officeName, %ini%, MySchool, OfficeName
+            IniWrite, % school.kind, %ini%, MySchool, SchoolKind
+            IniWrite, % school.parentOrg, %ini%, MySchool, SupportOffice
+            IniWrite, % school.address, %ini%, MySchool, Address
+        }
+        else
+            return {ok:false, text:""}
+    }
+
+    todayKey := A_YYYY . A_MM . A_DD
+    cacheKey := orgName . "|" . officeCode . "|" . schoolCode . "|" . todayKey
+    if (SSOK_AdminCalMealCacheKey = cacheKey)
+        return {ok:true, text:SSOK_AdminCalMealCacheText}
+
+    params := Object("ATPT_OFCDC_SC_CODE", officeCode
+                   , "SD_SCHUL_CODE", schoolCode
+                   , "MLSV_YMD", todayKey)
+    url := SSOK_AdminCalendar_NeisBuildUrl("mealServiceDietInfo", params, 20)
+    resp := SSOK_AdminCalendar_NeisHttpGet(url)
+
+    if (!resp.ok)
+        return {ok:false, text:""}
+
+    meals := SSOK_AdminCalendar_ParseNeisMeals(resp.text)
+    line := SSOK_AdminCalendar_FormatTodayMeals(meals)
+
+    SSOK_AdminCalMealCacheKey := cacheKey
+    SSOK_AdminCalMealCacheText := line
+    return {ok:true, text:line}
+}
+
+SSOK_AdminCalendar_ParseNeisMeals(xml)
+{
+    meals := []
+    seen := {}
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return meals
+
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            mealType := SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "MMEAL_SC_NM"))
+            mealCode := SSOK_AdminCalendar_XmlText(row, "MMEAL_SC_CODE")
+            dish := SSOK_AdminCalendar_CleanMealText(SSOK_AdminCalendar_XmlText(row, "DDISH_NM"))
+            calInfo := SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "CAL_INFO"))
+            if (mealType = "" || dish = "")
+                continue
+            uniq := mealType . "|" . dish
+            if (seen.HasKey(uniq))
+                continue
+            seen[uniq] := 1
+            meals.Push({mealType:mealType, mealCode:mealCode, dish:dish, calInfo:calInfo})
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return meals
+}
+
+SSOK_AdminCalendar_CleanMealText(text)
+{
+    text := RegExReplace(text, "i)<br\s*/?>", " · ")
+    text := StrReplace(text, "`r", " ")
+    text := StrReplace(text, "`n", " · ")
+    text := StrReplace(text, "*", "")
+    ; 나이스 급식 메뉴 뒤의 알레르기 번호 표기 (예: 5.6.9.)는 화면에서 제거합니다.
+    text := RegExReplace(text, "\(\s*\d+(?:\.\d+)*\.?\s*\)", "")
+    text := RegExReplace(text, "\s*·\s*", " · ")
+    text := RegExReplace(text, "( · ){2,}", " · ")
+    text := RegExReplace(text, "\s+", " ")
+    return Trim(text, " ·`t`r`n")
+}
+
+SSOK_AdminCalendar_FormatTodayMeals(meals)
+{
+    if (!IsObject(meals) || meals.Length() < 1)
+        return ""
+
+    out := ""
+    order := ["조식", "중식", "석식"]
+
+    for _, wanted in order
+    {
+        for idx, item in meals
+        {
+            if (item.mealType != wanted)
+                continue
+            part := wanted . ": " . item.dish
+            if (Trim(item.calInfo) != "")
+                part .= " · " . Trim(item.calInfo)
+            out .= (out = "" ? "" : "`n") . part
+        }
+    }
+
+    ; 표준 3종 외의 급식 구분이 내려오면 누락하지 않고 뒤에 표시합니다.
+    for idx, item in meals
+    {
+        if (item.mealType = "조식" || item.mealType = "중식" || item.mealType = "석식")
+            continue
+        part := item.mealType . ": " . item.dish
+        if (Trim(item.calInfo) != "")
+            part .= " · " . Trim(item.calInfo)
+        out .= (out = "" ? "" : "`n") . part
+    }
+    return out
+}
+
+SSOK_AdminCalendar_GetWeekRange(ByRef weekFrom, ByRef weekTo)
+{
+    ; A_WDay: 일=1, 월=2 ... 토=7
+    offset := (A_WDay = 1 ? -6 : 2 - A_WDay)
+    ts := A_Now
+    EnvAdd, ts, %offset%, Days
+    weekFrom := SubStr(ts, 1, 8)
+
+    ts2 := ts
+    EnvAdd, ts2, 6, Days
+    weekTo := SubStr(ts2, 1, 8)
+}
+
+SSOK_AdminCalendar_GetNeisApiKey()
+{
+    ; SSOK4edu 공용 나이스 교육정보 개방 포털 인증키
+    return "bdf805328d4546d1a4574fd266f5ae63"
+}
+
+SSOK_AdminCalendar_NeisBuildUrl(endpoint, params, pSize := 100)
+{
+    key := SSOK_AdminCalendar_GetNeisApiKey()
+    url := "https://open.neis.go.kr/hub/" . endpoint
+        . "?KEY=" . SSOK_Tool_QU_UrlEncode(key)
+        . "&Type=xml&pIndex=1&pSize=" . pSize
+
+    if IsObject(params)
+    {
+        for k, v in params
+        {
+            v := Trim(v)
+            if (v != "")
+                url .= "&" . k . "=" . SSOK_Tool_QU_UrlEncode(v)
+        }
+    }
+    return url
+}
+
+SSOK_AdminCalendar_NeisHttpGet(url)
+{
+    out := {ok:false, text:"", status:0}
+    try
+    {
+        http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        http.SetTimeouts(1500, 3000, 5000, 7000)
+        http.Open("GET", url, false)
+        http.SetRequestHeader("User-Agent", "SSOK4edu")
+        http.Send()
+        out.status := http.Status
+        if (http.Status = 200)
+        {
+            out.text := http.ResponseText
+            out.ok := true
+        }
+    }
+    catch
+    {
+        out.ok := false
+    }
+    return out
+}
+
+SSOK_AdminCalendar_FindExactSchool(orgName)
+{
+    exact := []
+    params := Object("SCHUL_NM", orgName)
+    url := SSOK_AdminCalendar_NeisBuildUrl("schoolInfo", params, 100)
+    resp := SSOK_AdminCalendar_NeisHttpGet(url)
+    if (!resp.ok)
+        return exact
+
+    rows := SSOK_AdminCalendar_ParseNeisSchools(resp.text)
+    if !IsObject(rows)
+        return exact
+
+    for idx, item in rows
+    {
+        if (Trim(item.schoolName) = orgName)
+            exact.Push(item)
+    }
+    return exact
+}
+
+SSOK_AdminCalendar_ParseNeisSchools(xml)
+{
+    results := []
+    seen := {}
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return results
+
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            schoolName := SSOK_AdminCalendar_XmlText(row, "SCHUL_NM")
+            officeCode := SSOK_AdminCalendar_XmlText(row, "ATPT_OFCDC_SC_CODE")
+            schoolCode := SSOK_AdminCalendar_XmlText(row, "SD_SCHUL_CODE")
+            if (schoolName = "" || officeCode = "" || schoolCode = "")
+                continue
+
+            uniq := officeCode . "|" . schoolCode
+            if (seen.HasKey(uniq))
+                continue
+            seen[uniq] := 1
+
+            results.Push({schoolName:SSOK_AdminCalendar_CleanNeisText(schoolName)
+                        , officeCode:officeCode
+                        , schoolCode:schoolCode
+                        , officeName:SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "ATPT_OFCDC_SC_NM"))
+                        , kind:SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "SCHUL_KND_SC_NM"))
+                        , parentOrg:SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "JU_ORG_NM"))
+                        , address:SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "ORG_RDNMA"))})
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return results
+}
+
+SSOK_AdminCalendar_ParseNeisSchoolSchedule(xml)
+{
+    events := []
+    seen := {}
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return events
+
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            date := SSOK_AdminCalendar_XmlText(row, "AA_YMD")
+            name := SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "EVENT_NM"))
+            if (date = "" || name = "")
+                continue
+            uniq := date . "|" . name
+            if (seen.HasKey(uniq))
+                continue
+            seen[uniq] := 1
+            events.Push({date:date, name:name})
+        }
+    }
+    catch
+    {
+        return []
+    }
+    return events
+}
+
+SSOK_AdminCalendar_XmlText(parent, tagName)
+{
+    if (!IsObject(parent) || tagName = "")
+        return ""
+    try
+    {
+        node := parent.selectSingleNode(".//*[local-name()='" . tagName . "']")
+        if IsObject(node)
+            return Trim(node.text)
+
+}
+    catch
+    {
+    }
+    return ""
+}
+
+SSOK_AdminCalendar_CleanNeisText(text)
+{
+    text := StrReplace(text, "`r", " ")
+    text := StrReplace(text, "`n", " ")
+    text := RegExReplace(text, "\s+", " ")
+    return Trim(text)
+}
+
+SSOK_AdminCalendar_FormatSchoolWeekEvents(events)
+{
+    if !IsObject(events)
+        return "금주 학사일정 없음"
+
+    parts := []
+    total := events.Length()
+    maxShow := 4
+
+    for idx, item in events
+    {
+        if (idx > maxShow)
+            break
+        dateText := SSOK_AdminCalendar_FormatShortDateDay(item.date)
+        parts.Push(dateText . " " . item.name)
+    }
+
+    out := ""
+    for idx, item in parts
+        out .= (out != "" ? " · " : "") . item
+
+    if (total > maxShow)
+        out .= " · 외 " . (total - maxShow) . "건"
+
+    ; 한 줄 표시를 유지하기 위해 지나치게 긴 문구만 끝에서 줄입니다.
+    if (StrLen(out) > 115)
+        out := SubStr(out, 1, 112) . "..."
+    return out
+}
+
+SSOK_AdminCalendar_FormatShortDateDay(ymd)
+{
+    d := RegExReplace(Trim(ymd), "[^0-9]", "")
+    if (StrLen(d) != 8)
+        return ymd
+
+    m := SubStr(d, 5, 2) + 0
+    day := SubStr(d, 7, 2) + 0
+    wd := SSOK_AdminCalendar_DayName(d)
+    return m . "/" . day . "(" . wd . ")"
+}
+
+SSOK_AdminCalendar_DayName(ymd)
+{
+    ts := ymd . "000000"
+    FormatTime, wd, %ts%, ddd
+    if (wd = "Mon" || InStr(wd, "월"))
+        return "월"
+    if (wd = "Tue" || InStr(wd, "화"))
+        return "화"
+    if (wd = "Wed" || InStr(wd, "수"))
+        return "수"
+    if (wd = "Thu" || InStr(wd, "목"))
+        return "목"
+    if (wd = "Fri" || InStr(wd, "금"))
+        return "금"
+    if (wd = "Sat" || InStr(wd, "토"))
+        return "토"
+    if (wd = "Sun" || InStr(wd, "일"))
+        return "일"
+    return wd
 }
 
 SSOK_AdminCalendar_GetSeoulUrl()
@@ -9764,6 +11114,7 @@ SSOK_CompanyInfo_G2BDemandQuery(name, ByRef errMsg)
 
     errMsg := lastErr
     return ""
+
 }
 
 SSOK_CompanyInfo_G2BDemandRequest(name, inqryDiv, ByRef resultCode, ByRef resultMsg)
@@ -10321,4 +11672,3 @@ SSOK_CompanyInfo_JoinAddress(zip, adrs, dtlAdrs)
 
     return (out = "") ? "-" : out
 }
-

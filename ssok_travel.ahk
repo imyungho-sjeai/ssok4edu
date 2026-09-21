@@ -89,9 +89,7 @@ SSOK_Travel_Show()
 
     ; 여비신청에서 INI에 남기는 값은 개인 기본정보만 유지한다.
     ; 저장: 소속 / 직급 / 성명 / 출발지
-    IniRead, savedOrg, %SSOK_Ini%, Travel, Org, %defaultOrg%
-    if (savedOrg = "ERROR" || savedOrg = "")
-        savedOrg := defaultOrg
+    savedOrg := defaultOrg
 
     IniRead, savedRank, %SSOK_Ini%, Travel, Rank, 교사
     if (savedRank = "ERROR" || savedRank = "" || savedRank = "행정실장")
@@ -101,9 +99,7 @@ SSOK_Travel_Show()
     if (savedName = "ERROR")
         savedName := ""
 
-    IniRead, savedDep, %SSOK_Ini%, Travel, Departure, %savedOrg%
-    if (savedDep = "ERROR" || savedDep = "")
-        savedDep := savedOrg
+    savedDep := savedOrg
 
     ; 나머지 출장 입력값은 저장/복원하지 않고 매번 새 신청서로 시작한다.
     savedDest := ""
@@ -697,9 +693,13 @@ SSOK_Travel_AutoSave()
 
 SSOK_Travel_GetDefaultOrg()
 {
-    ; 여비정산 기본 소속은 교육청으로 고정한다.
-    ; 사용자가 화면에서 소속을 직접 수정하는 것은 그대로 허용한다.
-    return "세종특별자치시교육청"
+    global SSOK_Ini
+    ; 메인 SSOK의 기관명을 여비정산 기본 소속/출발지로 사용한다.
+    IniRead, orgName, %SSOK_Ini%, MajorTodos, OrgName, 도담중학교
+    orgName := Trim(orgName)
+    if (orgName = "" || orgName = "ERROR")
+        orgName := "도담중학교"
+    return orgName
 }
 
 ; 소속 변경 이벤트 핸들러 (출장자가 소속 입력/수정 시 출발지 실시간 동기화)
@@ -2820,18 +2820,14 @@ SSOK_Travel_Reset:
     Gui, SSOKTravel:Default
     defaultOrg := SSOK_Travel_GetDefaultOrg()
     ; 소속/직급/성명/출발지만 INI에서 유지
-    IniRead, keepOrg, %SSOK_Ini%, Travel, Org, %defaultOrg%
-    if (keepOrg = "ERROR" || keepOrg = "")
-        keepOrg := defaultOrg
+    keepOrg := defaultOrg
     IniRead, keepRank, %SSOK_Ini%, Travel, Rank, 교사
     if (keepRank = "ERROR" || keepRank = "")
         keepRank := "교사"
     IniRead, keepName, %SSOK_Ini%, Travel, Name, %A_Space%
     if (keepName = "ERROR")
         keepName := ""
-    IniRead, keepDep, %SSOK_Ini%, Travel, Departure, %keepOrg%
-    if (keepDep = "ERROR" || keepDep = "")
-        keepDep := keepOrg
+    keepDep := keepOrg
     GuiControl, SSOKTravel:, ST_Org, %keepOrg%
     GuiControl, SSOKTravel:ChooseString, ST_Rank, %keepRank%
     GuiControl, SSOKTravel:, ST_Name, %keepName%

@@ -1,3 +1,4 @@
+; SSOK_BUILD_CARD_COMPARE_SIMPLE_FILENAME_NO_POPUP_20260921
 ; 간편 지출품의: 선택한 견적서 읽기 → 품명 첫 칸에서 Win+1 입력
 ; AutoHotkey v1 지출품의 모듈입니다. Win+1 / Win+2 / Win+3를 이 파일에서 직접 처리합니다.
 #If SSOK_Expense_HotkeyContext()
@@ -6085,7 +6086,7 @@ SSOK_Expense_Win3AmountText(text, amount)
 
     ; Win+F2의 금액 인식 용어를 기준으로 총금액 성격의 항목만 교체합니다.
     ; 단가/개당 금액은 대상에 포함하지 않습니다.
-    labels := "총소요예산액|총구매액|총금액|총액|합계금액|합계액|합계|구매금액|구매액|구입금액|구입액|지급금액|지급액|집행금액|집행액|계약금액|원인행위금액|소요금액|소요액|소요예산|예산금액|예산액|예산|강사비|강사료|여비|금액"
+    labels := "총[ `t]*소요[ `t]*예산[ `t]*액|총[ `t]*소요[ `t]*예산[ `t]*금액|총[ `t]*소요[ `t]*예산|소요[ `t]*예산[ `t]*총액|소요[ `t]*예산[ `t]*금액|소요[ `t]*예산[ `t]*액|소요[ `t]*예산|예산[ `t]*총액|총[ `t]*예산[ `t]*금액|총[ `t]*예산[ `t]*액|총[ `t]*예산|예산[ `t]*금액|예산[ `t]*액|예산|총[ `t]*지출[ `t]*금액|지출[ `t]*총액|지출[ `t]*금액|지출[ `t]*액|총[ `t]*집행[ `t]*금액|집행[ `t]*총액|집행[ `t]*금액|집행[ `t]*액|총[ `t]*구매[ `t]*금액|총[ `t]*구매[ `t]*액|구매[ `t]*총액|구매[ `t]*금액|구매[ `t]*액|총[ `t]*구입[ `t]*금액|총[ `t]*구입[ `t]*액|구입[ `t]*총액|구입[ `t]*금액|구입[ `t]*액|총[ `t]*지급[ `t]*금액|총[ `t]*지급[ `t]*액|지급[ `t]*총액|지급[ `t]*금액|지급[ `t]*액|총[ `t]*계약[ `t]*금액|계약[ `t]*총액|계약[ `t]*금액|계약[ `t]*액|원인행위[ `t]*총액|원인행위[ `t]*금액|원인행위[ `t]*액|총[ `t]*사용[ `t]*금액|사용[ `t]*총액|사용[ `t]*금액|사용[ `t]*액|총[ `t]*결제[ `t]*금액|결제[ `t]*총액|결제[ `t]*금액|결제[ `t]*액|총[ `t]*청구[ `t]*금액|청구[ `t]*총액|청구[ `t]*금액|청구[ `t]*액|합계[ `t]*금액|합계[ `t]*액|합계|총[ `t]*금액|총액|소요[ `t]*금액|소요[ `t]*액|강사비|강사료|여비|금액"
 
     ; 기존 숫자 뒤에 붙은 한글 금액은 모두 지웁니다.
     ; 예: 금207,000원(금이십만칠천원)(이십만칠천원정) -> 금151,560원
@@ -6755,7 +6756,7 @@ SSOK_Expense_Tools_Show()
     Gui, SSOKExpenseTools:Destroy
     Gui, SSOKExpenseTools:New, +AlwaysOnTop +ToolWindow +HwndSSOK_ExpenseToolsHwnd, 테스트버전 Beta
     Gui, SSOKExpenseTools:Color, F7FBFF
-    Gui, SSOKExpenseTools:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKExpenseTools:Font, s6.72 Bold, Malgun Gothic
 
     ; 기본값은 기존 업무용 도구와 같은 182px 폭.
     betaW := (SSOK_BetaReplaceW != "" && SSOK_BetaReplaceW > 0) ? SSOK_BetaReplaceW : 182
@@ -6765,12 +6766,10 @@ SSOK_Expense_Tools_Show()
     if (btnW < 130)
         btnW := 166
 
-    Gui, SSOKExpenseTools:Add, Button, x8 y8   w%btnW% h25 gSSOK_Expense_Tools_Win1, 간편 지출품의(win + 1)
-    Gui, SSOKExpenseTools:Add, Button, x8 y39  w%btnW% h25 gSSOK_Expense_Tools_Win2, 간편 원인행위(win + 2)
-    Gui, SSOKExpenseTools:Add, Button, x8 y70  w%btnW% h25 gSSOK_Expense_Tools_Win3, 간편 원인행위(win + 3)
-    Gui, SSOKExpenseTools:Add, Button, x8 y101 w%btnW% h25 gSSOK_Expense_Tools_Win4, 간편 원인행위(win + 4)
-    Gui, SSOKExpenseTools:Add, Button, x8 y132 w%btnW% h25 gSSOK_Expense_Tools_CardCompare, 법인카드내역비교
-    Gui, SSOKExpenseTools:Add, Button, x8 y163 w%btnW% h25 gSSOK_Expense_Tools_WorkPublic, 업무추진비공개
+    Gui, SSOKExpenseTools:Add, Button, x8 y8   w%btnW% h25 +0x100 gSSOK_Expense_Tools_Win1, 간편 지출품의(win + 1)
+    Gui, SSOKExpenseTools:Add, Button, x8 y39  w%btnW% h25 +0x100 gSSOK_Expense_Tools_Win2, 간편 원인행위(win + 2)
+    Gui, SSOKExpenseTools:Add, Button, x8 y70  w%btnW% h25 +0x100 gSSOK_Expense_Tools_Win3, 간편 원인행위(win + 3)
+    Gui, SSOKExpenseTools:Add, Button, x8 y101 w%btnW% h25 +0x100 gSSOK_Expense_Tools_Win4, 간편 원인행위(win + 4)
 
     ; Beta를 누르기 직전 업무용 도구의 바로 그 자리/크기 사용
     x := SSOK_BetaReplaceX
@@ -7063,17 +7062,28 @@ SSOK_Expense_CardCompare_UpdateStatus:
     Gui, SSOKCardCompare:Submit, NoHide
 
     if (FileExist(SSOK_CardCompareUsePath) && FileExist(SSOK_CardCompareStatementPath))
-        status := "Excel 2개가 선택되었습니다. 다음 단계에서 비교 규칙을 연결합니다."
-    else if (FileExist(SSOK_CardCompareUsePath) || FileExist(SSOK_CardCompareStatementPath))
-        status := "Excel 1개가 선택되었습니다. 나머지 파일도 선택해 주세요."
+        status := "A/B 자료 입력 완료"
+    else if (FileExist(SSOK_CardCompareUsePath))
+        status := "A 자료 입력 완료"
+    else if (FileExist(SSOK_CardCompareStatementPath))
+        status := "B 자료 입력 완료"
     else
-        status := "법인카드사용부와 법인카드이용내역서 Excel을 각각 선택해 주세요."
+        status := ""
 
     GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus, %status%
 return
 
+
+SSOK_Expense_CardCompare_Reset:
+    SSOK_CardCompareUsePath := ""
+    SSOK_CardCompareStatementPath := ""
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, 파일을 여기에 놓아주세요
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, 파일을 여기에 놓아주세요
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus,
+return
+
 SSOK_Expense_CardCompare_Check:
-    Gosub, SSOK_Expense_CardCompare_UpdateStatus
+    Gui, SSOKCardCompare:Submit, NoHide
 
     if (!FileExist(SSOK_CardCompareUsePath))
     {
@@ -7087,7 +7097,17 @@ SSOK_Expense_CardCompare_Check:
         return
     }
 
-    MsgBox, 64, 법인카드내역비교, 두 Excel 파일을 정상적으로 불러왔습니다.`n`n다음 단계에서 두 파일의 열 구조를 확인하여 비교 규칙을 연결하면 됩니다.
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus, 비교 작업중입니다. 잠시만 기다려 주세요.
+
+    if !SSOK_Expense_CardCompare_Run(SSOK_CardCompareUsePath, SSOK_CardCompareStatementPath, outputPath, report, errMsg)
+    {
+        GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus, 비교 실패
+        MsgBox, 48, 법인카드내역비교, %errMsg%
+        return
+    }
+
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus, 비교 완료 - 결과 Excel을 열었습니다.
+    Run, %outputPath%,, UseErrorLevel
 return
 
 SSOKCardCompareGuiDropFiles:
@@ -7100,56 +7120,1278 @@ SSOKCardCompareGuiEscape:
     Gui, SSOKCardCompare:Destroy
 return
 
+SSOKCardCompareOpenKEdufine:
+    Run, https://sje.eduptl.kr/bpm_lgn_lg00_001.do?noEpSession
+return
+
+SSOKCardCompareOpenNHBizCard:
+    Run, https://nhbizcard.nonghyup.com/icpm01.menu
+return
+
 SSOK_Expense_CardCompare_Show()
 {
     global SSOK_CardCompareUsePath, SSOK_CardCompareStatementPath
     global SSOK_CardCompareStatus
 
     Gui, SSOKCardCompare:Destroy
-    Gui, SSOKCardCompare:New, +ToolWindow, 법인카드내역비교
-    Gui, SSOKCardCompare:Margin, 14, 14
+    Gui, SSOKCardCompare:New, +ToolWindow, 법인카드 사용 내역 비교 자동 작성
+    Gui, SSOKCardCompare:Margin, 20, 18
     Gui, SSOKCardCompare:Color, F7FBFF
+
+    Gui, SSOKCardCompare:Font, s12 Bold, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, w760 h30, 법인카드 사용 내역 비교 자동 작성
+
+    ; A 법인카드사용부
     Gui, SSOKCardCompare:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, w610 h25, 법인카드내역비교
-    Gui, SSOKCardCompare:Font, s8 Norm, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, y+0 w610 h28 c555555, 탐색기에서 Excel 파일을 각 입력칸으로 끌어 놓거나 [파일 선택]을 이용하세요.
+    Gui, SSOKCardCompare:Add, Text, x20 y+18 w760 h24 +0x200, A 법인카드사용부
 
-    Gui, SSOKCardCompare:Font, s9 Bold, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, y+10 w160 h22 +0x200, 법인카드사용부
     Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Edit, x130 yp w390 h24 vSSOK_CardCompareUsePath, %SSOK_CardCompareUsePath%
-    Gui, SSOKCardCompare:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_CardCompare_BrowseUse, 파일 선택
-
-    Gui, SSOKCardCompare:Font, s9 Bold, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, x14 y+12 w160 h22 +0x200, 법인카드이용내역서
+    Gui, SSOKCardCompare:Add, Text, x20 y+2 w650 h24 c555555, 근거자료: 학교회계-지출관리-기타관리-법인카드사용부
+    Gui, SSOKCardCompare:Font, s9 Underline, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x690 yp w90 h24 +0x200 c0066CC gSSOKCardCompareOpenKEdufine, 바로가기
     Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Edit, x130 yp w390 h24 vSSOK_CardCompareStatementPath, %SSOK_CardCompareStatementPath%
-    Gui, SSOKCardCompare:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_CardCompare_BrowseStatement, 파일 선택
 
-    Gui, SSOKCardCompare:Add, Text, x14 y+14 w610 h38 +0x200 vSSOK_CardCompareStatus c005BAC, 법인카드사용부와 법인카드이용내역서 Excel을 각각 선택해 주세요.
-    Gui, SSOKCardCompare:Add, Button, x14 y+8 w150 h30 gSSOK_Expense_CardCompare_Check, 파일 확인
-    Gui, SSOKCardCompare:Add, Button, x473 yp w150 h30 gSSOKCardCompareGuiClose, 닫기
+    useDisplay := FileExist(SSOK_CardCompareUsePath) ? SSOK_CardCompareUsePath : "파일을 여기에 놓아주세요"
+    Gui, SSOKCardCompare:Add, Text, x20 y+8 w760 h76 +Border Center 0x200 vSSOK_CardCompareUsePath c555555, %useDisplay%
 
-    Gui, SSOKCardCompare:Show, w640 h220 Center
+    ; B 법인카드 이용내역서
+    Gui, SSOKCardCompare:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x20 y+24 w760 h24 +0x200, B 법인카드 이용내역서
+
+    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x20 y+2 w650 h24 c555555, 근거자료: 농협 인터넷뱅킹 - 월별 이용내역서 엑셀 자료 다운로드
+    Gui, SSOKCardCompare:Font, s9 Underline, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x690 yp w90 h24 +0x200 c0066CC gSSOKCardCompareOpenNHBizCard, 바로가기
+    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
+
+    statementDisplay := FileExist(SSOK_CardCompareStatementPath) ? SSOK_CardCompareStatementPath : "파일을 여기에 놓아주세요"
+    Gui, SSOKCardCompare:Add, Text, x20 y+8 w760 h76 +Border Center 0x200 vSSOK_CardCompareStatementPath c555555, %statementDisplay%
+
+    ; 상태
+    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x20 y+20 w760 h30 +0x200 vSSOK_CardCompareStatus c005BAC,
+
+    ; 하단 버튼
+    Gui, SSOKCardCompare:Add, Button, x20 y+12 w180 h40 gSSOK_Expense_CardCompare_Reset, 초기화
+    Gui, SSOKCardCompare:Add, Button, x214 yp w180 h40 gSSOK_Expense_CardCompare_Check Default, 작업실행
+
+    Gui, SSOKCardCompare:Show, w800 h500 Center
+}
+
+; ============================================================================
+; 법인카드내역비교 - 실제 비교 처리
+; - 원본 Excel 2개는 읽기 전용으로 열며 절대 수정하지 않습니다.
+; - 사용부: 원인행위일자 + 총사용금액(없으면 원인행위금액)
+; - 명세서: 이용일자 + 이용카드 + 이용가맹점 + 청구원금
+; - 1:1 금액 일치 -> 근접일자(±3일) -> 동일업체 합산 -> 동일카드/일자 합산
+; - 남은 동일일자 1:1은 "금액 상이", 나머지는 "한쪽만 있음"으로 표시
+; ============================================================================
+
+SSOK_Expense_CardCompare_Run(usePath, statementPath, ByRef outputPath, ByRef report, ByRef errMsg)
+{
+    outputPath := ""
+    report := ""
+    errMsg := ""
+
+    xl := ""
+    wbUse := ""
+    wbStatement := ""
+    wbOut := ""
+    wsResult := ""
+    wsDaily := ""
+    stage := "Excel 실행"
+
+    try
+    {
+        stage := "Excel 실행"
+        xl := ComObjCreate("Excel.Application")
+        xl.Visible := false
+        xl.DisplayAlerts := false
+        xl.EnableEvents := false
+        xl.AskToUpdateLinks := false
+        try xl.ScreenUpdating := false
+        try xl.DisplayStatusBar := false
+        try xl.Calculation := -4135  ; xlCalculationManual
+        try xl.AutomationSecurity := 3
+
+        stage := "법인카드사용부 열기"
+        wbUse := xl.Workbooks.Open(usePath, 0, true)
+
+        stage := "이용대금명세서 열기"
+        wbStatement := xl.Workbooks.Open(statementPath, 0, true)
+
+        stage := "법인카드사용부 읽기"
+        if !SSOK_Expense_CardCompare_ReadUseBook(wbUse, useRows, useErr)
+        {
+            errMsg := "법인카드사용부를 읽지 못했습니다.`n`n" . useErr
+            return false
+        }
+
+        stage := "이용대금명세서 읽기"
+        if !SSOK_Expense_CardCompare_ReadStatementBook(wbStatement, statementRows, statementErr)
+        {
+            errMsg := "이용대금명세서를 읽지 못했습니다.`n`n" . statementErr
+            return false
+        }
+
+        stage := "내역 비교"
+        SSOK_Expense_CardCompare_SortUseRows(useRows)
+        results := SSOK_Expense_CardCompare_Match(useRows, statementRows)
+
+        useTotal := 0
+        for _, row in useRows
+            useTotal += row.amount
+
+        statementTotal := 0
+        for _, row in statementRows
+            statementTotal += row.amount
+
+        mismatchCount := 0
+        groupCount := 0
+        nearDateCount := 0
+
+        for _, row in results
+        {
+            if (row.status != "일치")
+                mismatchCount++
+
+            if InStr(row.matchType, "합산")
+                groupCount++
+
+            if (row.dateDiff > 0 && row.status = "일치")
+                nearDateCount++
+        }
+
+        outputPath := SSOK_Expense_CardCompare_BuildOutputPath(usePath, useRows)
+
+        ; Excel 환경별 기본 시트 수 설정의 영향을 받지 않도록
+        ; 인수 없는 Workbooks.Add()로 새 통합문서를 만듭니다.
+        stage := "결과 통합문서 만들기"
+        wbOut := xl.Workbooks.Add()
+
+        stage := "결과 시트 준비"
+        wsResult := wbOut.Worksheets(1)
+        wsResult.Name := "비교결과"
+
+        if (wbOut.Worksheets.Count >= 2)
+        {
+            wsDaily := wbOut.Worksheets(2)
+            wsDaily.Name := "일자별요약"
+        }
+        else
+        {
+            wsDaily := wbOut.Worksheets.Add()
+            wsDaily.Name := "일자별요약"
+        }
+
+        ; Excel 설정에 따라 기본 시트가 3개 이상 만들어지는 경우
+        ; 비교결과/일자별요약 이외 시트만 제거합니다.
+        while (wbOut.Worksheets.Count > 2)
+        {
+            extraSheet := wbOut.Worksheets(wbOut.Worksheets.Count)
+            extraSheet.Delete()
+        }
+
+        global SSOK_CardCompareWriteStage
+        SSOK_CardCompareWriteStage := ""
+
+        stage := "비교결과 시트 작성"
+        SSOK_Expense_CardCompare_WriteResultSheet(wsResult, results
+            , useTotal, statementTotal, groupCount, nearDateCount, mismatchCount)
+
+        SSOK_CardCompareWriteStage := ""
+        stage := "일자별요약 시트 작성"
+        SSOK_Expense_CardCompare_WriteDailySheet(wsDaily, results
+            , useTotal, statementTotal, mismatchCount)
+
+        SSOK_CardCompareWriteStage := ""
+
+        stage := "결과 Excel 저장"
+        ; 51 = xlOpenXMLWorkbook (.xlsx)
+        wbOut.SaveAs(outputPath, 51)
+
+        stage := "완료"
+        report := "비교가 완료되었습니다."
+        report .= "`n`n사용부: " . useRows.Length() . "건 / " . SSOK_Expense_CardCompare_FormatMoney(useTotal) . "원"
+        report .= "`n명세서: " . statementRows.Length() . "건 / " . SSOK_Expense_CardCompare_FormatMoney(statementTotal) . "원"
+        report .= "`n합산으로 맞춘 사용부 항목: " . groupCount . "건"
+        report .= "`n근접일자로 맞춘 항목: " . nearDateCount . "건"
+        report .= "`n확인 필요한 항목: " . mismatchCount . "건"
+        report .= "`n`n결과파일:`n" . outputPath
+
+        return true
+    }
+    catch e
+    {
+        errMsg := "비교 중 오류가 발생했습니다."
+        errMsg .= "`n`n오류 단계: " . stage
+
+        global SSOK_CardCompareWriteStage
+        if (SSOK_CardCompareWriteStage != "")
+            errMsg .= "`n세부 단계: " . SSOK_CardCompareWriteStage
+
+        errMsg .= "`n`n" . e.Message
+        return false
+    }
+    finally
+    {
+        try
+        {
+            if IsObject(wbOut)
+                wbOut.Close(false)
+        }
+
+        try
+        {
+            if IsObject(wbUse)
+                wbUse.Close(false)
+        }
+
+        try
+        {
+            if IsObject(wbStatement)
+                wbStatement.Close(false)
+        }
+
+        try
+        {
+            if IsObject(xl)
+                xl.Quit()
+        }
+
+        wsResult := ""
+        wsDaily := ""
+        wbOut := ""
+        wbUse := ""
+        wbStatement := ""
+        xl := ""
+    }
+}
+
+SSOK_Expense_CardCompare_ReadUseBook(wb, ByRef rows, ByRef errMsg)
+{
+    rows := []
+    errMsg := ""
+
+    Loop, % wb.Worksheets.Count
+    {
+        ws := wb.Worksheets(A_Index)
+
+        if !SSOK_Expense_CardCompare_FindUseColumns(ws, headerRow, cols)
+            continue
+
+        used := ws.UsedRange
+        lastRow := used.Row + used.Rows.Count - 1
+
+        Loop, % lastRow - headerRow
+        {
+            r := headerRow + A_Index
+            requestVal := SSOK_Expense_CardCompare_CellText(ws.Cells(r, cols.request))
+            title := SSOK_Expense_CardCompare_CellText(ws.Cells(r, cols.title))
+
+            if (requestVal = "합계" || title = "합계")
+                continue
+
+            dateKey := SSOK_Expense_CardCompare_DateKey(ws.Cells(r, cols.date).Value2)
+            if (dateKey = "")
+                continue
+
+            amount := SSOK_Expense_CardCompare_Amount(ws.Cells(r, cols.amount).Value2)
+            if (amount = "")
+                continue
+
+            if (amount = 0)
+                continue
+
+            rows.Push({date:dateKey
+                , request:requestVal
+                , title:title
+                , causeNo:(cols.causeNo ? SSOK_Expense_CardCompare_CellText(ws.Cells(r, cols.causeNo)) : "")
+                , amount:amount})
+        }
+
+        if (rows.Length())
+            return true
+    }
+
+    errMsg := "열 제목 '원인행위일자', '제목', '총사용금액'을 찾지 못했거나 비교할 데이터가 없습니다."
+    return false
+}
+
+SSOK_Expense_CardCompare_ReadStatementBook(wb, ByRef rows, ByRef errMsg)
+{
+    rows := []
+    errMsg := ""
+
+    Loop, % wb.Worksheets.Count
+    {
+        ws := wb.Worksheets(A_Index)
+
+        if !SSOK_Expense_CardCompare_FindStatementColumns(ws, headerRow, cols)
+            continue
+
+        used := ws.UsedRange
+        lastRow := used.Row + used.Rows.Count - 1
+
+        Loop, % lastRow - headerRow
+        {
+            r := headerRow + A_Index
+
+            dateKey := SSOK_Expense_CardCompare_DateKey(ws.Cells(r, cols.date).Value2)
+            if (dateKey = "")
+                continue
+
+            amount := SSOK_Expense_CardCompare_Amount(ws.Cells(r, cols.amount).Value2)
+            if (amount = "" || amount = 0)
+                continue
+
+            merchant := SSOK_Expense_CardCompare_CellText(ws.Cells(r, cols.merchant))
+            card := SSOK_Expense_CardCompare_CellText(ws.Cells(r, cols.card))
+
+            rows.Push({date:dateKey
+                , card:card
+                , merchant:merchant
+                , merchantKey:SSOK_Expense_CardCompare_NormalizeMerchant(merchant)
+                , amount:amount
+                , used:false})
+        }
+
+        if (rows.Length())
+            return true
+    }
+
+    errMsg := "열 제목 '이용일자', '이용카드', '이용가맹점', '청구원금'을 찾지 못했거나 비교할 데이터가 없습니다."
+    return false
+}
+
+SSOK_Expense_CardCompare_FindUseColumns(ws, ByRef headerRow, ByRef cols)
+{
+    cols := {date:0, title:0, amount:0, request:0, causeNo:0}
+    used := ws.UsedRange
+
+    firstRow := used.Row
+    firstCol := used.Column
+    maxRows := used.Rows.Count
+    maxCols := used.Columns.Count
+
+    if (maxRows > 80)
+        maxRows := 80
+    if (maxCols > 40)
+        maxCols := 40
+
+    Loop, %maxRows%
+    {
+        r := firstRow + A_Index - 1
+        temp := {date:0, title:0, amount:0, fallbackAmount:0, request:0, causeNo:0}
+
+        Loop, %maxCols%
+        {
+            c := firstCol + A_Index - 1
+            key := SSOK_Expense_CardCompare_HeaderKey(SSOK_Expense_CardCompare_CellText(ws.Cells(r, c)))
+
+            if (key = "원인행위일자")
+                temp.date := c
+            else if (key = "제목")
+                temp.title := c
+            else if (key = "총사용금액")
+                temp.amount := c
+            else if (key = "원인행위금액")
+                temp.fallbackAmount := c
+            else if (key = "신청번호")
+                temp.request := c
+            else if (key = "원인행위번호")
+                temp.causeNo := c
+        }
+
+        if (!temp.amount)
+            temp.amount := temp.fallbackAmount
+
+        if (temp.date && temp.title && temp.amount)
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_CardCompare_FindStatementColumns(ws, ByRef headerRow, ByRef cols)
+{
+    cols := {date:0, card:0, merchant:0, amount:0}
+    used := ws.UsedRange
+
+    firstRow := used.Row
+    firstCol := used.Column
+    maxRows := used.Rows.Count
+    maxCols := used.Columns.Count
+
+    if (maxRows > 100)
+        maxRows := 100
+    if (maxCols > 50)
+        maxCols := 50
+
+    Loop, %maxRows%
+    {
+        r := firstRow + A_Index - 1
+        temp := {date:0, card:0, merchant:0, amount:0}
+
+        Loop, %maxCols%
+        {
+            c := firstCol + A_Index - 1
+            key := SSOK_Expense_CardCompare_HeaderKey(SSOK_Expense_CardCompare_CellText(ws.Cells(r, c)))
+
+            if (key = "이용일자")
+                temp.date := c
+            else if (key = "이용카드")
+                temp.card := c
+            else if InStr(key, "이용가맹점")
+                temp.merchant := c
+            else if (key = "청구원금")
+                temp.amount := c
+        }
+
+        if (temp.date && temp.card && temp.merchant && temp.amount)
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_CardCompare_Match(useRows, statementRows)
+{
+    results := []
+    unmatchedUse := []
+
+    for _, useRow in useRows
+    {
+        idx := SSOK_Expense_CardCompare_FindSingle(statementRows, useRow.amount, useRow.date, 0)
+        if (idx)
+        {
+            ids := [idx]
+            results.Push(SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "1:1 일치"))
+            continue
+        }
+
+        idx := SSOK_Expense_CardCompare_FindSingle(statementRows, useRow.amount, useRow.date, 3)
+        if (idx)
+        {
+            ids := [idx]
+            results.Push(SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "1:1 일치(근접일자)"))
+            continue
+        }
+
+        ids := SSOK_Expense_CardCompare_FindGroup(statementRows, useRow.date, useRow.amount, "merchant", 0)
+        if IsObject(ids)
+        {
+            results.Push(SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "합산 일치(동일업체)"))
+            continue
+        }
+
+        ids := SSOK_Expense_CardCompare_FindGroup(statementRows, useRow.date, useRow.amount, "card", 0)
+        if IsObject(ids)
+        {
+            results.Push(SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "합산 일치(동일카드/일자)"))
+            continue
+        }
+
+        ; 사용자가 요청한 "비슷한 결재일" 합산:
+        ; 같은 업체/카드의 명세서 건들이 ±3일 안에 있고 합계가 사용부 금액과 같으면 일치 처리
+        ids := SSOK_Expense_CardCompare_FindGroup(statementRows, useRow.date, useRow.amount, "merchant", 3)
+        if IsObject(ids)
+        {
+            results.Push(SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "합산 일치(동일업체/근접일자)"))
+            continue
+        }
+
+        ids := SSOK_Expense_CardCompare_FindGroup(statementRows, useRow.date, useRow.amount, "card", 3)
+        if IsObject(ids)
+        {
+            results.Push(SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "합산 일치(동일카드/근접일자)"))
+            continue
+        }
+
+        unmatchedUse.Push(useRow)
+    }
+
+    ; 같은 날짜에 양쪽에서 딱 1건씩 남으면 금액 상이로 직접 비교
+    handled := {}
+
+    for ui, useRow in unmatchedUse
+    {
+        useSameDateCount := 0
+        for _, otherUse in unmatchedUse
+        {
+            if (otherUse.date = useRow.date)
+                useSameDateCount++
+        }
+
+        statementIdx := 0
+        statementSameDateCount := 0
+
+        for si, statementRow in statementRows
+        {
+            if (!statementRow.used && statementRow.date = useRow.date)
+            {
+                statementSameDateCount++
+                statementIdx := si
+            }
+        }
+
+        if (useSameDateCount = 1 && statementSameDateCount = 1)
+        {
+            ids := [statementIdx]
+            row := SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, "같은 일자 확인")
+            row.status := "금액 상이"
+            row.note := "같은 일자에 양쪽 1건씩 남아 금액 비교"
+            results.Push(row)
+            handled[ui] := true
+        }
+    }
+
+    for ui, useRow in unmatchedUse
+    {
+        if (handled.HasKey(ui))
+            continue
+
+        results.Push({status:"사용부만 있음"
+            , useDate:useRow.date
+            , title:useRow.title
+            , useAmount:useRow.amount
+            , matchType:"미매칭"
+            , statementDate:""
+            , card:""
+            , merchant:""
+            , statementAmount:""
+            , diff:useRow.amount
+            , note:"이용대금명세서에서 대응 금액을 찾지 못함"
+            , dateDiff:0})
+    }
+
+    for _, statementRow in statementRows
+    {
+        if (statementRow.used)
+            continue
+
+        results.Push({status:"명세서만 있음"
+            , useDate:""
+            , title:""
+            , useAmount:""
+            , matchType:"미매칭"
+            , statementDate:statementRow.date
+            , card:statementRow.card
+            , merchant:statementRow.merchant
+            , statementAmount:statementRow.amount
+            , diff:0 - statementRow.amount
+            , note:"법인카드사용부에서 대응 금액을 찾지 못함"
+            , dateDiff:0})
+    }
+
+    SSOK_Expense_CardCompare_SortResults(results)
+    return results
+}
+
+SSOK_Expense_CardCompare_FindSingle(statementRows, targetAmount, targetDate, maxDays)
+{
+    bestIdx := 0
+    bestDiff := 999999
+
+    for idx, row in statementRows
+    {
+        if (row.used || row.amount != targetAmount)
+            continue
+
+        diff := SSOK_Expense_CardCompare_DateDiff(row.date, targetDate)
+
+        if (diff > maxDays)
+            continue
+
+        if (diff < bestDiff)
+        {
+            bestDiff := diff
+            bestIdx := idx
+        }
+    }
+
+    return bestIdx
+}
+
+SSOK_Expense_CardCompare_FindGroup(statementRows, targetDate, targetAmount, mode, maxDays := 0)
+{
+    groups := {}
+
+    for idx, row in statementRows
+    {
+        if (row.used)
+            continue
+
+        if (SSOK_Expense_CardCompare_DateDiff(row.date, targetDate) > maxDays)
+            continue
+
+        if (mode = "merchant")
+            key := row.merchantKey
+        else
+            key := row.card
+
+        if (key = "")
+            continue
+
+        if !groups.HasKey(key)
+            groups[key] := []
+
+        groups[key].Push(idx)
+    }
+
+    for _, ids in groups
+    {
+        if (ids.Length() < 2)
+            continue
+
+        total := 0
+        for _, idx in ids
+            total += statementRows[idx].amount
+
+        if (total = targetAmount)
+            return ids
+    }
+
+    return ""
+}
+
+SSOK_Expense_CardCompare_MakeMatch(useRow, statementRows, ids, matchType)
+{
+    total := 0
+    maxDateDiff := 0
+    dates := []
+    cards := []
+    merchants := []
+
+    for _, idx in ids
+    {
+        row := statementRows[idx]
+        statementRows[idx].used := true
+
+        total += row.amount
+
+        d := SSOK_Expense_CardCompare_DateDiff(useRow.date, row.date)
+        if (d > maxDateDiff)
+            maxDateDiff := d
+
+        SSOK_Expense_CardCompare_ArrayPushUnique(dates, row.date)
+        SSOK_Expense_CardCompare_ArrayPushUnique(cards, row.card)
+        SSOK_Expense_CardCompare_ArrayPushUnique(merchants, row.merchant)
+    }
+
+    note := ""
+
+    if (ids.Length() > 1)
+        note := "명세서 " . ids.Length() . "건 합산"
+
+    if (maxDateDiff > 0)
+    {
+        if (note != "")
+            note .= " / "
+
+        note .= "이용일자 " . maxDateDiff . "일 차이"
+    }
+
+    return {status:(useRow.amount = total ? "일치" : "금액 상이")
+        , useDate:useRow.date
+        , title:useRow.title
+        , useAmount:useRow.amount
+        , matchType:matchType
+        , statementDate:SSOK_Expense_CardCompare_Join(dates, " / ")
+        , card:SSOK_Expense_CardCompare_Join(cards, " / ")
+        , merchant:SSOK_Expense_CardCompare_Join(merchants, " / ")
+        , statementAmount:total
+        , diff:useRow.amount - total
+        , note:note
+        , dateDiff:maxDateDiff}
+}
+
+SSOK_Expense_CardCompare_WriteResultSheet(ws, results, useTotal, statementTotal, groupCount, nearDateCount, mismatchCount)
+{
+    global SSOK_CardCompareWriteStage
+
+    headers := ["상태","사용부일자","제목","사용부금액","매칭유형","명세서일자","이용카드","이용가맹점","명세서금액","차액","비고"]
+
+    ; --------------------------------------------------------
+    ; 핵심 데이터 쓰기
+    ; Excel COM 호환성을 위해 문자열/숫자 모두 Value2만 사용합니다.
+    ; --------------------------------------------------------
+    SSOK_CardCompareWriteStage := "제목 입력"
+    ws.Cells(1,1).Value2 := "법인카드 사용부 - 이용대금명세서 비교"
+
+    SSOK_CardCompareWriteStage := "요약값 입력"
+    ws.Cells(3,1).Value2 := "사용부 총액"
+    ws.Cells(3,2).Value2 := useTotal
+    ws.Cells(3,3).Value2 := "명세서 총액"
+    ws.Cells(3,4).Value2 := statementTotal
+    ws.Cells(3,5).Value2 := "총액 차이"
+    ws.Cells(3,6).Value2 := useTotal - statementTotal
+    ws.Cells(3,7).Value2 := "합산매칭"
+    ws.Cells(3,8).Value2 := groupCount
+    ws.Cells(3,9).Value2 := "근접일자"
+    ws.Cells(3,10).Value2 := nearDateCount
+    ws.Cells(3,11).Value2 := "확인필요"
+    ws.Cells(3,12).Value2 := mismatchCount
+
+    SSOK_CardCompareWriteStage := "열 제목 입력"
+    for c, header in headers
+        ws.Cells(6,c).Value2 := header
+
+    r := 7
+
+    for _, row in results
+    {
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 상태"
+        ws.Cells(r,1).Value2 := row.status
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 사용부일자"
+        ws.Cells(r,2).Value2 := SSOK_Expense_CardCompare_DateDisplay(row.useDate)
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 제목"
+        ws.Cells(r,3).Value2 := row.title . ""
+
+        if (row.useAmount != "")
+        {
+            SSOK_CardCompareWriteStage := "비교결과 " . r . "행 사용부금액"
+            ws.Cells(r,4).Value2 := row.useAmount
+        }
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 매칭유형"
+        ws.Cells(r,5).Value2 := row.matchType . ""
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 명세서일자"
+        if (InStr(row.statementDate, " / "))
+            ws.Cells(r,6).Value2 := SSOK_Expense_CardCompare_DateListDisplay(row.statementDate)
+        else
+            ws.Cells(r,6).Value2 := SSOK_Expense_CardCompare_DateDisplay(row.statementDate)
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 이용카드"
+        ws.Cells(r,7).Value2 := row.card . ""
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 이용가맹점"
+        ws.Cells(r,8).Value2 := row.merchant . ""
+
+        if (row.statementAmount != "")
+        {
+            SSOK_CardCompareWriteStage := "비교결과 " . r . "행 명세서금액"
+            ws.Cells(r,9).Value2 := row.statementAmount
+        }
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 차액"
+        ws.Cells(r,10).Value2 := row.diff
+
+        SSOK_CardCompareWriteStage := "비교결과 " . r . "행 비고"
+        ws.Cells(r,11).Value2 := row.note . ""
+
+        r++
+    }
+
+    lastRow := r - 1
+
+    ; --------------------------------------------------------
+    ; 서식은 핵심 기능이 아니므로 Excel 버전/환경에 따라 실패해도 무시
+    ; --------------------------------------------------------
+    SSOK_CardCompareWriteStage := "비교결과 서식"
+
+    try ws.Range("A1:K1").Merge()
+    try ws.Range("A1:K1").Interior.ColorIndex := 23
+    try ws.Range("A1:K1").Font.ColorIndex := 2
+    try ws.Range("A1:K1").Font.Bold := true
+    try ws.Range("A1:K1").Font.Size := 14
+    try ws.Range("A1:K1").HorizontalAlignment := -4108
+    try ws.Rows(1).RowHeight := 27
+
+    try ws.Range("A3:L3").Interior.ColorIndex := 36
+    try ws.Range("A3:L3").Font.Bold := true
+    try ws.Range("B3").NumberFormat := "#,##0"
+    try ws.Range("D3").NumberFormat := "#,##0"
+    try ws.Range("F3").NumberFormat := "#,##0"
+
+    try ws.Range("A6:K6").Interior.ColorIndex := 23
+    try ws.Range("A6:K6").Font.ColorIndex := 2
+    try ws.Range("A6:K6").Font.Bold := true
+    try ws.Range("A6:K6").HorizontalAlignment := -4108
+
+    if (lastRow >= 7)
+    {
+        try ws.Range("D7:D" . lastRow).NumberFormat := "#,##0"
+        try ws.Range("I7:J" . lastRow).NumberFormat := "#,##0"
+        try ws.Range("A6:K" . lastRow).Borders.LineStyle := 1
+        try ws.Range("A6:K" . lastRow).VerticalAlignment := -4108
+        try ws.Range("C7:C" . lastRow).WrapText := true
+        try ws.Range("H7:H" . lastRow).WrapText := true
+        try ws.Range("K7:K" . lastRow).WrapText := true
+
+        for rr, row in results
+        {
+            excelRow := rr + 6
+            if (row.status != "일치")
+                try ws.Range("A" . excelRow . ":K" . excelRow).Interior.ColorIndex := 38
+        }
+
+        try ws.Range("A6:K" . lastRow).AutoFilter()
+    }
+
+    try ws.Columns("A").ColumnWidth := 15
+    try ws.Columns("B").ColumnWidth := 13
+    try ws.Columns("C").ColumnWidth := 45
+    try ws.Columns("D").ColumnWidth := 14
+    try ws.Columns("E").ColumnWidth := 22
+    try ws.Columns("F").ColumnWidth := 18
+    try ws.Columns("G").ColumnWidth := 12
+    try ws.Columns("H").ColumnWidth := 32
+    try ws.Columns("I").ColumnWidth := 14
+    try ws.Columns("J").ColumnWidth := 14
+    try ws.Columns("K").ColumnWidth := 28
+
+    SSOK_CardCompareWriteStage := ""
+}
+
+SSOK_Expense_CardCompare_WriteDailySheet(ws, results, useTotal, statementTotal, mismatchCount)
+{
+    global SSOK_CardCompareWriteStage
+
+    daily := {}
+
+    for _, row in results
+    {
+        if (row.useDate != "")
+            key := row.useDate
+        else
+            key := SSOK_Expense_CardCompare_FirstDateKey(row.statementDate)
+
+        if (key = "")
+            continue
+
+        if !daily.HasKey(key)
+            daily[key] := {useAmount:0, statementAmount:0, issues:0, dateDiff:0}
+
+        item := daily[key]
+
+        if (row.useAmount != "")
+            item.useAmount += row.useAmount
+
+        if (row.statementAmount != "")
+            item.statementAmount += row.statementAmount
+
+        if (row.status != "일치")
+            item.issues++
+
+        if (row.dateDiff > 0)
+            item.dateDiff++
+
+        daily[key] := item
+    }
+
+    SSOK_CardCompareWriteStage := "일자별요약 제목 입력"
+    ws.Cells(1,1).Value2 := "일자별 법인카드 비교 요약"
+
+    SSOK_CardCompareWriteStage := "일자별요약 총액 입력"
+    ws.Cells(3,1).Value2 := "사용부 총액"
+    ws.Cells(3,2).Value2 := useTotal
+    ws.Cells(3,3).Value2 := "명세서 총액"
+    ws.Cells(3,4).Value2 := statementTotal
+    ws.Cells(3,5).Value2 := "총액 차이"
+    ws.Cells(3,6).Value2 := useTotal - statementTotal
+
+    headers := ["기준일","사용부 합계","매칭 명세서 합계","차액","상태","일자차이 건수"]
+
+    SSOK_CardCompareWriteStage := "일자별요약 열 제목 입력"
+    for c, header in headers
+        ws.Cells(6,c).Value2 := header
+
+    keyText := ""
+    for key, _ in daily
+        keyText .= key . "`n"
+
+    Sort, keyText
+
+    r := 7
+
+    Loop, Parse, keyText, `n, `r
+    {
+        key := Trim(A_LoopField)
+        if (key = "")
+            continue
+
+        item := daily[key]
+        diff := item.useAmount - item.statementAmount
+        status := (diff = 0 && item.issues = 0) ? "일치" : "확인필요"
+
+        SSOK_CardCompareWriteStage := "일자별요약 " . r . "행"
+        ws.Cells(r,1).Value2 := SSOK_Expense_CardCompare_DateDisplay(key)
+        ws.Cells(r,2).Value2 := item.useAmount
+        ws.Cells(r,3).Value2 := item.statementAmount
+        ws.Cells(r,4).Value2 := diff
+        ws.Cells(r,5).Value2 := status
+        ws.Cells(r,6).Value2 := item.dateDiff
+
+        r++
+    }
+
+    lastRow := r - 1
+
+    SSOK_CardCompareWriteStage := "일자별요약 서식"
+
+    try ws.Range("A1:F1").Merge()
+    try ws.Range("A1:F1").Interior.ColorIndex := 23
+    try ws.Range("A1:F1").Font.ColorIndex := 2
+    try ws.Range("A1:F1").Font.Bold := true
+    try ws.Range("A1:F1").Font.Size := 14
+    try ws.Range("A1:F1").HorizontalAlignment := -4108
+
+    try ws.Range("A3:F3").Interior.ColorIndex := 36
+    try ws.Range("A3:F3").Font.Bold := true
+    try ws.Range("B3").NumberFormat := "#,##0"
+    try ws.Range("D3").NumberFormat := "#,##0"
+    try ws.Range("F3").NumberFormat := "#,##0"
+
+    try ws.Range("A6:F6").Interior.ColorIndex := 23
+    try ws.Range("A6:F6").Font.ColorIndex := 2
+    try ws.Range("A6:F6").Font.Bold := true
+    try ws.Range("A6:F6").HorizontalAlignment := -4108
+
+    if (lastRow >= 7)
+    {
+        try ws.Range("B7:D" . lastRow).NumberFormat := "#,##0"
+        try ws.Range("A6:F" . lastRow).Borders.LineStyle := 1
+        try ws.Range("A6:F" . lastRow).VerticalAlignment := -4108
+
+        ; 확인필요 행만 색상 표시
+        rr := 7
+        Loop, Parse, keyText, `n, `r
+        {
+            key := Trim(A_LoopField)
+            if (key = "")
+                continue
+
+            item := daily[key]
+            diff := item.useAmount - item.statementAmount
+            status := (diff = 0 && item.issues = 0) ? "일치" : "확인필요"
+
+            if (status != "일치")
+                try ws.Range("A" . rr . ":F" . rr).Interior.ColorIndex := 38
+
+            rr++
+        }
+
+        try ws.Range("A6:F" . lastRow).AutoFilter()
+    }
+
+    try ws.Columns("A").ColumnWidth := 14
+    try ws.Columns("B").ColumnWidth := 18
+    try ws.Columns("C").ColumnWidth := 18
+    try ws.Columns("D").ColumnWidth := 18
+    try ws.Columns("E").ColumnWidth := 14
+    try ws.Columns("F").ColumnWidth := 16
+
+    SSOK_CardCompareWriteStage := ""
+}
+
+SSOK_Expense_CardCompare_BuildOutputPath(usePath, useRows := "")
+{
+    SplitPath, usePath,, dir
+
+    latestYM := ""
+
+    if IsObject(useRows)
+    {
+        for _, row in useRows
+        {
+            ym := SubStr(row.date, 1, 6)
+
+            if (StrLen(ym) = 6 && ym > latestYM)
+                latestYM := ym
+        }
+    }
+
+    if (latestYM != "")
+    {
+        monthNum := SubStr(latestYM, 5, 2) + 0
+        return dir . "\법인카드 사용내역 비교(" . monthNum . "월).xlsx"
+    }
+
+    return dir . "\법인카드 사용내역 비교.xlsx"
+}
+
+SSOK_Expense_CardCompare_SortUseRows(ByRef rows)
+{
+    n := rows.Length()
+
+    if (n < 2)
+        return
+
+    Loop, % n - 1
+    {
+        i := A_Index
+        minIndex := i
+
+        Loop, % n - i
+        {
+            j := i + A_Index
+
+            if (rows[j].date < rows[minIndex].date)
+                minIndex := j
+            else if (rows[j].date = rows[minIndex].date && rows[j].amount < rows[minIndex].amount)
+                minIndex := j
+        }
+
+        if (minIndex != i)
+        {
+            temp := rows[i]
+            rows[i] := rows[minIndex]
+            rows[minIndex] := temp
+        }
+    }
+}
+
+SSOK_Expense_CardCompare_SortResults(ByRef rows)
+{
+    n := rows.Length()
+
+    if (n < 2)
+        return
+
+    Loop, % n - 1
+    {
+        i := A_Index
+        minIndex := i
+
+        Loop, % n - i
+        {
+            j := i + A_Index
+
+            d1 := (rows[j].useDate != "") ? rows[j].useDate : SSOK_Expense_CardCompare_FirstDateKey(rows[j].statementDate)
+            d2 := (rows[minIndex].useDate != "") ? rows[minIndex].useDate : SSOK_Expense_CardCompare_FirstDateKey(rows[minIndex].statementDate)
+
+            if (d1 < d2)
+                minIndex := j
+        }
+
+        if (minIndex != i)
+        {
+            temp := rows[i]
+            rows[i] := rows[minIndex]
+            rows[minIndex] := temp
+        }
+    }
+}
+
+SSOK_Expense_CardCompare_DateKey(value)
+{
+    s := Trim(value . "")
+
+    if (s = "")
+        return ""
+
+    ; Excel serial date
+    if RegExMatch(s, "^\d+(?:\.\d+)?$") && (s + 0) > 20000 && (s + 0) < 80000
+    {
+        days := Floor(s + 0)
+        stamp := "18991230000000"
+        EnvAdd, stamp, %days%, Days
+        return SubStr(stamp, 1, 8)
+    }
+
+    digits := RegExReplace(s, "[^0-9]", "")
+
+    if (StrLen(digits) >= 8)
+        return SubStr(digits, 1, 8)
+
+    return ""
+}
+
+SSOK_Expense_CardCompare_DateDisplay(dateKey)
+{
+    if (dateKey = "")
+        return ""
+
+    if (InStr(dateKey, "-") || InStr(dateKey, "."))
+        dateKey := RegExReplace(dateKey, "[^0-9]", "")
+
+    if (StrLen(dateKey) < 8)
+        return dateKey
+
+    return SubStr(dateKey,1,4) . "-" . SubStr(dateKey,5,2) . "-" . SubStr(dateKey,7,2)
+}
+
+SSOK_Expense_CardCompare_DateListDisplay(dateList)
+{
+    parts := StrSplit(dateList, " / ")
+    out := ""
+
+    for _, p in parts
+    {
+        if (out != "")
+            out .= " / "
+
+        out .= SSOK_Expense_CardCompare_DateDisplay(p)
+    }
+
+    return out
+}
+
+SSOK_Expense_CardCompare_FirstDateKey(dateList)
+{
+    if (dateList = "")
+        return ""
+
+    pos := InStr(dateList, " / ")
+
+    if (pos)
+        return SubStr(dateList, 1, pos - 1)
+
+    return dateList
+}
+
+SSOK_Expense_CardCompare_DateDiff(a, b)
+{
+    if (a = "" || b = "")
+        return 999999
+
+    x := a . "000000"
+    y := b . "000000"
+
+    EnvSub, x, %y%, Days
+
+    if (x < 0)
+        x := 0 - x
+
+    return x
+}
+
+SSOK_Expense_CardCompare_Amount(value)
+{
+    s := Trim(value . "")
+
+    if (s = "")
+        return ""
+
+    s := StrReplace(s, ",", "")
+    s := StrReplace(s, "원", "")
+    s := RegExReplace(s, "[^0-9\.-]", "")
+
+    if !RegExMatch(s, "^-?\d+(?:\.\d+)?$")
+        return ""
+
+    return Round(s + 0)
+}
+
+SSOK_Expense_CardCompare_CellText(cell)
+{
+    try value := cell.Value2
+    catch
+        value := ""
+
+    return Trim(value . "", " `t`r`n")
+}
+
+SSOK_Expense_CardCompare_HeaderKey(s)
+{
+    s := s . ""
+    s := StrReplace(s, "`r", "")
+    s := StrReplace(s, "`n", "")
+    s := RegExReplace(s, "\s+", "")
+    return s
+}
+
+SSOK_Expense_CardCompare_NormalizeMerchant(s)
+{
+    s := s . ""
+    s := StrReplace(s, "(주)", "")
+    s := StrReplace(s, "㈜", "")
+    s := StrReplace(s, "주식회사", "")
+    s := RegExReplace(s, "[\s\(\)\[\]\{\}\._\-]+", "")
+    StringLower, s, s
+    return s
+}
+
+SSOK_Expense_CardCompare_ArrayPushUnique(ByRef arr, value)
+{
+    if (value = "")
+        return
+
+    for _, old in arr
+    {
+        if (old = value)
+            return
+    }
+
+    arr.Push(value)
+}
+
+SSOK_Expense_CardCompare_Join(arr, sep := ", ")
+{
+    out := ""
+
+    for _, value in arr
+    {
+        if (out != "")
+            out .= sep
+
+        out .= value
+    }
+
+    return out
+}
+
+SSOK_Expense_CardCompare_FormatMoney(value)
+{
+    value := Round(value)
+    s := value . ""
+    sign := ""
+
+    if (SubStr(s,1,1) = "-")
+    {
+        sign := "-"
+        s := SubStr(s,2)
+    }
+
+    out := ""
+
+    while (StrLen(s) > 3)
+    {
+        out := "," . SubStr(s, -2) . out
+        s := SubStr(s, 1, StrLen(s) - 3)
+    }
+
+    return sign . s . out
 }
 
 
+
+
 ; ============================================================================
-; 업무추진비공개 - 1차 기본 UI
-; ① 지난달 공개자료 Excel
-; ② 이번달 업무추진비집행내역 Excel
-; 현재는 두 파일 입력/확인 기능까지만 구현
+; 업무추진비공개
+; A = 공개용 서식 Excel
+; B = 거래처별 실적 Excel
+;
+; 작성 범위
+; - B의 가장 최근 사용월 = 해당월
+; - 해당월 집행내역 작성
+; - 사용시간 / 집행대상 = 공란
+; - 회의비 / 경조사 / 위문 / 격려 / 물품 구입 등 자동 분류
+; - 유형별 사용현황의 전월까지 사용실적 / 당월 사용실적 / 합계 작성
+; - 예산액은 수정하지 않음
 ; ============================================================================
 
 SSOK_Expense_WorkPublic_PastePrev:
     path := SSOK_Expense_GetCopiedFilePath()
     if (path = "")
     {
-        MsgBox, 48, 업무추진비공개, 탐색기에서 지난달 공개자료 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        MsgBox, 48, 업무추진비공개, 탐색기에서 공개 서식 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
         return
     }
     SSOK_WorkPublicPrevPath := path
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %path%
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, %path%
     Gosub, SSOK_Expense_WorkPublic_UpdateStatus
 return
 
@@ -7157,65 +8399,149 @@ SSOK_Expense_WorkPublic_PasteCurrent:
     path := SSOK_Expense_GetCopiedFilePath()
     if (path = "")
     {
-        MsgBox, 48, 업무추진비공개, 탐색기에서 이번달 업무추진비집행내역 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        MsgBox, 48, 업무추진비공개, 탐색기에서 B 원본자료 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
         return
     }
     SSOK_WorkPublicCurrentPath := path
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, %path%
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, %path%
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+return
+
+
+SSOK_Expense_WorkPublic_PasteCard:
+    path := SSOK_Expense_GetCopiedFilePath()
+    if (path = "")
+    {
+        MsgBox, 48, 업무추진비공개, 탐색기에서 카드승인내역 Excel을 Ctrl+C로 복사한 뒤 다시 눌러 주세요.
+        return
+    }
+    SSOK_WorkPublicCardPath := path
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, %path%
     Gosub, SSOK_Expense_WorkPublic_UpdateStatus
 return
 
 SSOK_Expense_WorkPublic_BrowsePrev:
-    FileSelectFile, picked, 3,, 지난달 공개자료 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    FileSelectFile, picked, 3,, 공개 서식 Excel 선택, Excel 파일 (*.xlsx; *.xls)
     if (ErrorLevel)
         return
     SSOK_WorkPublicPrevPath := picked
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %picked%
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, %picked%
     Gosub, SSOK_Expense_WorkPublic_UpdateStatus
 return
 
 SSOK_Expense_WorkPublic_BrowseCurrent:
-    FileSelectFile, picked, 3,, 이번달 업무추진비집행내역 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    FileSelectFile, picked, 3,, B 원본자료 Excel 선택, Excel 파일 (*.xlsx; *.xls)
     if (ErrorLevel)
         return
     SSOK_WorkPublicCurrentPath := picked
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, %picked%
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, %picked%
+    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+return
+
+SSOK_Expense_WorkPublic_BrowseCard:
+    FileSelectFile, picked, 3,, C 카드 승인내역 Excel 선택, Excel 파일 (*.xlsx; *.xls)
+    if (ErrorLevel)
+        return
+    SSOK_WorkPublicCardPath := picked
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, %picked%
     Gosub, SSOK_Expense_WorkPublic_UpdateStatus
 return
 
 SSOK_Expense_WorkPublic_UpdateStatus:
     Gui, SSOKWorkPublic:Submit, NoHide
 
-    if (FileExist(SSOK_WorkPublicPrevPath) && FileExist(SSOK_WorkPublicCurrentPath))
-        status := "Excel 2개가 선택되었습니다. 지난달 공개자료를 기준 양식으로 사용할 준비가 되었습니다."
-    else if (FileExist(SSOK_WorkPublicPrevPath) || FileExist(SSOK_WorkPublicCurrentPath))
-        status := "Excel 1개가 선택되었습니다. 나머지 파일도 선택해 주세요."
-    else
-        status := "지난달 공개자료와 이번달 업무추진비집행내역 Excel을 각각 선택해 주세요."
+    hasA := FileExist(SSOK_WorkPublicPrevPath)
+    hasB := FileExist(SSOK_WorkPublicCurrentPath)
+    hasC := FileExist(SSOK_WorkPublicCardPath)
+
+    status := ""
+    if (hasA)
+        status .= "A "
+    if (hasB)
+        status .= "B "
+    if (hasC)
+        status .= "C "
+    if (status != "")
+        status := RTrim(status) . " 자료 입력 완료"
 
     GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, %status%
 return
 
 SSOK_Expense_WorkPublic_Check:
-    Gosub, SSOK_Expense_WorkPublic_UpdateStatus
+    ; 초기화: 선택한 파일 경로만 비웁니다.
+    SSOK_WorkPublicPrevPath := ""
+    SSOK_WorkPublicCurrentPath := ""
+    SSOK_WorkPublicCardPath := ""
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, 파일을 여기에 놓아주세요
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, 파일을 여기에 놓아주세요
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, 파일을 여기에 놓아주세요
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus,
+return
 
-    if (!FileExist(SSOK_WorkPublicPrevPath))
-    {
-        MsgBox, 48, 업무추진비공개, 지난달 공개자료 Excel을 선택해 주세요.
-        return
-    }
+SSOK_Expense_WorkPublic_Convert:
+    Gui, SSOKWorkPublic:Submit, NoHide
 
+    ; A 공개 서식은 선택사항입니다.
+    ; A가 없으면 프로그램에 내장된 기본 업무추진비 서식을 자동으로 사용합니다.
     if (!FileExist(SSOK_WorkPublicCurrentPath))
     {
-        MsgBox, 48, 업무추진비공개, 이번달 업무추진비집행내역 Excel을 선택해 주세요.
+        MsgBox, 48, 업무추진비공개, B 원본자료 Excel을 확인해 주세요.
         return
     }
 
-    MsgBox, 64, 업무추진비공개, 두 Excel 파일을 정상적으로 불러왔습니다.`n`n다음 단계에서 지난달 공개자료의 양식을 유지하면서 이번달 집행내역을 변환하도록 연결하면 됩니다.
+    outputPath := SSOK_Expense_WorkPublic_BuildOutputPath(SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath)
+
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 작업중입니다. 잠시만 기다려 주세요.
+
+    if (SSOK_WorkPublicCardPath != "" && !FileExist(SSOK_WorkPublicCardPath))
+    {
+        MsgBox, 48, 업무추진비공개, C 카드 승인내역 Excel을 확인해 주세요.
+        return
+    }
+
+    if !SSOK_Expense_WorkPublic_ConvertCore(SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath, SSOK_WorkPublicCardPath, outputPath, resultReport, errMsg)
+    {
+        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 실패
+        MsgBox, 48, 업무추진비공개, %errMsg%
+        return
+    }
+
+    openCount := 0
+
+    if IsObject(SSOK_WorkPublicGeneratedPaths)
+    {
+        for _, generatedPath in SSOK_WorkPublicGeneratedPaths
+        {
+            if FileExist(generatedPath)
+            {
+                Run, %generatedPath%,, UseErrorLevel
+                if (!ErrorLevel)
+                    openCount++
+            }
+        }
+    }
+
+    if (FileExist(SSOK_WorkPublicCardPath))
+    {
+        if (openCount > 1)
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 완료 - %openCount%개 월별 Excel / C 승인시간 %SSOK_WorkPublicCardTimeMatched%건 반영
+        else if (openCount = 1)
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 완료 - C 승인시간 %SSOK_WorkPublicCardTimeMatched%건 반영
+        else
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 완료 - C 승인시간 %SSOK_WorkPublicCardTimeMatched%건 반영
+    }
+    else
+    {
+        if (openCount > 1)
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 완료 - %openCount%개 월별 Excel을 열었습니다.
+        else if (openCount = 1)
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 완료 - 결과 Excel을 열었습니다.
+        else
+            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus, 작성 완료 - 결과파일을 저장했습니다.
+    }
 return
 
 SSOKWorkPublicGuiDropFiles:
-    ; 탐색기에서 Excel 파일을 GUI/입력칸으로 끌어 놓으면 자동 등록
     SSOK_Expense_WorkPublic_HandleDrop(A_GuiEvent, A_GuiControl)
 return
 
@@ -7226,37 +8552,61 @@ return
 
 SSOK_Expense_WorkPublic_Show()
 {
-    global SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath
+    global SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath, SSOK_WorkPublicCardPath
     global SSOK_WorkPublicStatus
+    global SSOK_WorkPublicPrevDrop, SSOK_WorkPublicCurrentDrop, SSOK_WorkPublicCardDrop
 
     Gui, SSOKWorkPublic:Destroy
-    Gui, SSOKWorkPublic:New, +ToolWindow, 업무추진비공개
-    Gui, SSOKWorkPublic:Margin, 14, 14
+    Gui, SSOKWorkPublic:New, +ToolWindow, 업무추진비 집행내역 공개 자동 작성
+    Gui, SSOKWorkPublic:Margin, 20, 18
     Gui, SSOKWorkPublic:Color, F7FBFF
+
+    Gui, SSOKWorkPublic:Font, s12 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, w820 h30, 업무추진비 집행내역 공개 자동 작성
+
+    ; A 전월 업무추진비 집행내역
     Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, w610 h25, 업무추진비공개
-    Gui, SSOKWorkPublic:Font, s8 Norm, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, y+0 w610 h28 c555555, 탐색기에서 Excel 파일을 각 입력칸으로 끌어 놓거나 [파일 선택]을 이용하세요.
+    Gui, SSOKWorkPublic:Add, Text, x20 y+18 w820 h24 +0x200, A 전월 업무추진비 집행내역 (선택)
+
+    Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
+    prevDisplay := FileExist(SSOK_WorkPublicPrevPath) ? SSOK_WorkPublicPrevPath : "파일을 여기에 놓아주세요"
+    Gui, SSOKWorkPublic:Add, Text, x20 y+8 w820 h72 +Border Center 0x200 vSSOK_WorkPublicPrevDrop c555555, %prevDisplay%
+
+    ; B 원인행위 집행실적
+    Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, x20 y+22 w820 h24 +0x200, B 원인행위 집행실적 입력 (필수)
+
+    Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, x20 y+2 w820 h44 c555555, 근거자료 1: 학교회계-지출관리-지출처리-원인행위목록-업무추진비목록`n   * 상세내역 입력된 것만 보기 해제 후 조회
 
     Gui, SSOKWorkPublic:Font, s9 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, y+10 w160 h22 +0x200, 지난달 공개자료
+    Gui, SSOKWorkPublic:Add, Text, x20 y+3 w820 h22 +0x200, 또는
+
     Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Edit, x150 yp w370 h24 vSSOK_WorkPublicPrevPath, %SSOK_WorkPublicPrevPath%
-    Gui, SSOKWorkPublic:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_WorkPublic_BrowsePrev, 파일 선택
+    Gui, SSOKWorkPublic:Add, Text, x20 y+2 w820 h44 c555555, 근거자료 2: 학교회계-지출관리-지출장부-지출실적조회-원인행위-예산거래처별실적조회`n   * 세출세목명: 일반업무추진비로 조회
 
-    Gui, SSOKWorkPublic:Font, s9 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x14 y+12 w160 h22 +0x200, 이번달 업무추진비집행내역
+    currentDisplay := FileExist(SSOK_WorkPublicCurrentPath) ? SSOK_WorkPublicCurrentPath : "파일을 여기에 놓아주세요"
+    Gui, SSOKWorkPublic:Add, Text, x20 y+8 w820 h72 +Border Center 0x200 vSSOK_WorkPublicCurrentDrop c555555, %currentDisplay%
+
+    ; C 카드승인내역
+    Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, x20 y+22 w820 h24 +0x200, C 카드승인내역 (선택)
+
     Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Edit, x150 yp w370 h24 vSSOK_WorkPublicCurrentPath, %SSOK_WorkPublicCurrentPath%
-    Gui, SSOKWorkPublic:Add, Button, x528 yp-1 w95 h26 gSSOK_Expense_WorkPublic_BrowseCurrent, 파일 선택
+    Gui, SSOKWorkPublic:Add, Text, x20 y+2 w820 h24 c555555, 근거자료: 학교회계-지출관리-기타관리-카드승인내역조회
 
-    Gui, SSOKWorkPublic:Add, Text, x14 y+14 w610 h38 +0x200 vSSOK_WorkPublicStatus c005BAC, 지난달 공개자료와 이번달 업무추진비집행내역 Excel을 각각 선택해 주세요.
-    Gui, SSOKWorkPublic:Add, Button, x14 y+8 w150 h30 gSSOK_Expense_WorkPublic_Check, 파일 확인
-    Gui, SSOKWorkPublic:Add, Button, x473 yp w150 h30 gSSOKWorkPublicGuiClose, 닫기
+    cardDisplay := FileExist(SSOK_WorkPublicCardPath) ? SSOK_WorkPublicCardPath : "파일을 여기에 놓아주세요"
+    Gui, SSOKWorkPublic:Add, Text, x20 y+8 w820 h72 +Border Center 0x200 vSSOK_WorkPublicCardDrop c555555, %cardDisplay%
 
-    Gui, SSOKWorkPublic:Show, w640 h220 Center
+    ; 상태
+    Gui, SSOKWorkPublic:Add, Text, x20 y+18 w820 h30 +0x200 vSSOK_WorkPublicStatus c005BAC,
+
+    ; 하단 버튼
+    Gui, SSOKWorkPublic:Add, Button, x20 y+12 w180 h40 gSSOK_Expense_WorkPublic_Check, 초기화
+    Gui, SSOKWorkPublic:Add, Button, x214 yp w180 h40 gSSOK_Expense_WorkPublic_Convert Default, 작업실행
+
+    Gui, SSOKWorkPublic:Show, w860 h760 Center
 }
-
 
 
 ; ============================================================================
@@ -7348,9 +8698,2980 @@ SSOK_Expense_CardCompare_HandleDrop(dropText, targetControl := "")
     Gosub, SSOK_Expense_CardCompare_UpdateStatus
 }
 
+
+; ============================================================================
+; 업무추진비공개 - 실제 변환
+; ============================================================================
+
+SSOK_Expense_WorkPublic_Preflight(templatePath, sourcePath, ByRef report, ByRef errMsg)
+{
+    report := ""
+    errMsg := ""
+
+    templatePath := Trim(templatePath)
+    sourcePath := Trim(sourcePath)
+
+    if (templatePath = "" || !FileExist(templatePath))
+    {
+        errMsg := "A 공개 서식 Excel을 확인해 주세요."
+        return false
+    }
+
+    if (sourcePath = "" || !FileExist(sourcePath))
+    {
+        errMsg := "B 원본자료 Excel을 확인해 주세요."
+        return false
+    }
+
+    if !RegExMatch(templatePath, "i)\.(xlsx|xls)$")
+    {
+        errMsg := "A 공개 서식은 Excel 파일(.xlsx 또는 .xls)이어야 합니다."
+        return false
+    }
+
+    if !RegExMatch(sourcePath, "i)\.(xlsx|xls)$")
+    {
+        errMsg := "B 원본자료은 Excel 파일(.xlsx 또는 .xls)이어야 합니다."
+        return false
+    }
+
+    if (SSOK_Expense_WorkPublic_NormalizePath(templatePath) = SSOK_Expense_WorkPublic_NormalizePath(sourcePath))
+    {
+        errMsg := "A와 B에 같은 파일을 선택했습니다.`n서로 다른 Excel 파일을 선택해 주세요."
+        return false
+    }
+
+    aInfo := SSOK_Expense_WorkPublic_GetWorkbookInfo(templatePath, aErr)
+    if !IsObject(aInfo)
+    {
+        errMsg := "A 공개 서식 확인 실패:`n" . aErr
+        return false
+    }
+
+    bInfo := SSOK_Expense_WorkPublic_GetWorkbookInfo(sourcePath, bErr)
+    if !IsObject(bInfo)
+    {
+        errMsg := "B 원본자료 확인 실패:`n" . bErr
+        return false
+    }
+
+    outputPath := SSOK_Expense_WorkPublic_BuildOutputPath(templatePath, sourcePath)
+
+    report := "사전점검이 완료되었습니다."
+    report .= "`n`n[A] 공개 서식"
+    report .= "`n- 파일: " . aInfo.fileName
+    report .= "`n- 시트: " . aInfo.sheetCount . "개"
+    report .= "`n- 구조: " . aInfo.sheetSummary
+
+    report .= "`n`n[B] 거래처별 실적"
+    report .= "`n- 파일: " . bInfo.fileName
+    report .= "`n- 시트: " . bInfo.sheetCount . "개"
+    report .= "`n- 구조: " . bInfo.sheetSummary
+
+    report .= "`n`n[작성 규칙]"
+    report .= "`n- 거래처별 실적의 가장 최근 월을 해당월로 사용"
+    report .= "`n- 사용시간 / 집행대상은 공란"
+    report .= "`n- 예산액은 수정하지 않음"
+    report .= "`n- 전월까지 사용실적은 서식의 기존 누계를 사용"
+
+    report .= "`n`n[예정 결과파일]"
+    report .= "`n" . outputPath
+    report .= "`n`n원본 A/B 파일은 수정하지 않습니다."
+
+    return true
+}
+
+SSOK_Expense_WorkPublic_GetWorkbookInfo(path, ByRef errMsg)
+{
+    errMsg := ""
+    xl := ""
+    wb := ""
+
+    try
+    {
+        xl := ComObjCreate("Excel.Application")
+        xl.Visible := false
+        xl.DisplayAlerts := false
+        xl.EnableEvents := false
+        xl.AskToUpdateLinks := false
+        try xl.AutomationSecurity := 3
+
+        wb := xl.Workbooks.Open(path, 0, true)
+
+        SplitPath, path, fileName
+
+        sheetCount := wb.Worksheets.Count
+        sheetSummary := ""
+
+        Loop, %sheetCount%
+        {
+            ws := wb.Worksheets(A_Index)
+            used := ws.UsedRange
+
+            rowCount := used.Rows.Count
+            colCount := used.Columns.Count
+
+            if (sheetSummary != "")
+                sheetSummary .= " / "
+
+            sheetSummary .= ws.Name . " " . rowCount . "행×" . colCount . "열"
+        }
+
+        if (sheetSummary = "")
+            sheetSummary := "사용 시트 없음"
+
+        return {fileName:fileName
+            , sheetCount:sheetCount
+            , sheetSummary:sheetSummary}
+    }
+    catch e
+    {
+        errMsg := e.Message
+        return ""
+    }
+    finally
+    {
+        try
+        {
+            if IsObject(wb)
+                wb.Close(false)
+        }
+
+        try
+        {
+            if IsObject(xl)
+                xl.Quit()
+        }
+
+        wb := ""
+        xl := ""
+    }
+}
+
+SSOK_Expense_WorkPublic_BuildOutputPath(templatePath, sourcePath, currentMonth := "")
+{
+    SplitPath, sourcePath, sourceName, sourceDir,, sourceBase
+
+    if (sourceDir = "")
+        sourceDir := A_ScriptDir
+
+    ext := "xlsx"
+
+    if (FileExist(templatePath))
+    {
+        SplitPath, templatePath,,, templateExt
+        if (templateExt != "")
+            ext := templateExt
+    }
+
+    if (currentMonth != "" && StrLen(currentMonth) >= 6)
+    {
+        monthNum := SubStr(currentMonth, 5, 2) + 0
+        return sourceDir . "\업무추진비 집행내역(" . monthNum . "월)." . ext
+    }
+
+    ; 실제 사용월을 읽기 전의 임시 경로
+    return sourceDir . "\" . sourceBase . "_업무추진비공개." . ext
+}
+
+SSOK_Expense_WorkPublic_NormalizePath(path)
+{
+    path := Trim(path)
+    path := StrReplace(path, "/", "\")
+    StringLower, path, path
+    return path
+}
+
+SSOK_Expense_WorkPublic_ReadReferenceValues(xlRef, templatePath, ByRef budgetAmount, ByRef priorAmount, ByRef errMsg)
+{
+    budgetAmount := ""
+    priorAmount := ""
+    errMsg := ""
+
+    if !FileExist(templatePath)
+        return true
+
+    wbRef := ""
+
+    try
+    {
+        wbRef := xlRef.Workbooks.Open(templatePath, 0, true)
+
+        layout := SSOK_Expense_WorkPublic_FindActualTemplateLayout(wbRef, layoutErr)
+        if !IsObject(layout)
+        {
+            errMsg := "A 공개서식에서 예산액/전월까지 위치를 찾지 못했습니다.`n`n" . layoutErr
+            return false
+        }
+
+        wsRef := layout.ws
+
+        budgetAmount := SSOK_Expense_WorkPublic_Amount(wsRef.Cells(layout.budgetRow, layout.budgetCol).Value2)
+
+        ; A 공개서식에서 가져올 전월까지 실적 = 기존 누계값
+        priorAmount := SSOK_Expense_WorkPublic_Amount(wsRef.Cells(layout.budgetRow, layout.cumCol).Value2)
+
+        return true
+    }
+    catch e
+    {
+        errMsg := "A 공개서식 참고값을 읽는 중 오류가 발생했습니다.`n`n" . e.Message
+        return false
+    }
+    finally
+    {
+        try
+        {
+            if IsObject(wbRef)
+                wbRef.Close(false)
+        }
+
+        wbRef := ""
+    }
+}
+
+SSOK_Expense_WorkPublic_GetMonthList(rows)
+{
+    months := []
+    seen := {}
+    monthText := ""
+
+    for _, row in rows
+    {
+        ym := SubStr(row.date, 1, 6)
+
+        if (StrLen(ym) != 6)
+            continue
+
+        if !seen.HasKey(ym)
+        {
+            seen[ym] := true
+            monthText .= ym . "`n"
+        }
+    }
+
+    monthText := RTrim(monthText, "`n")
+
+    if (monthText = "")
+        return months
+
+    ; YYYYMM 숫자 오름차순: 202608 -> 202609 -> ...
+    Sort, monthText, N
+
+    for _, ym in StrSplit(monthText, "`n")
+    {
+        ym := Trim(ym)
+        if (ym != "")
+            months.Push(ym)
+    }
+
+    return months
+}
+
+SSOK_Expense_WorkPublic_ConvertCore(templatePath, sourcePath, cardPath, ByRef outputPath, ByRef resultReport, ByRef errMsg)
+{
+    global SSOK_WorkPublicGeneratedPaths, SSOK_WorkPublicCardTimeMatched
+
+    SSOK_WorkPublicGeneratedPaths := []
+    SSOK_WorkPublicCardTimeMatched := 0
+    resultReport := ""
+    errMsg := ""
+
+    xl := ""
+    wbSource := ""
+    wbCard := ""
+    wbOut := ""
+    stage := "준비"
+    outputPath := ""
+
+    try
+    {
+        stage := "Excel 실행"
+        xl := ComObjCreate("Excel.Application")
+        xl.Visible := false
+        xl.DisplayAlerts := false
+        xl.EnableEvents := false
+        xl.AskToUpdateLinks := false
+        try xl.AutomationSecurity := 3
+
+        stage := "B 원본자료 열기"
+        wbSource := xl.Workbooks.Open(sourcePath, 0, true)
+
+        stage := "B 원본자료 형식 판별 및 읽기"
+        if !SSOK_Expense_WorkPublic_ReadActualSource(wbSource, sourceRows, sourceInfo, sourceErr)
+        {
+            errMsg := "B 원본자료를 읽지 못했습니다.`n`n" . sourceErr
+            return false
+        }
+
+        ; ---------------------------------------------------------
+        ; C 카드 승인내역이 있으면 승인시간을 읽어 B 자료의 시간보다 우선 적용
+        ; 매칭 기준: 금액 + 사용처, 중복 후보는 같은 날짜 우선
+        ; ---------------------------------------------------------
+        if FileExist(cardPath)
+        {
+            stage := "C 카드 승인내역 열기"
+            wbCard := xl.Workbooks.Open(cardPath, 0, true)
+
+            stage := "C 카드 승인내역 읽기"
+            if !SSOK_Expense_WorkPublic_ReadCardApprovals(wbCard, cardApprovals, cardErr)
+            {
+                errMsg := cardErr
+                return false
+            }
+
+            stage := "C 승인시간 매칭"
+            SSOK_WorkPublicCardTimeMatched := SSOK_Expense_WorkPublic_ApplyCardApprovalTimes(sourceRows, cardApprovals)
+
+            wbCard.Close(false)
+            wbCard := ""
+        }
+
+        ; B 원본 내용은 sourceRows에 모두 읽었으므로 여기서 닫아 Excel 부담을 줄임
+        if IsObject(wbSource)
+        {
+            wbSource.Close(false)
+            wbSource := ""
+        }
+
+        ; ---------------------------------------------------------
+        ; A 공개서식은 출력용 서식으로 사용하지 않습니다.
+        ; A에서 가져오는 값은 예산액 / 전월까지 사용실적 두 가지뿐입니다.
+        ; ---------------------------------------------------------
+        hasReferenceA := FileExist(templatePath)
+        refBudget := ""
+        refPrior := ""
+
+        if (hasReferenceA)
+        {
+            stage := "A 공개서식 참고값 읽기"
+            if !SSOK_Expense_WorkPublic_ReadReferenceValues(xl, templatePath, refBudget, refPrior, refErr)
+            {
+                errMsg := refErr
+                return false
+            }
+        }
+
+        ; ---------------------------------------------------------
+        ; 원본에 있는 모든 월을 추출해서 오래된 월부터 순서대로 작성
+        ; 예: 202608, 202609 -> 8월 파일 + 9월 파일 모두 생성
+        ; ---------------------------------------------------------
+        months := SSOK_Expense_WorkPublic_GetMonthList(sourceRows)
+
+        if (!IsObject(months) || !months.Length())
+        {
+            errMsg := "B 원본자료에서 작성할 업무추진비 사용월을 찾지 못했습니다."
+            return false
+        }
+
+        ; 첫 달은 사용자가 넣은 A 서식이 있으면 그것을 사용.
+        ; A가 없으면 내장 기본서식을 사용.
+        ; 두 번째 달부터는 바로 앞에서 생성한 월별 파일을 다음 달의 서식으로 이어서 사용합니다.
+        ; 결과 Excel의 서식은 항상 내장 기본서식을 사용합니다.
+        ; A는 예산액/전월까지 값만 참고합니다.
+        runningCum := 0
+        firstMonth := true
+        generatedPaths := []
+
+        for _, currentMonth in months
+        {
+            stage := currentMonth . "월 자료 준비"
+
+            currentRows := []
+            summary := {}
+            summary["회의비"] := 0
+            summary["위문격려"] := 0
+            summary["경조사비"] := 0
+            summary["물품기타"] := 0
+
+            for _, row in sourceRows
+            {
+                if (SubStr(row.date, 1, 6) != currentMonth)
+                    continue
+
+                currentRows.Push(row)
+
+                if summary.HasKey(row.category)
+                    summary[row.category] += row.amount
+                else
+                    summary["물품기타"] += row.amount
+            }
+
+            if (!currentRows.Length())
+                continue
+
+            SSOK_Expense_WorkPublic_SortActualRows(currentRows)
+
+            monthOutputPath := SSOK_Expense_WorkPublic_BuildOutputPath(templatePath, sourcePath, currentMonth)
+
+            ; -----------------------------------------------------
+            ; 해당 월 결과파일 만들기
+            ; A 공개서식 유무와 관계없이 항상 내장 기본서식을 사용합니다.
+            ; -----------------------------------------------------
+            stage := currentMonth . "월 결과파일 만들기"
+
+            if FileExist(monthOutputPath)
+            {
+                FileDelete, %monthOutputPath%
+                if FileExist(monthOutputPath)
+                {
+                    errMsg := "기존 결과파일을 지우지 못했습니다.`n파일이 열려 있는지 확인해 주세요.`n`n" . monthOutputPath
+                    return false
+                }
+            }
+
+            stage := currentMonth . "월 내장 기본서식 만들기"
+            if !SSOK_Expense_WorkPublic_CreateBuiltInTemplate(monthOutputPath, templateErr)
+            {
+                errMsg := "내장 기본서식을 만들지 못했습니다.`n`n" . templateErr
+                return false
+            }
+
+            ; -----------------------------------------------------
+            ; 해당 월 서식 작성
+            ; -----------------------------------------------------
+            stage := currentMonth . "월 업무추진비 서식 열기"
+            wbOut := xl.Workbooks.Open(monthOutputPath, 0, false)
+
+            stage := currentMonth . "월 실제 서식 구조 확인"
+            layout := SSOK_Expense_WorkPublic_FindActualTemplateLayout(wbOut, layoutErr)
+
+            if !IsObject(layout)
+            {
+                errMsg := "업무추진비 서식의 작성 위치를 찾지 못했습니다.`n`n" . layoutErr
+                return false
+            }
+
+            ws := layout.ws
+
+            ; A에서 가져오는 값은 예산액 / 전월까지 사용실적뿐입니다.
+            ; A가 없으면 모든 월의 전월까지는 공란 처리합니다.
+            if (!hasReferenceA)
+                prevCum := 0
+            else if (firstMonth)
+                prevCum := (refPrior = "") ? 0 : refPrior
+            else
+                prevCum := runningCum
+
+            currentTotal := 0
+            for _, row in currentRows
+                currentTotal += row.amount
+
+            ; 카테고리별 서식 빈칸 수 확인
+            if !SSOK_Expense_WorkPublic_CheckActualCapacity(layout, currentRows, capacityErr)
+            {
+                errMsg := currentMonth . "월: " . capacityErr
+                return false
+            }
+
+            stage := currentMonth . "월 기존 사용내역 지우기"
+            SSOK_Expense_WorkPublic_ClearActualDetail(ws, layout)
+
+            stage := currentMonth . "월 사용내역 작성"
+            SSOK_Expense_WorkPublic_WriteActualDetail(ws, layout, currentRows)
+
+            stage := currentMonth . "월 유형별 사용현황 작성"
+            SSOK_Expense_WorkPublic_WriteActualTypeSummary(ws, layout, summary, currentTotal)
+
+            stage := currentMonth . "월 집행총괄 작성"
+
+            ; A가 있으면 예산액은 A 값만 가져와 현재 내장서식에 적용합니다.
+            if (hasReferenceA && refBudget != "")
+                ws.Cells(layout.budgetRow, layout.budgetCol).Value2 := refBudget
+
+            ; A가 없으면 예산액/전월까지 공란.
+            ; A가 있으면 첫 달은 A의 전월까지, 이후 달은 앞 달 누계를 전월까지로 사용.
+            noReferenceA := !hasReferenceA
+            SSOK_Expense_WorkPublic_WriteActualOverall(ws, layout, currentMonth, prevCum, currentTotal, noReferenceA)
+
+            ; A 미입력 시 저장 직전에도 예산액/전월실적을 최종 강제 공란
+            if (!hasReferenceA)
+            {
+                try ws.Cells(layout.budgetRow, layout.budgetCol).ClearContents()
+                try ws.Cells(layout.budgetRow, layout.priorCol).ClearContents()
+                try ws.Cells(layout.budgetRow, layout.budgetCol).Value2 := ""
+                try ws.Cells(layout.budgetRow, layout.priorCol).Value2 := ""
+            }
+
+            ; 작업 중 자동계산을 꺼 두었으므로 저장 직전에 해당 시트만 한 번 계산
+            try ws.Calculate()
+
+            stage := currentMonth . "월 결과 저장"
+            wbOut.Save()
+            wbOut.Close(false)
+            wbOut := ""
+
+            runningCum := prevCum + currentTotal
+            generatedPaths.Push(monthOutputPath)
+            SSOK_WorkPublicGeneratedPaths.Push(monthOutputPath)
+
+            ; 다음 달도 내장 기본서식을 새로 사용하고,
+            ; 값은 runningCum으로만 이어갑니다.
+            outputPath := monthOutputPath
+            firstMonth := false
+        }
+
+        if (!generatedPaths.Length())
+        {
+            errMsg := "B 원본자료에서 작성할 업무추진비 집행내역을 찾지 못했습니다."
+            return false
+        }
+
+        ; 월별 결과파일이 실제로 모두 생성되었는지 최종 확인
+        for _, generatedPath in generatedPaths
+        {
+            if !FileExist(generatedPath)
+            {
+                errMsg := "월별 업무추진비 결과파일 생성 확인에 실패했습니다.`n`n" . generatedPath
+                return false
+            }
+        }
+
+        ; 완료 팝업은 띄우지 않지만 내부 상태용으로 생성 결과를 남김
+        resultReport := generatedPaths.Length() . "개월 업무추진비 집행내역 작성 완료"
+        for _, path in generatedPaths
+            resultReport .= "`n" . path
+
+        return true
+    }
+    catch e
+    {
+        errMsg := "업무추진비 공개자료 작성 중 오류가 발생했습니다."
+        errMsg .= "`n`n오류 단계: " . stage
+        errMsg .= "`n`n" . e.Message
+        return false
+    }
+    finally
+    {
+        try
+        {
+            if IsObject(wbOut)
+                wbOut.Close(false)
+        }
+
+        try
+        {
+            if IsObject(wbSource)
+                wbSource.Close(false)
+        }
+
+        try
+        {
+            if IsObject(wbCard)
+                wbCard.Close(false)
+        }
+
+        try
+        {
+            if IsObject(xl)
+                xl.Quit()
+        }
+
+        wbOut := ""
+        wbSource := ""
+        wbCard := ""
+        xl := ""
+    }
+}
+
+
+; ============================================================================
+; 업무추진비공개 - 실제 업로드 파일 구조 전용
+; A: "1 업무추진비 집행내역.xlsx" (이전 달 공개 서식)
+; B: "예산거래처별실적(원인행위)" (해당월 집행자료)
+; ============================================================================
+
+SSOK_Expense_WorkPublic_ReadCardApprovals(wb, ByRef approvals, ByRef errMsg)
+{
+    approvals := []
+    errMsg := ""
+
+    Loop, % wb.Worksheets.Count
+    {
+        ws := wb.Worksheets(A_Index)
+
+        if !SSOK_Expense_WorkPublic_FindCardApprovalColumns(ws, headerRow, cols)
+            continue
+
+        ; 속도개선: 금액/사용처 열은 이미 헤더 탐색에서 확인됨
+        ; 실제 데이터가 있는 마지막 행을 직접 계산
+        lastRow := ws.Cells(ws.Rows.Count, cols.amount).End(-4162).Row
+        lastRow2 := ws.Cells(ws.Rows.Count, cols.merchant).End(-4162).Row
+
+        if (lastRow2 > lastRow)
+            lastRow := lastRow2
+
+        r := headerRow + 1
+
+        while (r <= lastRow)
+        {
+            amount := SSOK_Expense_WorkPublic_Amount(ws.Cells(r, cols.amount).Value2)
+            merchant := SSOK_Expense_WorkPublic_CellText(ws.Cells(r, cols.merchant))
+
+            if (amount != "" && merchant != "")
+            {
+                dateKey := ""
+                timeText := ""
+
+                if (cols.datetime)
+                {
+                    dtValue := ws.Cells(r, cols.datetime).Value2
+                    dateKey := SSOK_Expense_WorkPublic_DateKey(dtValue)
+                    timeText := SSOK_Expense_WorkPublic_ApprovalTimeDisplay(dtValue)
+                }
+                else
+                {
+                    if (cols.date)
+                        dateKey := SSOK_Expense_WorkPublic_DateKey(ws.Cells(r, cols.date).Value2)
+
+                    if (cols.time)
+                        timeText := SSOK_Expense_WorkPublic_ApprovalTimeDisplay(ws.Cells(r, cols.time).Value2)
+                }
+
+                if (timeText != "")
+                {
+                    approvals.Push({date:dateKey
+                        , time:timeText
+                        , amount:amount
+                        , merchant:merchant
+                        , used:false})
+                }
+            }
+
+            r++
+        }
+
+        if (approvals.Length())
+            return true
+    }
+
+    errMsg := "C 카드 승인내역에서 승인일시(또는 승인시간), 금액, 사용처/가맹점 열을 찾지 못했습니다."
+    errMsg .= "`n`n인식 예: 승인일시 / 승인금액 / 가맹점명"
+    return false
+}
+
+SSOK_Expense_WorkPublic_FindCardApprovalColumns(ws, ByRef headerRow, ByRef cols)
+{
+    used := ws.UsedRange
+    firstRow := used.Row
+    firstCol := used.Column
+    totalRows := used.Rows.Count
+    totalCols := used.Columns.Count
+
+    ; 1차: 일반적인 카드 승인내역은 상단/좌측에 있으므로 빠르게 탐색
+    fastRows := totalRows
+    fastCols := totalCols
+
+    if (fastRows > 25)
+        fastRows := 25
+    if (fastCols > 60)
+        fastCols := 60
+
+    Loop, %fastRows%
+    {
+        r := firstRow + A_Index - 1
+        temp := {datetime:0, date:0, time:0, amount:0, merchant:0}
+
+        Loop, %fastCols%
+        {
+            c := firstCol + A_Index - 1
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            if (!temp.datetime && (InStr(key,"승인일시") || InStr(key,"이용일시") || InStr(key,"거래일시") || InStr(key,"사용일시")))
+                temp.datetime := c
+            else if (!temp.date && (InStr(key,"승인일자") || InStr(key,"이용일자") || InStr(key,"거래일자") || InStr(key,"사용일자") || InStr(key,"결제일자")))
+                temp.date := c
+            else if (!temp.time && (InStr(key,"승인시간") || InStr(key,"이용시간") || InStr(key,"거래시간") || InStr(key,"사용시간")))
+                temp.time := c
+
+            if (!temp.amount && (InStr(key,"승인금액") || InStr(key,"이용금액") || InStr(key,"사용금액") || InStr(key,"결제금액") || InStr(key,"매출금액") || key = "금액"))
+                temp.amount := c
+
+            if (!temp.merchant && (InStr(key,"가맹점명") || InStr(key,"가맹점") || InStr(key,"사용처") || InStr(key,"거래처") || InStr(key,"업체명")))
+                temp.merchant := c
+        }
+
+        if (temp.amount && temp.merchant && (temp.datetime || temp.time))
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    ; 2차 fallback: 특수한 파일은 기존처럼 최대 100행/100열까지 확인
+    maxRows := totalRows
+    maxCols := totalCols
+
+    if (maxRows > 100)
+        maxRows := 100
+    if (maxCols > 100)
+        maxCols := 100
+
+    if (maxRows = fastRows && maxCols = fastCols)
+        return false
+
+    Loop, %maxRows%
+    {
+        r := firstRow + A_Index - 1
+
+        ; 1차에서 이미 본 범위는 건너뜀
+        if (A_Index <= fastRows)
+            startColIndex := fastCols + 1
+        else
+            startColIndex := 1
+
+        temp := {datetime:0, date:0, time:0, amount:0, merchant:0}
+
+        cIndex := startColIndex
+        while (cIndex <= maxCols)
+        {
+            c := firstCol + cIndex - 1
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            if (!temp.datetime && (InStr(key,"승인일시") || InStr(key,"이용일시") || InStr(key,"거래일시") || InStr(key,"사용일시")))
+                temp.datetime := c
+            else if (!temp.date && (InStr(key,"승인일자") || InStr(key,"이용일자") || InStr(key,"거래일자") || InStr(key,"사용일자") || InStr(key,"결제일자")))
+                temp.date := c
+            else if (!temp.time && (InStr(key,"승인시간") || InStr(key,"이용시간") || InStr(key,"거래시간") || InStr(key,"사용시간")))
+                temp.time := c
+
+            if (!temp.amount && (InStr(key,"승인금액") || InStr(key,"이용금액") || InStr(key,"사용금액") || InStr(key,"결제금액") || InStr(key,"매출금액") || key = "금액"))
+                temp.amount := c
+
+            if (!temp.merchant && (InStr(key,"가맹점명") || InStr(key,"가맹점") || InStr(key,"사용처") || InStr(key,"거래처") || InStr(key,"업체명")))
+                temp.merchant := c
+
+            cIndex++
+        }
+
+        ; 1차 범위 바깥에 머리글이 섞여 있는 특수형식은 전체행을 다시 확인
+        if (A_Index <= fastRows && (temp.amount || temp.merchant || temp.datetime || temp.time))
+        {
+            cIndex := 1
+            while (cIndex <= fastCols)
+            {
+                c := firstCol + cIndex - 1
+                key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+                if (!temp.datetime && (InStr(key,"승인일시") || InStr(key,"이용일시") || InStr(key,"거래일시") || InStr(key,"사용일시")))
+                    temp.datetime := c
+                else if (!temp.date && (InStr(key,"승인일자") || InStr(key,"이용일자") || InStr(key,"거래일자") || InStr(key,"사용일자") || InStr(key,"결제일자")))
+                    temp.date := c
+                else if (!temp.time && (InStr(key,"승인시간") || InStr(key,"이용시간") || InStr(key,"거래시간") || InStr(key,"사용시간")))
+                    temp.time := c
+
+                if (!temp.amount && (InStr(key,"승인금액") || InStr(key,"이용금액") || InStr(key,"사용금액") || InStr(key,"결제금액") || InStr(key,"매출금액") || key = "금액"))
+                    temp.amount := c
+
+                if (!temp.merchant && (InStr(key,"가맹점명") || InStr(key,"가맹점") || InStr(key,"사용처") || InStr(key,"거래처") || InStr(key,"업체명")))
+                    temp.merchant := c
+
+                cIndex++
+            }
+        }
+
+        if (temp.amount && temp.merchant && (temp.datetime || temp.time))
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_WorkPublic_ApprovalTimeDisplay(value)
+{
+    s := Trim(value . "", " `t`r`n")
+    if (s = "")
+        return ""
+
+    ; Excel 일시/시간 serial 값
+    if RegExMatch(s, "^-?[0-9]+(?:\.[0-9]+)?$")
+    {
+        n := s + 0
+        frac := n - Floor(n)
+
+        if (n >= 0 && n < 1)
+            frac := n
+
+        if (frac >= 0)
+        {
+            totalMinutes := Floor((frac * 1440) + 0.00001)
+            if (totalMinutes >= 1440)
+                totalMinutes := Mod(totalMinutes, 1440)
+
+            hh := Floor(totalMinutes / 60)
+            mm := Mod(totalMinutes, 60)
+            return Format("{:02}:{:02}", hh, mm)
+        }
+    }
+
+    ; 텍스트 예: 2026-09-21 12:32:48 -> 12:32
+    if RegExMatch(s, "(\d{1,2})\s*:\s*(\d{1,2})", m)
+    {
+        hh := m1 + 0
+        mm := m2 + 0
+
+        if (hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59)
+            return Format("{:02}:{:02}", hh, mm)
+    }
+
+    ; 텍스트 예: 12시 32분
+    if RegExMatch(s, "(\d{1,2})\s*시\s*(\d{1,2})\s*분", m)
+    {
+        hh := m1 + 0
+        mm := m2 + 0
+
+        if (hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59)
+            return Format("{:02}:{:02}", hh, mm)
+    }
+
+    return ""
+}
+
+SSOK_Expense_WorkPublic_MerchantMatchKey(value)
+{
+    s := SSOK_Expense_WorkPublic_HeaderKey(value)
+    s := StrReplace(s, "주식회사", "")
+    s := StrReplace(s, "유한회사", "")
+    s := StrReplace(s, "(주)", "")
+    s := RegExReplace(s, "[\(\)\[\]\{\}\-_.,/\\]", "")
+    return s
+}
+
+SSOK_Expense_WorkPublic_MerchantMatches(a, b)
+{
+    ak := SSOK_Expense_WorkPublic_MerchantMatchKey(a)
+    bk := SSOK_Expense_WorkPublic_MerchantMatchKey(b)
+
+    if (ak = "" || bk = "")
+        return false
+
+    if (ak = bk)
+        return true
+
+    if (StrLen(ak) >= 3 && StrLen(bk) >= 3)
+    {
+        if (InStr(ak, bk) || InStr(bk, ak))
+            return true
+    }
+
+    return false
+}
+
+SSOK_Expense_WorkPublic_FindAmountCombination(sourceRows, candidateIndexes, targetAmount)
+{
+    result := []
+
+    if (!IsObject(candidateIndexes) || candidateIndexes.Length() < 2)
+        return result
+
+    n := candidateIndexes.Length()
+
+    ; 실제 예산분할은 보통 2~4행이므로 최대 4개 조합까지 탐색
+    ; 2개 조합
+    Loop, % n
+    {
+        i := A_Index
+        if (i >= n)
+            break
+
+        Loop, % n - i
+        {
+            j := i + A_Index
+            idx1 := candidateIndexes[i]
+            idx2 := candidateIndexes[j]
+
+            if (sourceRows[idx1].amount + sourceRows[idx2].amount = targetAmount)
+                return [idx1, idx2]
+        }
+    }
+
+    ; 3개 조합
+    if (n >= 3)
+    {
+        Loop, % n
+        {
+            i := A_Index
+            if (i > n - 2)
+                break
+
+            j := i + 1
+            while (j <= n - 1)
+            {
+                k := j + 1
+                while (k <= n)
+                {
+                    idx1 := candidateIndexes[i]
+                    idx2 := candidateIndexes[j]
+                    idx3 := candidateIndexes[k]
+
+                    sum := sourceRows[idx1].amount + sourceRows[idx2].amount + sourceRows[idx3].amount
+                    if (sum = targetAmount)
+                        return [idx1, idx2, idx3]
+
+                    k++
+                }
+                j++
+            }
+        }
+    }
+
+    ; 4개 조합
+    if (n >= 4)
+    {
+        Loop, % n
+        {
+            i := A_Index
+            if (i > n - 3)
+                break
+
+            j := i + 1
+            while (j <= n - 2)
+            {
+                k := j + 1
+                while (k <= n - 1)
+                {
+                    l := k + 1
+                    while (l <= n)
+                    {
+                        idx1 := candidateIndexes[i]
+                        idx2 := candidateIndexes[j]
+                        idx3 := candidateIndexes[k]
+                        idx4 := candidateIndexes[l]
+
+                        sum := sourceRows[idx1].amount + sourceRows[idx2].amount + sourceRows[idx3].amount + sourceRows[idx4].amount
+                        if (sum = targetAmount)
+                            return [idx1, idx2, idx3, idx4]
+
+                        l++
+                    }
+                    k++
+                }
+                j++
+            }
+        }
+    }
+
+    return result
+}
+
+SSOK_Expense_WorkPublic_ApplyCardApprovalTimes(ByRef sourceRows, ByRef approvals)
+{
+    matched := 0
+
+    if (!IsObject(sourceRows) || !IsObject(approvals))
+        return matched
+
+    ; ------------------------------------------------------------
+    ; 1단계: 기존 방식 - B 한 행의 금액과 C 승인금액이 정확히 같은 1:1 매칭
+    ; ------------------------------------------------------------
+    for rowIndex, row in sourceRows
+    {
+        bestIndex := 0
+        bestScore := -1
+        rowMerchantKey := SSOK_Expense_WorkPublic_MerchantMatchKey(row.merchant)
+
+        for approvalIndex, approval in approvals
+        {
+            if (approval.used)
+                continue
+
+            if (approval.amount != row.amount)
+                continue
+
+            if !SSOK_Expense_WorkPublic_MerchantMatches(row.merchant, approval.merchant)
+                continue
+
+            score := 100
+            approvalMerchantKey := SSOK_Expense_WorkPublic_MerchantMatchKey(approval.merchant)
+
+            if (rowMerchantKey = approvalMerchantKey)
+                score += 20
+
+            ; 같은 날짜를 최우선
+            if (row.date != "" && approval.date != "" && row.date = approval.date)
+                score += 50
+
+            if (score > bestScore)
+            {
+                bestScore := score
+                bestIndex := approvalIndex
+            }
+        }
+
+        if (bestIndex)
+        {
+            sourceRows[rowIndex].time := approvals[bestIndex].time
+            sourceRows[rowIndex].cardMatched := true
+            approvals[bestIndex].used := true
+            matched++
+        }
+    }
+
+    ; ------------------------------------------------------------
+    ; 2단계: 예산 분할 매칭
+    ; 실제 카드는 1번 결제했지만 B에서 예산 때문에 2개 이상으로 나뉜 경우
+    ; 같은 날짜 + 같은 사용처의 미매칭 B 행 합계가 C 승인금액과 같으면
+    ; 공개자료에서는 실제 카드 승인 1건으로 합칩니다.
+    ; ------------------------------------------------------------
+    for approvalIndex, approval in approvals
+    {
+        if (approval.used)
+            continue
+
+        candidateIndexes := []
+
+        for rowIndex, row in sourceRows
+        {
+            if (row.HasKey("cardMatched") && row.cardMatched)
+                continue
+
+            if (row.HasKey("mergedAway") && row.mergedAway)
+                continue
+
+            if (approval.date != "" && row.date != "" && row.date != approval.date)
+                continue
+
+            if !SSOK_Expense_WorkPublic_MerchantMatches(row.merchant, approval.merchant)
+                continue
+
+            candidateIndexes.Push(rowIndex)
+        }
+
+        if (candidateIndexes.Length() < 2)
+            continue
+
+        groupIndexes := SSOK_Expense_WorkPublic_FindAmountCombination(sourceRows, candidateIndexes, approval.amount)
+
+        if (!IsObject(groupIndexes) || groupIndexes.Length() < 2)
+            continue
+
+        ; 첫 행을 대표행으로 사용하고 나머지는 제거표시
+        firstIndex := groupIndexes[1]
+        mergedRow := sourceRows[firstIndex]
+
+        mergedTitle := ""
+        mergedTarget := ""
+        mergedPlace := ""
+        mergedCategory := mergedRow.category
+
+        for _, idx in groupIndexes
+        {
+            r := sourceRows[idx]
+
+            if (mergedTitle = "" && r.title != "")
+                mergedTitle := r.title
+
+            if (mergedTarget = "" && r.target != "")
+                mergedTarget := r.target
+
+            if (mergedPlace = "" && r.place != "")
+                mergedPlace := r.place
+        }
+
+        sourceRows[firstIndex].amount := approval.amount
+        sourceRows[firstIndex].time := approval.time
+        sourceRows[firstIndex].cardMatched := true
+        sourceRows[firstIndex].cardMerged := true
+
+        if (mergedTitle != "")
+            sourceRows[firstIndex].title := mergedTitle
+        if (mergedTarget != "")
+            sourceRows[firstIndex].target := mergedTarget
+        if (mergedPlace != "")
+            sourceRows[firstIndex].place := mergedPlace
+
+        ; 대표행 외 나머지 분할행 제거
+        Loop, % groupIndexes.Length()
+        {
+            if (A_Index = 1)
+                continue
+            idx := groupIndexes[A_Index]
+            sourceRows[idx].mergedAway := true
+        }
+
+        approvals[approvalIndex].used := true
+        matched++
+    }
+
+    ; mergedAway 행 실제 제거
+    cleaned := []
+    for _, row in sourceRows
+    {
+        if (row.HasKey("mergedAway") && row.mergedAway)
+            continue
+        cleaned.Push(row)
+    }
+
+    sourceRows := cleaned
+    return matched
+}
+
+SSOK_Expense_WorkPublic_ReadActualSource(wb, ByRef rows, ByRef info, ByRef errMsg)
+{
+    rows := []
+    info := ""
+    errMsg := ""
+
+    try
+        ws := wb.Worksheets(1)
+    catch e
+    {
+        errMsg := "B 원본자료의 첫 번째 시트를 열지 못했습니다.`n`n" . e.Message
+        return false
+    }
+
+    ; 형식 1: 예산거래처별실적(원인행위)
+    vendorH1 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(3,1)))
+    vendorH4 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(3,4)))
+    vendorH6 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(3,6)))
+    isVendorFormat := (vendorH1 = "일자" && vendorH4 = "제목" && InStr(vendorH6, "원인행위"))
+
+    ; 형식 2: 업무추진비목록
+    workH3 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(1,3)))
+    workH4 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(1,4)))
+    workH5 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(1,5)))
+    workH7 := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(1,7)))
+    isWorkListFormat := (InStr(workH3, "원인행위일자") && workH4 = "제목" && InStr(workH5, "원인행위금액") && InStr(workH7, "사용처"))
+
+    if (isVendorFormat)
+        return SSOK_Expense_WorkPublic_ReadVendorSource(ws, rows, info, errMsg)
+
+    if (isWorkListFormat)
+        return SSOK_Expense_WorkPublic_ReadWorkListSource(ws, rows, info, errMsg)
+
+    errMsg := "지원하지 않는 B 원본자료 형식입니다."
+    errMsg .= "`n`n지원 형식:"
+    errMsg .= "`n1) 예산거래처별실적(원인행위)"
+    errMsg .= "`n2) 업무추진비목록"
+    return false
+}
+
+SSOK_Expense_WorkPublic_FindActualSourceColumns(ws, ByRef headerRow, ByRef cols)
+{
+    used := ws.UsedRange
+    firstRow := used.Row
+    firstCol := used.Column
+    maxRows := used.Rows.Count
+    maxCols := used.Columns.Count
+
+    if (maxRows > 80)
+        maxRows := 80
+    if (maxCols > 80)
+        maxCols := 80
+
+    Loop, %maxRows%
+    {
+        r := firstRow + A_Index - 1
+        temp := {date:0, title:0, amount:0, type:0, detail1:0, detail2:0
+            , costItem:0, budgetItem:0, merchant:0, payment:0}
+
+        Loop, %maxCols%
+        {
+            c := firstCol + A_Index - 1
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            if (key = "일자")
+                temp.date := c
+            else if (key = "제목")
+                temp.title := c
+            else if (key = "원인행위액" || key = "원인행위금액")
+                temp.amount := c
+            else if (key = "유형")
+                temp.type := c
+            else if (key = "세부항목")
+                temp.detail1 := c
+            else if (key = "산출내역")
+                temp.detail2 := c
+            else if (key = "원가통계비목")
+                temp.costItem := c
+            else if (key = "목")
+                temp.budgetItem := c
+            else if (key = "수령인")
+                temp.merchant := c
+            else if (key = "지급방법")
+                temp.payment := c
+        }
+
+        if (temp.date && temp.title && temp.amount)
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_WorkPublic_ReadVendorSource(ws, ByRef rows, ByRef info, ByRef errMsg)
+{
+    rows := []
+    info := ""
+    errMsg := ""
+
+    ; 속도개선: 실제 일자(A열)가 있는 마지막 행까지만 처리
+    lastRow := ws.Cells(ws.Rows.Count, 1).End(-4162).Row  ; xlUp
+
+    currentMonth := ""
+
+    r := 4
+    while (r <= lastRow)
+    {
+        dateKey := SSOK_Expense_WorkPublic_DateKey(ws.Cells(r,1).Value2)
+
+        if (dateKey != "")
+        {
+            amount := SSOK_Expense_WorkPublic_Amount(ws.Cells(r,6).Value2)
+
+            if (amount != "" && amount != 0)
+            {
+                budgetItem := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,11))
+
+                if InStr(SSOK_Expense_WorkPublic_HeaderKey(budgetItem), "업무추진비")
+                {
+                    title := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,4))
+                    titleKey := SSOK_Expense_WorkPublic_HeaderKey(title)
+
+                    ; 학교장 직책급 업무수행경비는 무조건 제외
+                    if !(InStr(titleKey, "학교장") && InStr(titleKey, "직책급업무수행경비"))
+                    {
+                        merchant := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,14))
+
+                        extra := ""
+                        for _, c in [7,9,10,13]
+                        {
+                            t := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c))
+                            if (t != "")
+                                extra .= " " . t
+                        }
+
+                        category := SSOK_Expense_WorkPublic_ClassifyActual(title, extra)
+
+                        rows.Push({date:dateKey
+                            , title:title
+                            , amount:amount
+                            , merchant:merchant
+                            , place:""
+                            , time:""
+                            , target:""
+                            , category:category
+                            , sourceType:"vendor"})
+
+                        ym := SubStr(dateKey, 1, 6)
+                        if (currentMonth = "" || ym > currentMonth)
+                            currentMonth := ym
+                    }
+                }
+            }
+        }
+
+        r++
+    }
+
+    if (!rows.Length())
+    {
+        errMsg := "예산거래처별실적에서 공개할 업무추진비 집행내역을 찾지 못했습니다."
+        return false
+    }
+
+    info := {sheetName:ws.Name
+        , headerRow:3
+        , currentMonth:currentMonth
+        , sourceType:"vendor"}
+
+    return true
+}
+
+SSOK_Expense_WorkPublic_ReadWorkListSource(ws, ByRef rows, ByRef info, ByRef errMsg)
+{
+    rows := []
+    info := ""
+    errMsg := ""
+
+    ; 속도개선: 원인행위일자(C열)의 실제 마지막 데이터 행까지만 처리
+    lastRow := ws.Cells(ws.Rows.Count, 3).End(-4162).Row  ; xlUp
+
+    currentMonth := ""
+
+    r := 2
+    while (r <= lastRow)
+    {
+        rowNo := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,2))
+
+        ; 합계 행 제외
+        if (SSOK_Expense_WorkPublic_HeaderKey(rowNo) = "합계")
+        {
+            r++
+            continue
+        }
+
+        dateKey := SSOK_Expense_WorkPublic_DateKey(ws.Cells(r,3).Value2)
+
+        if (dateKey != "")
+        {
+            amount := SSOK_Expense_WorkPublic_Amount(ws.Cells(r,5).Value2)
+
+            if (amount != "" && amount != 0)
+            {
+                title := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,4))
+                titleKey := SSOK_Expense_WorkPublic_HeaderKey(title)
+
+                ; 학교장 직책급 업무수행경비는 무조건 제외
+                if !(InStr(titleKey, "학교장") && InStr(titleKey, "직책급업무수행경비"))
+                {
+                    merchant := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,7))
+                    attendees := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,8))
+                    attendeeCount := SSOK_Expense_WorkPublic_Amount(ws.Cells(r,9).Value2)
+                    place := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,10))
+                    timeText := SSOK_Expense_WorkPublic_TimeDisplay(ws.Cells(r,11).Value2)
+                    targetText := SSOK_Expense_WorkPublic_TargetDisplay(attendees, attendeeCount)
+
+                    category := SSOK_Expense_WorkPublic_ClassifyActual(title)
+
+                    rows.Push({date:dateKey
+                        , title:title
+                        , amount:amount
+                        , merchant:merchant
+                        , place:place
+                        , time:timeText
+                        , target:targetText
+                        , category:category
+                        , sourceType:"worklist"})
+
+                    ym := SubStr(dateKey, 1, 6)
+                    if (currentMonth = "" || ym > currentMonth)
+                        currentMonth := ym
+                }
+            }
+        }
+
+        r++
+    }
+
+    if (!rows.Length())
+    {
+        errMsg := "업무추진비목록에서 공개할 집행내역을 찾지 못했습니다."
+        return false
+    }
+
+    info := {sheetName:ws.Name
+        , headerRow:1
+        , currentMonth:currentMonth
+        , sourceType:"worklist"}
+
+    return true
+}
+
+SSOK_Expense_WorkPublic_TimeDisplay(value)
+{
+    s := Trim(value . "", " `t`r`n")
+    if (s = "")
+        return ""
+
+    ; Excel 시간 값이 숫자일 때 HH:mm으로 변환
+    if RegExMatch(s, "^-?[0-9]+(?:\.[0-9]+)?$")
+    {
+        n := s + 0
+        frac := n - Floor(n)
+
+        if (n >= 0 && n < 1)
+            frac := n
+
+        if (frac > 0)
+        {
+            totalMinutes := Round(frac * 1440)
+            if (totalMinutes >= 1440)
+                totalMinutes -= 1440
+
+            hh := Floor(totalMinutes / 60)
+            mm := Mod(totalMinutes, 60)
+            return Format("{:02}:{:02}", hh, mm)
+        }
+    }
+
+    s := RegExReplace(s, "[`r`n]+", " ")
+    s := RegExReplace(s, "[ `t]+", " ")
+    return Trim(s)
+}
+
+SSOK_Expense_WorkPublic_TargetDisplay(attendees, attendeeCount)
+{
+    names := Trim(attendees . "", " `t`r`n,")
+    names := RegExReplace(names, "[`r`n]+", ", ")
+    names := RegExReplace(names, "[ `t]+", " ")
+
+    count := attendeeCount + 0
+    if (count > 0)
+        count := Round(count)
+
+    ; 예: 홍길동, 이순신 등 5명
+    if (names != "" && count > 0)
+        return names . " 등 " . count . "명"
+
+    if (names != "")
+        return names
+
+    if (count > 0)
+        return count . "명"
+
+    return ""
+}
+
+SSOK_Expense_WorkPublic_MerchantPlaceDisplay(merchant, place)
+{
+    merchant := Trim(merchant . "", " `t`r`n")
+    place := Trim(place . "", " `t`r`n")
+
+    if (place = "")
+        return merchant
+
+    if (merchant = "")
+        return place
+
+    mKey := SSOK_Expense_WorkPublic_HeaderKey(merchant)
+    pKey := SSOK_Expense_WorkPublic_HeaderKey(place)
+
+    ; 같은 내용이면 중복하지 않음
+    if (InStr(mKey, pKey) || InStr(pKey, mKey))
+        return merchant
+
+    ; 공개서식에 별도 장소 열이 없으므로 업체명 칸에 같이 표기
+    return merchant . " (" . place . ")"
+}
+
+SSOK_Expense_WorkPublic_ClassifyActual(title, extra := "")
+{
+    ; 제목을 최우선으로 분류합니다.
+    ; 예: "내방객용 물품 구입"의 산출내역에 '협의회'가 있어도 물품구입으로 분류.
+    t := SSOK_Expense_WorkPublic_HeaderKey(title)
+    e := SSOK_Expense_WorkPublic_HeaderKey(extra)
+    all := t . e
+
+    if (InStr(t,"경조") || InStr(t,"조의") || InStr(t,"부의")
+        || InStr(t,"축의") || InStr(t,"근조") || InStr(t,"조문")
+        || InStr(t,"장례") || InStr(t,"결혼"))
+        return "경조사비"
+
+    if (InStr(t,"위문") || InStr(t,"위로") || InStr(t,"병문")
+        || InStr(t,"격려") || InStr(t,"포상") || InStr(t,"표창")
+        || InStr(t,"사기진작") || InStr(t,"격려품"))
+        return "위문격려"
+
+    if (InStr(t,"물품구입") || InStr(t,"물품구매")
+        || InStr(t,"구입") || InStr(t,"구매") || InStr(t,"소모품")
+        || InStr(t,"기념품") || InStr(t,"선물") || InStr(t,"용품"))
+        return "물품기타"
+
+    if (InStr(t,"회의") || InStr(t,"간담") || InStr(t,"협의")
+        || InStr(t,"토론") || InStr(t,"설명회") || InStr(t,"오찬")
+        || InStr(t,"만찬") || InStr(t,"다과") || InStr(t,"식사"))
+        return "회의비"
+
+    ; 제목으로 판단되지 않을 때만 세부항목/산출내역 등을 보조로 사용
+    if (InStr(all,"경조사비") || InStr(all,"경조"))
+        return "경조사비"
+
+    if (InStr(all,"위문") || InStr(all,"격려"))
+        return "위문격려"
+
+    if (InStr(all,"회의") || InStr(all,"간담") || InStr(all,"협의"))
+        return "회의비"
+
+    ; 직책급 업무수행경비 등은 공개서식의 '물품구입비, 기타운영비 등'으로 처리
+    return "물품기타"
+}
+
+SSOK_Expense_WorkPublic_MapPayment(s)
+{
+    key := SSOK_Expense_WorkPublic_HeaderKey(s)
+
+    if InStr(key, "카드")
+        return "법인카드"
+
+    if InStr(key, "계좌이체")
+        return "계좌이체"
+
+    return Trim(s)
+}
+
+SSOK_Expense_WorkPublic_FindActualTemplateLayout(wb, ByRef errMsg)
+{
+    errMsg := ""
+
+    ; ------------------------------------------------------------
+    ; 실제 업로드한 "1 업무추진비 집행내역.xlsx" 서식의 확정 좌표를 사용합니다.
+    ; Excel COM으로 전체 셀을 순회하지 않으므로 0x800A03EC 오류를 피합니다.
+    ;
+    ; A1:I40
+    ; 1. 집행총괄       : 2~6행
+    ; 2. 유형별 사용현황: 8~11행
+    ; 3. 사용 내역      : 13~40행
+    ; ------------------------------------------------------------
+    try
+        ws := wb.Worksheets(1)
+    catch e
+    {
+        errMsg := "업무추진비 서식의 첫 번째 시트를 열지 못했습니다.`n`n" . e.Message
+        return ""
+    }
+
+    ; 최소한의 기준 셀만 확인합니다.
+    ; 셀 전체 검색은 하지 않습니다.
+    titleText := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(1,1)))
+    summaryText := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(2,1)))
+    typeText := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(8,1)))
+    detailText := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(13,1)))
+
+    if !InStr(titleText, "업무추진비집행내역")
+    {
+        errMsg := "A1에서 업무추진비 집행내역 제목을 확인하지 못했습니다."
+        return ""
+    }
+
+    if !InStr(summaryText, "집행총괄")
+    {
+        errMsg := "A2에서 '1. 집행총괄'을 확인하지 못했습니다."
+        return ""
+    }
+
+    if !InStr(typeText, "유형별사용현황")
+    {
+        errMsg := "A8에서 '2. 유형별 사용현황'을 확인하지 못했습니다."
+        return ""
+    }
+
+    if !InStr(detailText, "업무추진비사용내역")
+    {
+        errMsg := "A13에서 '3. 업무추진비 사용 내역'을 확인하지 못했습니다."
+        return ""
+    }
+
+    ; 실제 서식의 데이터 입력칸
+    groups := {}
+
+    ; 회의비: 기본 표시행 20~28행 + 숨김 예비행 29, 15~19행
+    ; 9건을 초과하면 예비행을 자동으로 표시해서 사용합니다.
+    meetingSlots := [20,21,22,23,24,25,26,27,28,29,15,16,17,18,19]
+
+    groups["회의비"] := {groupRow:15
+        , subtotalRow:30
+        , slots:meetingSlots}
+
+    ; 위문·격려: 31행, 32행 소계
+    encourageSlots := [31]
+    groups["위문격려"] := {groupRow:31
+        , subtotalRow:32
+        , slots:encourageSlots}
+
+    ; 경조사비: 33행, 34행 소계
+    condolenceSlots := [33]
+    groups["경조사비"] := {groupRow:33
+        , subtotalRow:34
+        , slots:condolenceSlots}
+
+    ; 물품구입비·기타운영비: 35~38행, 39행 소계
+    otherSlots := [35,36,37,38]
+    groups["물품기타"] := {groupRow:35
+        , subtotalRow:39
+        , slots:otherSlots}
+
+    return {ws:ws
+        ; 제목
+        , titleRow:1
+        , titleCol:1
+
+        ; 1. 집행총괄
+        , budgetRow:5
+        , budgetCol:2
+        , priorCol:4
+        , currentCol:5
+        , cumCol:6
+        , budgetRatioRow:6
+
+        ; 2. 유형별 사용현황
+        , typeHeaderRow:9
+        , typeAmountRow:10
+        , typeRatioRow:11
+        , typeCols:{meeting:2
+            , encourage:4
+            , condolence:5
+            , other:6
+            , total:8}
+
+        ; 3. 업무추진비 사용 내역
+        , detailHeaderRow:14
+        , detailCols:{date:2
+            , time:3
+            , content:4
+            , amount:6
+            , target:7
+            , merchant:8
+            , payment:9}
+
+        , groups:groups
+        , totalRow:40}
+}
+
+SSOK_Expense_WorkPublic_FindActualSubtotalRow(ws, startRow, lastRow)
+{
+    r := startRow
+
+    while (r <= lastRow)
+    {
+        ; 소계가 병합셀 어디에 있든 해당 행 전체를 확인
+        Loop, 9
+        {
+            c := A_Index
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            if (key = "소계")
+                return r
+        }
+
+        r++
+    }
+
+    return 0
+}
+
+SSOK_Expense_WorkPublic_VisibleRows(ws, startRow, endRow)
+{
+    rows := []
+
+    r := startRow
+    while (r <= endRow)
+    {
+        hidden := false
+        try hidden := ws.Rows(r).Hidden
+
+        if (!hidden)
+            rows.Push(r)
+
+        r++
+    }
+
+    return rows
+}
+
+SSOK_Expense_WorkPublic_CheckActualCapacity(layout, rows, ByRef errMsg)
+{
+    errMsg := ""
+    counts := {"회의비":0, "위문격려":0, "경조사비":0, "물품기타":0}
+
+    for _, row in rows
+    {
+        if counts.HasKey(row.category)
+            counts[row.category]++
+        else
+            counts["물품기타"]++
+    }
+
+    for _, cat in ["회의비","위문격려","경조사비","물품기타"]
+    {
+        slots := layout.groups[cat].slots
+        if (counts[cat] > slots.Length())
+        {
+            errMsg := "업무추진비 서식의 '" . SSOK_Expense_WorkPublic_ActualCategoryDisplay(cat) . "' 빈 행이 부족합니다."
+            errMsg .= "`n필요: " . counts[cat] . "건 / 서식 빈 행: " . slots.Length() . "건"
+            return false
+        }
+    }
+
+    return true
+}
+
+SSOK_Expense_WorkPublic_ClearActualDetail(ws, layout)
+{
+    ; B:I 데이터 영역만 지워 A열 유형명/서식은 유지합니다.
+    ; 셀을 하나씩 지우는 대신 4개 구간으로 일괄 처리하여 속도를 줄입니다.
+    try ws.Range("B15:I29").ClearContents()
+
+    ; 회의비 예비행은 기본적으로 숨겨 두고,
+    ; 실제 건수가 9건을 넘을 때만 필요한 만큼 다시 표시합니다.
+    try ws.Rows("15:19").Hidden := true
+    try ws.Rows("29:29").Hidden := true
+    try ws.Range("B31:I31").ClearContents()
+    try ws.Range("B33:I33").ClearContents()
+    try ws.Range("B35:I38").ClearContents()
+
+    cols := layout.detailCols
+
+    for _, cat in ["회의비","위문격려","경조사비","물품기타"]
+    {
+        g := layout.groups[cat]
+        try ws.Cells(g.subtotalRow, cols.content).ClearContents()
+        try ws.Cells(g.subtotalRow, cols.amount).ClearContents()
+    }
+
+    try ws.Cells(layout.totalRow, cols.content).ClearContents()
+    try ws.Cells(layout.totalRow, cols.amount).ClearContents()
+}
+
+SSOK_Expense_WorkPublic_WriteActualDetail(ws, layout, rows)
+{
+    cols := layout.detailCols
+    buckets := {"회의비":[], "위문격려":[], "경조사비":[], "물품기타":[]}
+
+    for _, row in rows
+    {
+        cat := buckets.HasKey(row.category) ? row.category : "물품기타"
+        buckets[cat].Push(row)
+    }
+
+    totalCount := 0
+    totalAmount := 0
+
+    for _, cat in ["회의비","위문격려","경조사비","물품기타"]
+    {
+        list := buckets[cat]
+        slots := layout.groups[cat].slots
+        subRow := layout.groups[cat].subtotalRow
+        catTotal := 0
+
+        usedCount := list.Length()
+
+        ; 0건이어도 입력칸 1개는 항상 표시
+        visibleCount := (usedCount > 0) ? usedCount : 1
+
+        for slotIndex, slotRow in slots
+        {
+            if (slotIndex <= visibleCount)
+                try ws.Rows(slotRow).Hidden := false
+            else
+                try ws.Rows(slotRow).Hidden := true
+        }
+
+        for idx, row in list
+        {
+            r := slots[idx]
+
+            ; 사용일자
+            try ws.Cells(r, cols.date).NumberFormat := "@"
+            ws.Cells(r, cols.date).Value2 := SSOK_Expense_WorkPublic_DateDisplay(row.date)
+
+            ; 예산거래처별실적은 공란 / 업무추진비목록은 K열 시간
+            if (cols.time)
+                ws.Cells(r, cols.time).Value2 := row.time
+
+            ; 내역
+            ws.Cells(r, cols.content).Value2 := row.title
+
+            ; 금액
+            ws.Cells(r, cols.amount).Value2 := row.amount
+
+            ; 업무추진비목록: 참석자명단 + 참석자수 -> "홍길동, 이순신 등 5명"
+            ; 예산거래처별실적: 공란
+            if (cols.target)
+                ws.Cells(r, cols.target).Value2 := row.target
+
+            ; 예산거래처별실적: 수령인
+            ; 업무추진비목록: 사용처(대표) + 장소
+            merchantText := SSOK_Expense_WorkPublic_MerchantPlaceDisplay(row.merchant, row.place)
+            ws.Cells(r, cols.merchant).Value2 := merchantText
+
+            ; 경조사비만 계좌이체, 나머지는 모두 법인카드
+            paymentText := (cat = "경조사비") ? "계좌이체" : "법인카드"
+            ws.Cells(r, cols.payment).Value2 := paymentText
+
+            catTotal += row.amount
+        }
+
+        ws.Cells(subRow, cols.content).Value2 := list.Length() . "건"
+        ws.Cells(subRow, cols.amount).Value2 := catTotal
+
+        totalCount += list.Length()
+        totalAmount += catTotal
+    }
+
+    ws.Cells(layout.totalRow, cols.content).Value2 := totalCount
+    ws.Cells(layout.totalRow, cols.amount).Value2 := totalAmount
+}
+
+SSOK_Expense_WorkPublic_WriteActualTypeSummary(ws, layout, summary, currentTotal)
+{
+    r := layout.typeAmountRow
+    rr := layout.typeRatioRow
+    c := layout.typeCols
+
+    ws.Cells(r, c.meeting).Value2 := summary["회의비"]
+    ws.Cells(r, c.encourage).Value2 := summary["위문격려"]
+    ws.Cells(r, c.condolence).Value2 := summary["경조사비"]
+    ws.Cells(r, c.other).Value2 := summary["물품기타"]
+    ws.Cells(r, c.total).Value2 := currentTotal
+
+    if (currentTotal > 0)
+    {
+        ws.Cells(rr, c.meeting).Value2 := summary["회의비"] / currentTotal
+        ws.Cells(rr, c.encourage).Value2 := summary["위문격려"] / currentTotal
+        ws.Cells(rr, c.condolence).Value2 := summary["경조사비"] / currentTotal
+        ws.Cells(rr, c.other).Value2 := summary["물품기타"] / currentTotal
+        ws.Cells(rr, c.total).Value2 := 1
+    }
+    else
+    {
+        ws.Cells(rr, c.meeting).Value2 := 0
+        ws.Cells(rr, c.encourage).Value2 := 0
+        ws.Cells(rr, c.condolence).Value2 := 0
+        ws.Cells(rr, c.other).Value2 := 0
+        ws.Cells(rr, c.total).Value2 := 0
+    }
+}
+
+SSOK_Expense_WorkPublic_GetOrgName()
+{
+    global SSOK_IniFile, SSOK_ConfigDir
+
+    iniFile := SSOK_IniFile
+    if (iniFile = "" && SSOK_ConfigDir != "")
+        iniFile := SSOK_ConfigDir . "\\ssok.ini"
+
+    orgName := ""
+
+    if (iniFile != "" && FileExist(iniFile))
+    {
+        IniRead, orgName, %iniFile%, MajorTodos, OrgName, __SSOK_EMPTY__
+        if (orgName = "__SSOK_EMPTY__" || orgName = "ERROR")
+            orgName := ""
+    }
+
+    orgName := Trim(orgName, " `t`r`n")
+
+    ; 도담중 -> 도담중학교 / 도담초 -> 도담초등학교
+    if (orgName != "")
+    {
+        if RegExMatch(orgName, "중$")
+            orgName .= "학교"
+        else if RegExMatch(orgName, "초$")
+            orgName .= "등학교"
+    }
+
+    return orgName
+}
+
+SSOK_Expense_WorkPublic_CreateBuiltInTemplate(outputPath, ByRef errMsg)
+{
+    errMsg := ""
+
+    b64 := ""
+    b64 .= "UEsDBBQABgAIAAAAIQB0NlqmegEAAIQFAAATAAgCW0NvbnRlbnRfVHlwZXNdLnhtbCCiBAIooAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACsVM1OAjEQvpv4DpteDVvwYIxh4YB6VBLwAWo7sA3dtukMCG/vbEFiDEIIXLbZtvP9TGemP1w3rlhBQht8"
+    b64 .= "JXplVxTgdTDWzyvxMX3tPIoCSXmjXPBQiQ2gGA5ub/rTTQQsONpjJWqi+CQl6hoahWWI4PlkFlKjiH/TXEalF2oO8r7bfZA6eAJPHWoxxKD/DDO1dFS8rHl7"
+    b64 .= "q+TTelGMtvdaqkqoGJ3VilioXHnzh6QTZjOrwQS9bBi6xJhAGawBqHFlTJYZ0wSI2BgKeZAzgcPzSHeuSo7MwrC2Ee/Y+j8M7cn/rnZx7/wcyRooxirRm2rY"
+    b64 .= "u1w7+RXS4jOERXkc5NzU5BSVjbL+R/cR/nwZZV56VxbS+svAJ3QQ1xjI/L1cQoY5QYi0cYDXTnsGPcVcqwRmQly986sL+I19QodWTo9qLpErJ2GPe4yfW3qc"
+    b64 .= "QkSeGgnOF/DTom10JzIQJLKwb9JDxb5n5JFzsWNoZ5oBc4Bb5hk6+AYAAP//AwBQSwMEFAAGAAgAAAAhALVVMCP0AAAATAIAAAsACAJfcmVscy8ucmVscyCi"
+    b64 .= "BAIooAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACskk1PwzAMhu9I/IfI99XdkBBCS3dB"
+    b64 .= "SLshVH6ASdwPtY2jJBvdvyccEFQagwNHf71+/Mrb3TyN6sgh9uI0rIsSFDsjtnethpf6cXUHKiZylkZxrOHEEXbV9dX2mUdKeSh2vY8qq7iooUvJ3yNG0/FE"
+    b64 .= "sRDPLlcaCROlHIYWPZmBWsZNWd5i+K4B1UJT7a2GsLc3oOqTz5t/15am6Q0/iDlM7NKZFchzYmfZrnzIbCH1+RpVU2g5abBinnI6InlfZGzA80SbvxP9fC1O"
+    b64 .= "nMhSIjQS+DLPR8cloPV/WrQ08cudecQ3CcOryPDJgosfqN4BAAD//wMAUEsDBBQABgAIAAAAIQCRhdoPrwMAAJEIAAAPAAAAeGwvd29ya2Jvb2sueG1spFbd"
+    b64 .= "bts2FL4f0HfQhNzKFGVbtoXYRWxHmIGkCJosuTQYibY4S6RGUbG8onfdE2zDbtrr3exqKIb2meKH6KFkOXFcDF4q2KT49/E753yH1PHLIomNOyozJnjfxA3b"
+    b64 .= "NCgPRMj4vG/+eOVbXdPIFOEhiQWnfXNFM/Pl4MV3x0shF7dCLAwA4FnfjJRKPYSyIKIJyRoipRxGZkImREFTzlGWSkrCLKJUJTFybNtFCWHcrBA8eQiGmM1Y"
+    b64 .= "QMciyBPKVQUiaUwU0M8ilmY1WhIcApcQuchTKxBJChC3LGZqVYKaRhJ4kzkXktzGYHaB20Yh4efCH9tQOPVOMLS3VcICKTIxUw2ARhXpPfuxjTDecUGx74PD"
+    b64 .= "kFpI0jumY7hlJd1nsnK3WO4DGLa/GQ2DtEqteOC8Z6K1t9wcc3A8YzG9rqRrkDR9RRIdqdg0YpKp05ApGvbNDjTFku50yDwd5iyG0abddFwTDbZyvpBGSGck"
+    b64 .= "j9UVCLmGh8xw3Z7T1jNBGCexopITRUeCK9Dhxq5v1VyJPYoEKNx4TX/OmaSQWKAvsBVKEnjkNrsgKjJyGVcezHTK/URt7DhWsmpkEZE0FYxXwkvBOYKTGLFk"
+    b64 .= "lfN5JKY0V4rmyRTWhDnNpguJ6mTK0C+I5EpEQi1WCI4AWjTR/T9/rD98Wn/+eP/be/RI8WQ/vf6H5kmgHYnAk5W11ftTr4LR0qt1faGkAe+T8RnE9pLcQaRB"
+    b64 .= "T+HmIJhAKHFzygPp4embrt/tOC4eW51TPLJarju2eif+yLJxT3e7w54/egvGSNcLBJgcbUSkoftmCxSzN3ROinoE217Owgcab+zNY+n6SVGPvdUG6+PymtFl"
+    b64 .= "9iA33TSKG8ZDseybTtftglWrum1hB5rLcvSGhSqCKT27te37gbJ5BJRxu6MnQl5pan1zh9K4ouTDY+lihxJ6xKk8mYFbWRu8zKb1n7/e//1x/e/v67/e3X9+"
+    b64 .= "B3eBPr5Ld5uG9PRmchLiMpz1esgfxmmo0xHQHrU2mNMi5knjQoJKpydwJegEDUh8WSPb5uDJtt8fnRxh72hy1LKP0SNA0M3uZgATQAbrquTYw7bT0+Rooc4y"
+    b64 .= "VdaQPAxcNGx3h3az51gtH/tWC/dsazh0W1Z77DfbHTwenbZ9LRJ9u3mFRpw989DqonI1JSqHhNa5XLY9Xfqb3m3nrOrYuGonp7zXY23KZvV/TbyE2zumB072"
+    b64 .= "rw+cOHp1fnV+4Nyz06vpjV/K4qvWIggIRK8OC6q/JgZfAAAA//8DAFBLAwQUAAYACAAAACEAkgeU7AQBAAA/AwAAGgAIAXhsL19yZWxzL3dvcmtib29rLnht"
+    b64 .= "bC5yZWxzIKIEASigAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "rJLLasQwDEX3hf6D0b5xMn1QhnFm0VKYbZt+gHCUOExiB1t95O9rUjrJwJBusjFIwvceibvbf3et+CQfGmcVZEkKgqx2ZWNrBe/Fy80jiMBoS2ydJQUDBdjn"
+    b64 .= "11e7V2qR46dgmj6IqGKDAsPcb6UM2lCHIXE92TipnO+QY+lr2aM+Yk1yk6YP0s81ID/TFIdSgT+UtyCKoY/O/2u7qmo0PTv90ZHlCxYy8NDGBUSBviZW8Fsn"
+    b64 .= "kRHkZfvNmvYcz0KT+1jK8c2WGLI1Gb6cPwZDxBPHqRXkOFmEuV8TRmOrnww2doI5tZYucrdqKAx6Kt/Yx8zPszFv/8HIs9jnPwAAAP//AwBQSwMEFAAGAAgA"
+    b64 .= "AAAhAL2dbVH+DgAAQ0EAABgAAAB4bC93b3Jrc2hlZXRzL3NoZWV0MS54bWy0XFlvI7kRfg+Q/yDoKcFiJPWp7oathSW1DiCbLDK7ybNGbtnCWGql1fYci/z3"
+    b64 .= "FMkiWTykkW3FGFvjYrFIfizWwcM3P3/dPXVequa4rfe33aA36Haq/bq+3+4fbru//zb7kHU7x3a1v1891fvqtvutOnZ/Hv35Tzdf6ubz8bGq2g5I2B9vu49t"
+    b64 .= "eyj6/eP6sdqtjr36UO2hZFM3u1ULvzYP/eOhqVb3vNLuqR8OBml/t9ruu0JC0Vwio95stutqWq+fd9W+FUKa6mnVQv+Pj9vDUUrbrS8Rt1s1n58PH9b17gAi"
+    b64 .= "Pm2ftu03LrTb2a2L5cO+blafnmDcX4N4te58beBfCN+RbIbTnZZ223VTH+tN2wPJfdFnd/h5P++v1kqSO/6LxARxv6letmwCtajwbV0KEiUr1MKiNwpLlTAG"
+    b64 .= "V1M8b+9vu38M8OsDfAbsx0D/kGX/7Y5uuJ782oxuDquH6mPV/n74telstu1v9a9AAF3t9kc3fcV1vwWFYCB0mmpz270LimWcMhbO8a9t9eVI/t9pV58+Vk/V"
+    b64 .= "uq2gT0G309aHv1WbdlI9PUFlGPz3ut59XK/Y3A9hUahf/84UGngYka2BT3X9mUlfgpwB6zaXyvqxWrfbl0pInAUAwfE/vGvw/2IJv6vus+pyKLSjM752YNT3"
+    b64 .= "1Wb1/NT+s/6yqLYPjy30OO0lgClTyuL+27Q6rmE1QAd6XOy6foLBws/ObstWNSjz6iv//LK9bx9vu+Gwl4YgYP18bOvdvwWRA6oqAQS8EvQbKwVZ7wd1YqwD"
+    b64 .= "n7JOfrYR6AJvBD6xQjLoZcPzPUuxEnzKVn48nCFWgk/ZUtyLftAS2D7ePfiUwCW9H9SBAfM68CnrRCdw64t54go6XbWr0U1Tf+mAGYAJOx5WzKgGBchhEx7D"
+    b64 .= "fIjZUipwYv5h4pmMOyYE6sFcQPUjaObLKA1u+i+gaWvkGSse0EVea+JQpg6ldCgzhzJ3KAuHsqSUPgxdjR/GetH428ft+vO4ZuvBD0YCwxZoMJG33QgWrUIj"
+    b64 .= "iEw0poInZwuTVyptwkIQYtBPLSU2pSwVD1vfdFTMArx7VpmQ224Caqx7kFizijygOZonNXkmgicdqMFOkQIfutbQrFUiT6xqzRzKHCmJ4ln4+pNZqGEtbrEN"
+    b64 .= "1EB/r60LTCRgmKkejgUlFRaQrZ4JUkKNj6AwC6jxyS18PDzhwOSZCZ4hqImSE1rrco48wpiz/iycHi6RMuR+hOoZ9PByxH6rDydXj1o8TCJwUdUIQ0vpBA94"
+    b64 .= "xdHNZhQMozRlnj0aQpg3AAg2zP4EURozsqWLWFWjPxWUMOTCZsmHElScS8iCOA9zS0BpssequTAIs8zGH1uLuUXMozQMhhbLHFmICqtK0jYsBSXnS8FQWHBL"
+    b64 .= "11ZYJvK2C15Ia4xlu8aCJc04YuOkP5aIWao1QUZt5aaCEke86pRUHfSSfBjkYZJF+WAIUxlYq7YUVSPRakmqZr0sy4JhGCUZKEA4SKLyg6UxM1E5ZzZ6M5oZ"
+    b64 .= "7aZZOhjGEXxneTSMA8vCzbEqtxbcVC/U+NUEIY+7PsB2vt8OMyGwJLQlHDuUiUOZIkUrVulQ5k6thUNZUoqhfCxbu8THvMJzMpGW5wwtnzcWPMFAwzFxSVOX"
+    b64 .= "VCJJAzJDipY0dygLQTnvhhWP7YbBLV4bIiYSgmrDddpOWfDkxiK2eCbIQ9YmSqZBXGi58tLHYznuma91azHPndYXghIMaNQUWj5vKZlEPkYdUQD1ruyJuEjL"
+    b64 .= "FUWW+R5LpgH6D8Yg/E+Qug5hoti1u50iLRTubBaB7eISEuHNaBBd2rywODiv7XiQL5EyAUgf31zyaX+4kCQxIBjgT9DqT7Pg7MCWspZINY2ZuTTDeIWdCEQ4"
+    b64 .= "f9ZLIU/CnO9mBOPow9Dk5FhRgeTVtmGKpDAQrsqoHvfCPE/TfJglUTqIs9hxOKVZHRAkrTuTJUaDPQWkT/PO3Z4u6EAh7rGCXVnqRrvBpamPN/VXqZ/IQWD+"
+    b64 .= "pTccc8GwcEiI65KmkqTD3tIlzdyKc5e0cElLg2T4Lb49Yjkulqw5Ke9rFFLkFEbOF1lTIfZlIE2mYb0dDvLOcR4J58IlsR0dnnBzfTUH58th4h5o2LuGh8mG"
+    b64 .= "kQra+T3yGIvSXmeCJ4LuqPDSzowhzuFjg5hK8VgxQCl5eMDFg7IZkkLavB3KIY/RvOXhFj4ey8MtZVs069UezpwPX4YUsQ21x+39fSV2zPxTc1G6FGBuQN1m"
+    b64 .= "ZMcDyBTppTaRJOqHUBRdkEjSXDNZkQRNkkRyGEnSUfNSktwgOfClMdfECMNzaqIwm6CIIIkigsmQHkXJ+wr5EdU8rEgRQRJFBEkUESR5EPHlDT9E5LydFnF8"
+    b64 .= "TkEQJEMtkERBEKSMgoAkCgJWpCAgiYKAJAoCkjwg+BKMd4IgInUDBMw5qCYgiYIgSAYISKIgYEUKApIoCEiiICDJA4Ivhbjm2sBInKqFIBlqgSSKiCAZiCCJ"
+    b64 .= "IoIVKSJIooggiSKCJBcRiJPdSJ8j8g4zyoXedqliIAlgYNtJcRqyvR4ajE8kB9vNeBnBDkZofllmeIr8ABnxfnaGJZkIiLIdsY0Ux7DLYfZkLjloZBHbnk0y"
+    b64 .= "GY7Vdm2SiXr6WA/E3Dr3Rfb+mThrmiDGZh7fAF+QCPj2pjJWihT4bB8w0F8W/xT5TfDtPWfJRMHHngjwYdvB2VOcy65Q9FMHfZRjoG/vTEtJF6HvC9/fgj6e"
+    b64 .= "PBALAJuhfB9Gq77V0YnkkOgPYd+OftmnHUKgCb69wYcyqWuVzSD4Qx/42FcKfmKtj4WUY4Bvby5IpovA9x2wvAV8Ecgbqo+phAI/sTYzJ2zzh22TKfDhdkMe"
+    b64 .= "6y8bfMFugm+fJqBMA3xsRoCfxKm9vT2XHTGwt7KehWQyrJ5zkIVtXYS9L8V5C/Yi0TCwx/xEY29lJ5MQOZTZGZpf1lxNkd8A33YkpWSiZgfbQc2P8sg1+shi"
+    b64 .= "oG+1v5D9pegn1qCWkuki9E8mNK87MmaHW7bRFyRt9BNLTSZYSWu+afMDi3+K/Cb6loKWkomijz0R6Ech24qzXS6yGOhbHn8h+2ug7+g+SroI/ZOp0ivRd1Oi"
+    b64 .= "UKVEGO+kTryjMiSMdxLD7NgBxxQlmuhbClpKJoq+Sqj4QR6/qGOjrxIsHUoljstVKRdhcgIelYSR7YZTAc/JtOyV6Lu5WKhyMYm+Y/VVaibQTwf5kMabljud"
+    b64 .= "okQTfWvll5KJoq8yOdbO0N2Ensu+no93VKpHwHfiHZX8XQD+yXTwleC7OSDbNGIOVZn91AFfpYQC/DijsWZgmZQpCjSxtzexJBPFXiWQXPMTOC527I5KKDVk"
+    b64 .= "9kpdyAEZdseJd1TSeQH4b0pDz0f9buYZupmnJJHME0k085QkCqWbeUpZJPOUJJJ5SpKbebLdXfuMKcrJJS1yXeoVe8dcLKQ/ert8jCR6b8OavYlikfvEU6TE"
+    b64 .= "7IT8ZWQHeLJUH/jNkDTkJxwff//lL7C5V8zC/K/njrDmWIvcF3EoS9mYc1+Ebb1eCuFZ7eGCYB/OuGRlH84hU5TLFD61T0Elh07hgyTUEV1mL2zZLJ0Z21iU"
+    b64 .= "konsmiIpZudxLyPPyd5cctCtcbu7Cy+THc1JJtrHUyk8mLz/i0pjvkdVWpDOqrRgIYdwvHtwGgKWSl8stO2oZKKajYdSbOI3I67aUVDMokCqtncGRCVy0QMl"
+    b64 .= "63lcyrZcxfYkhKdsw3nFVhkhuftl36WEABgdlrpMKUnEUCIp05fPSkmiWKk0T8qaS1n0Xh1yGVmco3kqi3PuI3pytmuYTkzhqJ7hMRTRGMd0ShZtOvHMSZhO"
+    b64 .= "y4yUEZZS0ASJmM4oAv2KpH7ZXhtFUKOJ2Zs6Nl3KZlzd8qRcb9MtkWkYRpNdNzDu6UYqC9O6hSSqWyiK6haSKEwqj9K6pfImdcApWyROWJI8TtiTASEY1zlR"
+    b64 .= "i0RCkGnlHyOJ7ohLEoUEK5KDEimLxCWyItkRlyS63FTqou6YSS4PJJ605LqQiDDdgETlK1pLVIKi1xVWpJAgiUKiMg6tJUiikKiEQkOi0gfH3niShQsgOW+Z"
+    b64 .= "8cCHKoZKHDQKKlPQKGBFigKSKAoq9tcoqFhfrxUk0bWi4ngHBU/Ufg2ri+c81OoK0lnvLliod0c5YpfFuf+tSuXgZxDIMbdHrS4ErFF20uoKfurRbcoSZbp3"
+    b64 .= "ayFWe9U502VvA7hUGAL1o4FtgiWT1o4JkuD4WamV5BJOy95Nl6XEGiMJdlz4LdgIbnVFIXzH8C0viAW+e8xz2bru0MIlLSWJ+wTzYv2Vwv5xLE5R3Pt/7M3K"
+    b64 .= "NRKLMRckX3zRe2xwaflKLYgoyTOGVwRJ5yzVmD3EYTeGnUiCXT16F0qgfPhuCB68vVuUeFEnniPtquaBP2A7dtb1M3tgBg9PRjeKLJ7aTcO8KCFDh37YJVFa"
+    b64 .= "lOAjfSUJlHC7Y9cJQFrglRYOoB1+JOb0IIASDq1TkkEJV36nJIQSfsPAKYmghAcRTkkMJdwsOSUwHthZ9ow0BAxgeftKhlDCl68lbZwXcBfYrTHLC7il69IX"
+    b64 .= "eQHXcF06XLAs2PVWT0lWwHVsT58C6FPg69M0ACQDX51FUsBrCE+vsmLpbwMQEUbTGvcsLeBqv0dSWix99FlcwFMZD05JAW84XPpdPCjGYBE944aS0ltyB0nq"
+    b64 .= "nYgyHe0GrYPE3qfdoFsn6oAGQVLhqwN6D47P0+sogR741xfMVuSdLUh9WGLpkxaBNH8PYIbhLYenDuxB3cH+kU9fQO/hFpmvDjxy9c2Nfv3qrHzARryocJCG"
+    b64 .= "2fG2DxdzC3Zh2qMzUMJuQPtWRQCrwt+3AKT5SuBCL0jzloQFPPnz4Vzc+VAeRwU8LvPNfwFP5zzjgMfCXjlpAW95PKNLigmfj7623vCG+hFe77fbNXtCXe9b"
+    b64 .= "9liZxYXfDvC8eV9P6j3+CQAm8NBs9+0/DvxFfeexbrbfocbqaQIvjKtGPJdmXPAI+5dV87DdHztP8HKaPT5OgiALgkEIj6rCQQwnId1OI94re8vgzTWvZVUD"
+    b64 .= "R/mpbuFd8onCR/gjAhW8iYPHzvAaLB2kcPEbIqQkz6Dmpq6hl/5C7DW8JX8+dA6rQ9V83H4HAFj8KV56w/upDgwYRsr/oMBt91A3bbPatjCQgr1eb5b3woOr"
+    b64 .= "P38w+h8AAAD//wMAUEsDBBQABgAIAAAAIQB1ro+8aQcAAAMhAAATAAAAeGwvdGhlbWUvdGhlbWUxLnhtbOxZ3YscNxJ/P7j/QfT7eL6652PxOMynN/aubbxj"
+    b64 .= "hzxqZzTT8qpbg6TZ9RAMweHgAuHgIAl5CeQtDyFc4AIX7uX+GIPNne/+hyupe6alHU127ayPXNhd2J3W/KpUqir9VF26+d7ThKFTIiTlaSeo3qgEiKQTPqXp"
+    b64 .= "vBM8Go9KrQBJhdMpZjwlnWBFZPDerd//7ibeUzFJCAL5VO7hThArtdgrl+UEhrG8wRckhe9mXCRYwaOYl6cCn4HehJVrlUqjnGCaBijFCai9P5vRCUG1SrWO"
+    b64 .= "SvCvVkP/+cNnr7/9Y3BrPdOQwXSpknpgwsSRnofsFDdy05OqRsuV7DOBTjHrBGDAlJ+NyVMVIIalgi86QcX8BOVbN8t4LxdiaoesJTcyP7lcLjA9qZk5xfx4"
+    b64 .= "M2kYRmGju9FvAExt44bNYWPY2OgzADyZwKozW1ydzVo/zLEWKPvo0T1oDupVB2/pr2/Z3I30r4M3oEx/uIUfjfrgRQdvQBk+2sJHvXZv4Oo3oAzf2MI3K91B"
+    b64 .= "2HT0G1DMaHqyha5EjXp/vdoNZMbZvhfejsJRs5YrL1CQDZtM01PMeKouk3cJfsLFCMBaiGFFU6RWCzLDE0j1Pmb0WFB0QOcxJOECp1zCcKVWGVXq8Ff/huaT"
+    b64 .= "iS7eI9iS1jaCVXJrSNuG5ETQheoEd0BrYEFe/vTTi+c/vnj+txeffPLi+V/yuY0qR24fp3Nb7vW3f/731x+jf/31m9eff5FNfR4vbfyr7z999fd//Jx6WHHh"
+    b64 .= "ipdf/vDqxx9efvWnf373uUd7V+BjGz6mCZHoHjlDD3kCC/TYT47Fm0mMY0wdCRyDbo/qoYod4L0VZj5cj7gufCyAcXzA28snjq1HsVgq6pn5bpw4wEPOWY8L"
+    b64 .= "rwPu6rksD4+X6dw/uVjauIcYn/rm7uPUCfBwuQDapT6V/Zg4Zj5gOFV4TlKikP6OnxDiWd2HlDp+PaQTwSWfKfQhRT1MvS4Z02MnkQqhfZpAXFY+AyHUjm8O"
+    b64 .= "H6MeZ75VD8ipi4RtgZnH+DFhjhtv46XCiU/lGCfMdvgBVrHPyKOVmNi4oVQQ6TlhHA2nREqfzH0B67WCfhcYxh/2Q7ZKXKRQ9MSn8wBzbiMH/KQf42ThtZmm"
+    b64 .= "sY19X55AimL0gCsf/JC7O0Q/QxxwujPcjylxwn0xETwCcrVNKhJEf7MUnljeJtzdjys2w8THMl2ROOzaFdSbHb3l3EntA0IYPsNTQtCj9z0W9PjC8Xlh9J0Y"
+    b64 .= "WGWf+BLrDnZzVT+nRBJkapxtijyg0knZIzLnO+w5XJ0jnhVOEyx2ab4HUXdSF045L5XeZ5MTG3iPQo0I+eJ1yn0JOqzkHu7S+iDGztmln6U/X1fCid9l9hjs"
+    b64 .= "yydvui9BhryxDBD7pX0zxsyZoEiYMYYCw0e3IOKEvxDR56oRW3rlZu6mLcIARZJT7yQ0vbD4OVf2RP+bssdfwFxBweNX/EtKnV2Usn+uwNmF+z8sawZ4mT4g"
+    b64 .= "cJJsc9Z1VXNd1QS/+apm116+rmWua5nrWsb39vVOapmifIHKpuj4mP5Pcqn2z4wydqRWjBxI0wGS8HYzHcGgaVOZvuWmNbiI4WPeeHJwc4GNDBJcfUBVfBTj"
+    b64 .= "BbSJqqaxOZe56rlECy6he2SGTe+VnNNtelDL5JBPsw5otaq7nZk7JVbFeCXajEPHSmXoRrPo6m3Umz7p3HRi1wZo2TcxwprMNaLuMaK5HoSI/JwRZmVXYkXb"
+    b64 .= "Y0VLq1+Hah3FjSvAtE1U4PUbwUt7J4jCrLMMjTko1ac6TlmTeR1dHZwrjfQuZzI7A6DcXmdAEem2tnXn8vTqslS7RKQdI6x0c42w0jCGl+I8O+1W/FXGul2E"
+    b64 .= "1DFPu2K9Gwozmq13EWtNKOe4gaU2U7AUnXWCRj2Ca5gJXnSCGXSP4WOygNyR+g0Msznc00yUyDb82zDLQkg1wDLOHG5IJ2ODhCoiEKNJJ9DL32QDSw2HGNuq"
+    b64 .= "NSCEX61xbaCVX5txEHQ3yGQ2IxNlh90a0Z7OHoHhM67wfmvE3x6sJfkSwn0UT8/QMVuKhxhSLGpWtQOnVMIlQjXz5pTCDdmGyIr8O3cw5bRrX1GZHMrGMVvE"
+    b64 .= "OD9RbDLP4IZEN+aYp40PrKd8zeDQbRcez/UB+4tP3YuPau05izSLM9NhFX1q+sn03R3yllXFIepYlVG3eb+WBde111wHieo9JS44dS9xIFimFZM5pmmLt2lY"
+    b64 .= "c3Y+6pp2hQWB5YnGDr9tzgivJ9725Ae581mrD4h1jWkS39yx2zff/PgJkMcA7hKXTEkTSrjLFhiKvuxmMqMN2CJPVV4jwie0FLQTfFSJumG/FvVLlVY0LIX1"
+    b64 .= "sFJqRd16qRtF9eowqlYGvdozOFhUnFSj7H5/BNcZbJXf8pvxrZv+ZH1jc2PCkzI3N/llY7i56a/WLrrpH+ub/ABRIKCPGrVRu97uNUrtendUCge9Vqndb/RK"
+    b64 .= "g0a/ORgN+lGrPXoWoFMDDrv1ftgYtkqNar9fChsVvZRWu9QMa7Vu2Oy2hmH3WV7SgBcyKsn9Aq42Nt76LwAAAP//AwBQSwMEFAAGAAgAAAAhAEGyC4A8CgAA"
+    b64 .= "S3kAAA0AAAB4bC9zdHlsZXMueG1s7F1bj+RGFX5H4j9YXoESRI+vfZt0d8jsbEOkBEXsIIGSaOXpds9Y60tjuzc9QUh54IXHCBAvuxIPkeCRCIR4yC/KTP4D"
+    b64 .= "p8q3crfdLnt8KSNeZmy3XfXVqXOrU6eqZu/uLZN7pbue4dhzXjoTeU63V87asG/m/C+vloMJz3m+Zq8107H1OX+ne/y7i+9/b+b5d6b+/FbXfQ6KsL05f+v7"
+    b64 .= "23NB8Fa3uqV5Z85Wt+GXjeNamg+37o3gbV1dW3voI8sUZFEcCZZm2HxQwrm1oinE0tyXu+1g5VhbzTeuDdPw73BZPGetzt+/sR1XuzYB6l5StRW3l0auzO3d"
+    b64 .= "qBL89Kgey1i5juds/DMoV3A2G2OlH8OdClNBWyUlQcnVSpKGgiin2r53K5akCq7+ykDdxy9m9s5aWr7HrZyd7c95NX7EBb+8v4Y+Ho94LuiVp84a6PTirR9x"
+    b64 .= "T3785In44u130PUnb+G7T4K7H/5m5/jvDIJ/+I2fvHibF6K6UgWP0wX/VLd1VzODT7/9+l/BRc63wGckqAjQx7/Q15/GiHK+naa/Fc/EH6A3hZAci9nGsROq"
+    b64 .= "SDL0IOKN85e285m9RL8BWYBW6LXFzPuce6WZ8ERChawc03E5H3gaSIWf2JqlB2/c/+3LhzdfcN/+86/3f/ozenmjWYZ5F/yo4K9vNdcDEQkKlKfoGRaQsATL"
+    b64 .= "AHbFWIO6g7/X6K0QhSwnKAx7re916MMJJkSM42e//u4vX93/8fX9m28e3vznw0MkQTsykAhkpVGFB2VXa2PLJbPRVZLaFcPELNsZgjyWzRacWhiWrBJkmgFZ"
+    b64 .= "DRigXf0gjVhiujwNVb+mxBrGA5VrmGZs8EZIicODxQx8A1937SXccOH11d0WVLgNbkygcPF7BW/fuNqdJA/pP/Ac01gjFDdPScMhohKuw2cxkUZYXAUCKxit"
+    b64 .= "AFEBrpxqwLL7BrL84tlwOp2OFGU8Hk8mI3kywW1oHcFUmUxH8nQiiWpbCNSEBmOgwUQaTSaTqapIqoqVRBka4M4AJrt23DX4yLFfNYEeDp4tZqa+8aFzXePm"
+    b64 .= "Fv33nS3qasf3wZFczNaGduPYmonckegL8ktwrsGPnvOWvjZ2FhQb+BuHLIIqCeuIvvBvwXPOex+jwWAoKwDYEeroi7WzAz86t4qgifQtPImXaF9Aw/KwSxCb"
+    b64 .= "FkpFUp8sPoPQBX3fFKEpSXzMSj1pX5qROgKdoxkoad9011PqkFihdQz7QL0yQsQC8U3kp2kyNmZDmDJoTVExktR+Kn36vq9qX2uWtkeSu6C9zVnZirjZUqFU"
+    b64 .= "PJ5Bw5P2gtZYtSxotWBm2E3vV/s6dsMaHzyVGIUwNOTrfux0pB9rZeumx55UbFVWPz7WULOgrMub6UZQU7vojYYdGhf4ssq10wjPkcTXhKYuB60j4rQ0/GAi"
+    b64 .= "uNcRv7bsgDbE19XDDjX3ffNhh1rNK1VhufHoAtoxOmZiBHVpM9xX3L2MkJf31bq12OV9teiLfpl2ZvqlQS+akZ75fwvRLHZ6ErtT49t4vOZ/u3UNxnXaH1KH"
+    b64 .= "+ROQjrHSTfM5ypv41SbOyVAgUWG/IdJRIZMZpTeilFd0Cdk+4WWQfhHcLGaaadzYlm5Djqbu+sYKZX6u4FYP0jL3m4Niw/TZoGDINckpmNO2W/MO5Zbi6oM7"
+    b64 .= "wJDcXeCckuT+vQhI8ugj1/H1lY9Ts0VoX1msOC+WVaQC2YtBnxLdKYnDSh3K7TdN92xQg8STXYyyh8v2DsGgw4SPFJ5LGBRuovakawvvMENFSCKGiu4JhkrD"
+    b64 .= "u3Vc43PgTILVqzB/IehDEnUEmoLOIMdM0ZkCMlC/f6wRg2aENaQxXnYQqEhqfv75zrrW3SVe2ILWBNQomnQ2KJs94GmiOSTQ/af4owVlQWWAD0A2oLMIGKiz"
+    b64 .= "s/2Ak7RqABRhmQtBwXIVwpl4lLbHuUg8pbLvCGPofFGCpBAFpUC7tysKaPFVKR58lGNRuraA1ZoVQ0LRwmWiswBsL0xaCjSIb7ZDyJS3k4JcYBrQmonErLXi"
+    b64 .= "VWZbYZDbDFc4UoCdW+HUSJDg6ZQdhuV7J/mDmrx0ngGhs/MQxWOKR9qVCsPlxolEjmxK2bpsM5KSGuC7HowRUpDVDjFzn7na9krfQ/wDrz8VjiIpFDRX4B3G"
+    b64 .= "TAKhqiQirpSiO6yDTtuEBnVVHSyf2xCGeT4Xc5dMD/HWk3yeD5q1SA8hnCTolG3LFc5Huay5NFKY81tQ+DcMMec52on9B2rhYRyNLmjB6ZKJHibAg1OQ+FzV"
+    b64 .= "wDfpPxZbFRAkhvqkqhNCz07BFEMzMeBiasOK916IQClvJE8cVNbCxFhVhgqI2t1vTP+U4nUaxlGPYtyM6M5U2DiXW47CGYx7gblWgN2BTy7tYw88srppNdlB"
+    b64 .= "iKPKyJwNUSUcBbTBExsB9GzvJeWeFoQTK/lYVe15f5zaHMc/HVdgb1iOtx47PY9XyZp0oCkomoK3MAsTHehHFR20BW81d9QtKTFVCiaFq0dIKdzXYC+8AoCx"
+    b64 .= "Isme6u0eYHMU9G5dw3555SyN/DgeVRxcOYqJVRy4HIWdORqMFNY3JmIrcXEKQImQs4JIiSe7WkFEE5SPETHi6FFglllzTmkw92/yAwW4+jZhI/eRnVkLy9Kw"
+    b64 .= "M8PhdiKQk3K65X4kKaYxH/ncHY/DaXiDtTQUCswKa/zcor9VeQK0TResMsiUc40QZ4VfioZQNQz8ygV3yWFVLuiCYVXboGnErIc5IEqcgMRMKLTNoEA9gpc7"
+    b64 .= "uVJXaKDZLI6eJBek062Ym2wbE4G53HjukQPf0qRP5azp/NyffvhuqViiXKCg682rqJriloIMRxe0uFCjlnlwmWF9kjuJyRo3S6Q6IezL6fV/rGuTPEOJtEx7"
+    b64 .= "y5GKuZzw/ZEAZnrVcLLCAebG5mPRdjMZy3LKhrbzm3IUcuxtU46VT3+b0l5+y2MYLHtglDZirYp3UZZtrhJq1dRmoqTRO8loPhqx9ZbDlX6o0HZnMKsPSSkk"
+    b64 .= "8WgWk5F0PxolEkcqotlFNrDTZG7VNTHa5AKmLvPna1kNpHY4o1fPcqYeTpXBoUkMr8qtGhGvedklXZS+sTyiqg5RExmSOZ5mBBHv+gP7/BCbOKW2cIo3BeLQ"
+    b64 .= "MXpz/v4fX9//+/cPr/8ecSFaoLIzTDjmDO3zg081O/zm4Q/ffPfla+5j8VNiHR7xUXBiXrSHVFgRfPHw1RcErxMf4NPbkv2KAPx6n+w8hX/10ZmzeE+quDmg"
+    b64 .= "rdb6RtuZ/lX845xPrj/ER35Be8K3PjJeOT4uYs4n1x+gHdmCQ/5gMeUHHuzOBv+5nWvM+d8+uxhPL58t5cFEvJgMVEUfDqbDi8vBUH16cXm5nIqy+PR30CZ0"
+    b64 .= "QO85nHn6iHNv8UG9sBeWpJ57JpyO64aNDcE/T57NeeImgI/PzwPYJPapPBLfG0riYKmI0kAdaZPBZKQMB8uhJF+O1Itnw+WQwD6seD6uKEhScNIuAj889w1L"
+    b64 .= "Nw076quoh8in0Elwe6IRQtQTQnIK8uK/AAAA//8DAFBLAwQUAAYACAAAACEAOX/vpycFAAB4FwAAFAAAAHhsL3NoYXJlZFN0cmluZ3MueG1stFhRTxpZFH43"
+    b64 .= "8T/czFObWBFMrRqg2TVpusk28aH7sI8sjpUEBpYZTd0nlNHgglFWKaADgQ0tssFkxNGMifuH5p75D3vuXLrVNdjZXjVGZGDOnHPud77znRN++T6VJGtyVk2k"
+    b64 .= "lYgUnJySiKzE00sJ5V1E+untq2ezElG1mLIUS6YVOSKty6r0Mjo+FlZVjeC9ihqRVjQtMx8IqPEVORVTJ9MZWcFPltPZVEzDt9l3ATWTlWNL6oosa6lkIDQ1"
+    b64 .= "NRNIxRKKROLpVUWLSLPTEllVEr+uygv8wswLKRpWE9GwFn3i2AWotGnxBAydzBM43n8aDmjRcGYFPdIS8cUsWU4r2g9LEQnNaOsZdFNJL6SVYVhSIBoOMFvc"
+    b64 .= "nnPRJ4Re6iI2YLMPRz1oXENzX8hO0XBMIU/opkUIVE+FMmIX0EalLRRJt+x+2KGlHOQ3hOxUt2Bg0b+2hAIamNAyqNmjg4qQM9sl51wMKIZO+/YEcQY92uoQ"
+    b64 .= "au6R8THobiCIEUOObRLo6tAsi0X7N7RNNEevxHy1GuT2j2DwwUmMjsECrIZjjfQt5KNo/w8J+LH3NRLwYwNqBdg076kbX0a6ZYIZuq/8/JjBo3fOW6NQ5MuR"
+    b64 .= "lg7Hh85VCbo5ETu0eIV27uFXX+EUMBwhwEB1i/YtuDzE+rqnLnxhD+8H42Rk0/FjI4SlYLTcWoWe64R3D7emu/WeSKrdoxI0ahMMP2gSScbUadHCq4QenAlh"
+    b64 .= "wSdriT7HGXyduXzBpX/t/lHAmobmFh7WBHIsUqubz8GRBbUNvCTsqSAaOQ2ObrE+omRqa17NxOIob1BOqXJ2TZaiZBqRdRvrQ3wRlAaCwoD+J6/jY+SB8/pM"
+    b64 .= "CKYNi3YL7u82VPepXaKf+nTXhIYlXlOCjAHVPv2kw6BFaH4HZQgmzWv1HhoZFAkUDdA7/OCIY+Vo62R4jMStlbGqWRVDsYPfE4kmNBWacSt1uqXTPZ3gf87F"
+    b64 .= "vmPvQLHxBMU05LEt5zBtni55/d3CwiL69nTo1b9+sPLBpoD3PZwrIeYLqh/2yry7zH2J+zGeh3GD0abnFxgIywOGzgRTO0dQwaNC41T6GE/mD6PdJlx23O0L"
+    b64 .= "t9JDF1D+Ec5Nd8KGS6ET58C6caz80DE+bKhcsQxFGbYK7NWPm/bPx+yYBjY+t37Iz4FnwC098qFDw2atFllir44UQeihST/at8oAuzIrg8eBPM4g06yOR0Lg"
+    b64 .= "gUsMpx0W8pVFD4QwxCEDzY9cWrQqjIjYO/L92x85bGG7hFc8Kpu7Z1jz1bwPDNo+dfMjZyBfRoodunvo7l4L9ZP8Bk6vdLMuKIGHpEZ4hTHIb/aJaJo4XXGe"
+    b64 .= "8lCLFBIMCuYeWjpzz5tHyfPngtYccx/0M9Bt+BOH+FNWe62R6xFfM0mzTMvoXhmqqObQVVbMQt3d64B3kP0gOB7JcS9ED6nXZhxWvBKKvGbTJgoLC9pn1BSj"
+    b64 .= "h4ZJxaZ5hjlkD6jbZFYoOVm2IGQiBzUEmfXyE8Br7HcR//yCmz/1N7IWS0akUIjtAePpZDpLEsqS/F7GfeEsu5Z9hdtD/qXXP7vVDrInxc1ew37DPl2OpRLJ"
+    b64 .= "df5x0DOxEsuq8vCGYGjOWy96j9OiOPkSVFpY+NApcxq9q869WeCmOmcuf+Myc24yOIkKhmAh4+xDvhSzW6/h5OMJu1uLJmigmDN0t2J8FiBc5OOtbHoSos+K"
+    b64 .= "zlQvtotjoaoPOmdCRX4jF2KOYALhQ5nz9wTBHRtKZUblTMB/O24DuDmP/gMAAP//AwBQSwMEFAAGAAgAAAAhADttMkvBAAAAQgEAACMAAAB4bC93b3Jrc2hl"
+    b64 .= "ZXRzL19yZWxzL3NoZWV0MS54bWwucmVsc4SPwYrCMBRF9wP+Q3h7k9aFDENTNyK4VecDYvraBtuXkPcU/XuzHGXA5eVwz+U2m/s8qRtmDpEs1LoCheRjF2iw"
+    b64 .= "8HvaLb9BsTjq3BQJLTyQYdMuvpoDTk5KiceQWBULsYVRJP0Yw37E2bGOCamQPubZSYl5MMn5ixvQrKpqbfJfB7QvTrXvLOR9V4M6PVJZ/uyOfR88bqO/zkjy"
+    b64 .= "z4RJOZBgPqJIOchF7fKAYkHrd/aea30OBKZtzMvz9gkAAP//AwBQSwMEFAAGAAgAAAAhADEkBJJDBAAAXBMAACcAAAB4bC9wcmludGVyU2V0dGluZ3MvcHJp"
+    b64 .= "bnRlclNldHRpbmdzMS5iaW7sV0tvHEUQrvq6t6f3vd5dO3bix3gTvwJ27MQJDuSxyeZhAwkhkBAgQAxjCSRkSzxukViQOOSGOOY3QOCGIvlCTj5x44bChR+B"
+    b64 .= "hNBSPTO21w5Yix1MrKRarZnunqr6uurrx9z6uX3pt3s3f7r5wzB9QJdplE7RGbpKPtXoEB2lg3SERuifhXWf+oXqRfUrE1OSbqcnbSBvHl0D5ElSWWxObmBj"
+    b64 .= "s0POOkIP0XO9ndrs/MK8dHZ3xCOi4HQShuhP/V2SbhT1rVKNZmmeFqT6dJ7m5DlHH0ks3pP2JfqQPqWP5e0KnZPo+DQjZb04DA2P6Lq6IK8csAIrpZGACZjl"
+    b64 .= "Pa8L4tNrbliV5BSnkUEWOeQVpdwoFEI1eLBIOkOuh90gxA5rTqTEpgdPefKh9cVz+gFFKgechSVSUrXUhG98z6dsaDB2wJRbto8EG133dNXqKuVdr/WV9fUa"
+    b64 .= "R+I457FVVIjUHBY2LF22mAS1CQoqBmx9KCo5uLqibIXmAonHqiMYiAaSSEHmrrKc47wqoI2LXOIy2tGBXehUXdiNPehGD3rRBx/9qGAv9mEAgxjCMEawH0/x"
+    b64 .= "0zzKY3yAx3mCD/IhnuTDfISfwRQfxbN4DsdwHCdwElWc4tOo8RlbP4tzOI9pzOB5vIAXcQEX8RIugeAwmjD8uiIgXfx1SgtIXc2qnMpzgdtUESWUOUaJEKXu"
+    b64 .= "1j26V/cZQckV3ssxSh7mEd7PghKjwVhwIBjHGpQ8hRClOsbH+QSf5CrHKHHWrIDUzSBfxmVbeQWv4gqu4jVcw+t4wzb4TVzHW3gb7/ANnlXvglTEwNUMccg1"
+    b64 .= "znAYbzeTKN6m3XSYXabT6/J28x7u5h7u5T4VrEyFywNcHuTyEJdJ6GD7YduU/ZwSMQdc/kkICeGpLWhbiEiuhP0qocIwMtmI9yxdtt8Yz1iTNCmTNhmTNY77"
+    b64 .= "kn8UTUmRMF4sZSULtitaEEbJWpXciD+36qanyHcrWEtNSpkUct9Ok+xSUXWkf1/aE19uPMr4Qvan72VldXY6e0G4gYhVZzgvTSGzK07EXChfueYn3y7ejdub"
+    b64 .= "engEZxdLLWl/RnRxYX6OJg6PzdRqrTt8uHpgiYZs5jtGXKKSUhuNnYP5P0b6tdgfv0OLW3GzVf3pBxfSrJyvm5N6vb6ieE/4GYsnFw9PVrGcxq3J+J3fF4vf"
+    b64 .= "+LTvx/bW1uQ6syuet4VqNuN2LLlZZWSHkj3MTVbE0h8NV4iXIjyJsF+2mqQIWLa3DUSWd7DxF9syt0fCSbTLRUGs132HqYUMP1wSyBkROy03xST0YaMBd7j9"
+    b64 .= "e6muUym7U+7vb85byYXY3EFnxeND7W2dqSPWfbWGpY4UzdXhcdetZQ66MdcmkutLWN378i3sSZ4epQgkouu3O2mZlKTVNv1i5N1PEA/wIA/FP0Ed1Fp5kuTH"
+    b64 .= "PgLyJ/6/xCA+tVZvkptEwdSQEslfAAAA//8DAFBLAwQUAAYACAAAACEANNHAS+8AAAA7AgAAEAAAAHhsL2NhbGNDaGFpbi54bWx0kV1OwzAQhN+RuIO179RJ"
+    b64 .= "UypAcSqVxOIAcADLWZpI/olsC8HtMahOqElfLOXz7OxkXB8+tSIf6PxoDYNyUwBBI20/mhODt1d+9wDEB2F6oaxBBl/o4dDc3tRSKPk8iNGQ6GA8gyGE6YlS"
+    b64 .= "LwfUwm/shCbevFunRYif7kT95FD0fkAMWtFtUeypjgbQ1JI4BryKy8cYAoj6OemZH8uZxzUL59X2rE9KXu0y0l2dfcyUx/vcbBm9jLNfTdlekfNdSp9SdmkT"
+    b64 .= "ufiddh2/zL5pvl0P0CU8t5GDtozV/ha8VJuT7p+G/yV0fvbmGwAA//8DAFBLAwQUAAYACAAAACEAbaFuhF4BAABeAgAAEQAIAWRvY1Byb3BzL2NvcmUueG1s"
+    b64 .= "IKIEASigAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfJJLTsMw"
+    b64 .= "FEXnSOwh8jyxk34oVpJKfDoCCdFWIGaW/dpGJE5kG9IugD0wYQOMGbAnYA84SRtSgRja9/r4+MnheJ2lziMoneQyQr5HkAOS5yKRywjNZxN3hBxtmBQszSVE"
+    b64 .= "aAMajePDg5AXlOcKrlRegDIJaMeSpKa8iNDKmIJirPkKMqY925A2XOQqY8Yu1RIXjN+zJeCAkCHOwDDBDMMV0C1aItoiBW+RxYNKa4DgGFLIQBqNfc/HP10D"
+    b64 .= "KtN/HqiTTjNLzKawb9rqdtmCN2HbXuukLZZl6ZW9WsP6+/j28mJaP9VNZDUrDigOBadcATO5iufT8+sQdzaq4aVMm0s750UC4mQTf768fbw+fT2/h/h3aGG1"
+    b64 .= "e0ME4Vgb2rjvkpve6dlsguKABIHrE5cMZuSI9gntBXfV3XvnK7tmI9sa/E8cuuTYDfwZGdD+iPr9DnEHiGvv/R8RfwMAAP//AwBQSwMEFAAGAAgAAAAhAI48"
+    b64 .= "U2jfAQAAuQMAABAACAFkb2NQcm9wcy9hcHAueG1sIKIEASigAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAApFO/b9QwFN6R+B+C955zparQyXFVXUEdQJx0166VcV7uLBLbst3ojgmkY6EMDEUMPSQmunRCFYK/Ken/gJO0aY4i"
+    b64 .= "Btjej0+fv/e9Z7Izz9IgB2OFkhHq90IUgOQqFnIaoYPJk41HKLCOyZilSkKEFmDRDr1/j4yM0mCcABt4CmkjNHNODzC2fAYZsz3flr6TKJMx51MzxSpJBIc9"
+    b64 .= "xY8zkA5vhuE2hrkDGUO8oVtC1DAOcvevpLHilT57OFloL5iSXa1TwZnzU9JnghtlVeKCx3MOKcHdJvHqxsCPjXALGhLcTcmYsxSGnpgmLLVA8G2B7AOrTBsx"
+    b64 .= "YSwluRvkwJ0ygRWvvG1bKHjBLFRyIpQzI5h0XlYFa5I6TrV1hpZn76/eXJQnq6t3Pwj2kKZch110NxZbtF8DfPBX4PUTny+Lr8ugPH9dfvlYfFgFxbfTcrX8"
+    b64 .= "/9cquc3gXsa6JRPhUrDPkxEz7g8ObXYdqlU2/lwL/vS2uLgsv5+W58vi55rQ1qByHfNgZIR0R7sG2J256tV4hb9pGqpMM7nwjTZ6KuRLe6Anao85uFn7epGM"
+    b64 .= "Z8xA7C+lPYu2QPb9xk1akQxnTE4hvsHcbVRHetj8RNrf7oUPQ39/nRrBt3+O/gIAAP//AwBQSwECLQAUAAYACAAAACEAdDZapnoBAACEBQAAEwAAAAAAAAAA"
+    b64 .= "AAAAAAAAAAAAW0NvbnRlbnRfVHlwZXNdLnhtbFBLAQItABQABgAIAAAAIQC1VTAj9AAAAEwCAAALAAAAAAAAAAAAAAAAALMDAABfcmVscy8ucmVsc1BLAQIt"
+    b64 .= "ABQABgAIAAAAIQCRhdoPrwMAAJEIAAAPAAAAAAAAAAAAAAAAANgGAAB4bC93b3JrYm9vay54bWxQSwECLQAUAAYACAAAACEAkgeU7AQBAAA/AwAAGgAAAAAA"
+    b64 .= "AAAAAAAAAAC0CgAAeGwvX3JlbHMvd29ya2Jvb2sueG1sLnJlbHNQSwECLQAUAAYACAAAACEAvZ1tUf4OAABDQQAAGAAAAAAAAAAAAAAAAAD4DAAAeGwvd29y"
+    b64 .= "a3NoZWV0cy9zaGVldDEueG1sUEsBAi0AFAAGAAgAAAAhAHWuj7xpBwAAAyEAABMAAAAAAAAAAAAAAAAALBwAAHhsL3RoZW1lL3RoZW1lMS54bWxQSwECLQAU"
+    b64 .= "AAYACAAAACEAQbILgDwKAABLeQAADQAAAAAAAAAAAAAAAADGIwAAeGwvc3R5bGVzLnhtbFBLAQItABQABgAIAAAAIQA5f++nJwUAAHgXAAAUAAAAAAAAAAAA"
+    b64 .= "AAAAAC0uAAB4bC9zaGFyZWRTdHJpbmdzLnhtbFBLAQItABQABgAIAAAAIQA7bTJLwQAAAEIBAAAjAAAAAAAAAAAAAAAAAIYzAAB4bC93b3Jrc2hlZXRzL19y"
+    b64 .= "ZWxzL3NoZWV0MS54bWwucmVsc1BLAQItABQABgAIAAAAIQAxJASSQwQAAFwTAAAnAAAAAAAAAAAAAAAAAIg0AAB4bC9wcmludGVyU2V0dGluZ3MvcHJpbnRl"
+    b64 .= "clNldHRpbmdzMS5iaW5QSwECLQAUAAYACAAAACEANNHAS+8AAAA7AgAAEAAAAAAAAAAAAAAAAAAQOQAAeGwvY2FsY0NoYWluLnhtbFBLAQItABQABgAIAAAA"
+    b64 .= "IQBtoW6EXgEAAF4CAAARAAAAAAAAAAAAAAAAAC06AABkb2NQcm9wcy9jb3JlLnhtbFBLAQItABQABgAIAAAAIQCOPFNo3wEAALkDAAAQAAAAAAAAAAAAAAAA"
+    b64 .= "AMI8AABkb2NQcm9wcy9hcHAueG1sUEsFBgAAAAANAA0AZAMAANc/AAAAAA=="
+
+    return SSOK_Expense_WorkPublic_WriteBase64File(b64, outputPath, errMsg)
+}
+
+SSOK_Expense_WorkPublic_WriteBase64File(b64, outputPath, ByRef errMsg)
+{
+    errMsg := ""
+    size := 0
+
+    if !DllCall("Crypt32.dll\CryptStringToBinaryW"
+        , "WStr", b64
+        , "UInt", 0
+        , "UInt", 1
+        , "Ptr", 0
+        , "UIntP", size
+        , "Ptr", 0
+        , "Ptr", 0)
+    {
+        errMsg := "내장 서식 크기 확인에 실패했습니다."
+        return false
+    }
+
+    VarSetCapacity(bin, size, 0)
+
+    if !DllCall("Crypt32.dll\CryptStringToBinaryW"
+        , "WStr", b64
+        , "UInt", 0
+        , "UInt", 1
+        , "Ptr", &bin
+        , "UIntP", size
+        , "Ptr", 0
+        , "Ptr", 0)
+    {
+        errMsg := "내장 서식 복원에 실패했습니다."
+        return false
+    }
+
+    f := FileOpen(outputPath, "w")
+    if !IsObject(f)
+    {
+        errMsg := "내장 서식 파일을 열지 못했습니다."
+        return false
+    }
+
+    written := f.RawWrite(bin, size)
+    f.Close()
+
+    if (written != size || !FileExist(outputPath))
+    {
+        errMsg := "내장 서식 파일 저장에 실패했습니다."
+        return false
+    }
+
+    return true
+}
+
+SSOK_Expense_WorkPublic_WriteActualOverall(ws, layout, currentMonth, prevCum, currentTotal, noReferenceA := false)
+{
+    ; 제목
+    newTitle := ""
+    yearText := SubStr(currentMonth, 1, 4)
+    monthText := SubStr(currentMonth, 5, 2) + 0
+    orgName := SSOK_Expense_WorkPublic_GetOrgName()
+
+    if (yearText != "" && monthText > 0)
+        newTitle := yearText . "년 " . monthText . "월"
+
+    if (orgName != "")
+    {
+        if RegExMatch(orgName, "중$")
+            orgName .= "학교"
+        else if RegExMatch(orgName, "초$")
+            orgName .= "등학교"
+
+        if (newTitle != "")
+            newTitle .= " "
+        newTitle .= orgName
+    }
+
+    newTitle .= " 업무추진비 집행 내역"
+
+    try ws.Range("A1:I1").Merge
+    try ws.Range("A1").Value2 := newTitle
+
+    ; ------------------------------------------------------------
+    ; A 공개서식이 없는 경우
+    ; 예산액 / 전월까지 실적은 무조건 공란
+    ; ------------------------------------------------------------
+    if (noReferenceA)
+    {
+        try ws.Cells(layout.budgetRow, layout.budgetCol).ClearContents()
+        try ws.Cells(layout.budgetRow, layout.priorCol).ClearContents()
+
+        ; 혹시 내장서식에 남아 있는 값/수식이 있더라도 다시 한번 빈 값으로 강제
+        try ws.Cells(layout.budgetRow, layout.budgetCol).Value2 := ""
+        try ws.Cells(layout.budgetRow, layout.priorCol).Value2 := ""
+
+        ; 당월분만 기재
+        ws.Cells(layout.budgetRow, layout.currentCol).Value2 := currentTotal
+
+        ; 누계는 당월분만 표시
+        try ws.Cells(layout.budgetRow, layout.cumCol).Formula := "=" . ws.Cells(layout.budgetRow, layout.currentCol).Address(false, false)
+
+        ; 예산액이 없으므로 집행률 관련 셀도 모두 공란
+        try ws.Cells(layout.ratioRow, layout.budgetCol).ClearContents()
+        try ws.Cells(layout.ratioRow, layout.priorCol).ClearContents()
+        try ws.Cells(layout.ratioRow, layout.currentCol).ClearContents()
+        try ws.Cells(layout.ratioRow, layout.cumCol).ClearContents()
+
+        try ws.Cells(layout.ratioRow, layout.budgetCol).Value2 := ""
+        try ws.Cells(layout.ratioRow, layout.priorCol).Value2 := ""
+        try ws.Cells(layout.ratioRow, layout.currentCol).Value2 := ""
+        try ws.Cells(layout.ratioRow, layout.cumCol).Value2 := ""
+
+        return
+    }
+
+    ; ------------------------------------------------------------
+    ; A 공개서식이 있는 경우
+    ; 예산액은 이미 A 참고값이 들어와 있고,
+    ; 전월까지는 전달받은 prevCum 사용
+    ; ------------------------------------------------------------
+    ws.Cells(layout.budgetRow, layout.priorCol).Value2 := prevCum
+    ws.Cells(layout.budgetRow, layout.currentCol).Value2 := currentTotal
+    ws.Cells(layout.budgetRow, layout.cumCol).Formula := "="
+        . ws.Cells(layout.budgetRow, layout.priorCol).Address(false, false)
+        . "+"
+        . ws.Cells(layout.budgetRow, layout.currentCol).Address(false, false)
+
+    budgetAmount := SSOK_Expense_WorkPublic_Amount(ws.Cells(layout.budgetRow, layout.budgetCol).Value2)
+
+    if (budgetAmount != "" && budgetAmount > 0)
+    {
+        try ws.Cells(layout.ratioRow, layout.priorCol).Formula := "="
+            . ws.Cells(layout.budgetRow, layout.priorCol).Address(false, false)
+            . "/"
+            . ws.Cells(layout.budgetRow, layout.budgetCol).Address(false, false)
+
+        try ws.Cells(layout.ratioRow, layout.currentCol).Formula := "="
+            . ws.Cells(layout.budgetRow, layout.currentCol).Address(false, false)
+            . "/"
+            . ws.Cells(layout.budgetRow, layout.budgetCol).Address(false, false)
+
+        try ws.Cells(layout.ratioRow, layout.cumCol).Formula := "="
+            . ws.Cells(layout.budgetRow, layout.cumCol).Address(false, false)
+            . "/"
+            . ws.Cells(layout.budgetRow, layout.budgetCol).Address(false, false)
+    }
+    else
+    {
+        try ws.Cells(layout.ratioRow, layout.budgetCol).ClearContents()
+        try ws.Cells(layout.ratioRow, layout.priorCol).ClearContents()
+        try ws.Cells(layout.ratioRow, layout.currentCol).ClearContents()
+        try ws.Cells(layout.ratioRow, layout.cumCol).ClearContents()
+    }
+}
+
+SSOK_Expense_WorkPublic_ShortDate(dateKey)
+{
+    if (StrLen(dateKey) < 8)
+        return dateKey
+
+    yy := SubStr(dateKey, 3, 2) + 0
+    mm := SubStr(dateKey, 5, 2) + 0
+    dd := SubStr(dateKey, 7, 2) + 0
+
+    return mm . "/" . dd . "/" . yy
+}
+
+SSOK_Expense_WorkPublic_SortActualRows(ByRef rows)
+{
+    n := rows.Length()
+    if (n < 2)
+        return
+
+    Loop, % n - 1
+    {
+        i := A_Index
+        minIndex := i
+
+        Loop, % n - i
+        {
+            j := i + A_Index
+            o1 := SSOK_Expense_WorkPublic_ActualCategoryOrder(rows[j].category)
+            o2 := SSOK_Expense_WorkPublic_ActualCategoryOrder(rows[minIndex].category)
+
+            if (o1 < o2)
+                minIndex := j
+            else if (o1 = o2 && rows[j].date < rows[minIndex].date)
+                minIndex := j
+        }
+
+        if (minIndex != i)
+        {
+            temp := rows[i]
+            rows[i] := rows[minIndex]
+            rows[minIndex] := temp
+        }
+    }
+}
+
+SSOK_Expense_WorkPublic_ActualCategoryOrder(cat)
+{
+    if (cat = "회의비")
+        return 1
+    if (cat = "위문격려")
+        return 2
+    if (cat = "경조사비")
+        return 3
+    return 4
+}
+
+SSOK_Expense_WorkPublic_ActualCategoryDisplay(cat)
+{
+    if (cat = "회의비")
+        return "회의비"
+    if (cat = "위문격려")
+        return "위문, 격려 및 직원사기 진작"
+    if (cat = "경조사비")
+        return "경조사비"
+    return "물품구입비, 기타운영비 등"
+}
+
+
+SSOK_Expense_WorkPublic_ReadSource(wb, ByRef rows, ByRef info, ByRef errMsg)
+{
+    rows := []
+    info := ""
+    errMsg := ""
+
+    sheetCount := wb.Worksheets.Count
+
+    Loop, %sheetCount%
+    {
+        ws := wb.Worksheets(A_Index)
+
+        if !SSOK_Expense_WorkPublic_FindSourceColumns(ws, headerRow, cols)
+            continue
+
+        used := ws.UsedRange
+        lastRow := used.Row + used.Rows.Count - 1
+        currentMonth := ""
+
+        Loop, % lastRow - headerRow
+        {
+            r := headerRow + A_Index
+
+            dateKey := SSOK_Expense_WorkPublic_DateKey(ws.Cells(r, cols.date).Value2)
+            if (dateKey = "")
+                continue
+
+            amount := SSOK_Expense_WorkPublic_Amount(ws.Cells(r, cols.amount).Value2)
+            if (amount = "" || amount = 0)
+                continue
+
+            content := ""
+            merchant := ""
+            typeText := ""
+
+            if (cols.content)
+                content := SSOK_Expense_WorkPublic_CellText(ws.Cells(r, cols.content))
+
+            if (cols.merchant)
+                merchant := SSOK_Expense_WorkPublic_CellText(ws.Cells(r, cols.merchant))
+
+            if (cols.type)
+                typeText := SSOK_Expense_WorkPublic_CellText(ws.Cells(r, cols.type))
+
+            category := SSOK_Expense_WorkPublic_Classify(typeText . " " . content . " " . merchant)
+
+            if (content = "")
+                content := merchant
+
+            rows.Push({date:dateKey
+                , amount:amount
+                , content:content
+                , merchant:merchant
+                , typeText:typeText
+                , category:category})
+
+            ym := SubStr(dateKey,1,6)
+            if (currentMonth = "" || ym > currentMonth)
+                currentMonth := ym
+        }
+
+        if (rows.Length())
+        {
+            info := {sheetName:ws.Name
+                , headerRow:headerRow
+                , currentMonth:currentMonth
+                , cols:cols}
+            return true
+        }
+    }
+
+    errMsg := "거래처별 실적에서 날짜와 금액 열을 찾지 못했습니다."
+    errMsg .= "`n인식하는 날짜 예: 사용일자, 집행일자, 지급일자, 결제일, 승인일자"
+    errMsg .= "`n인식하는 금액 예: 사용금액, 집행금액, 지급금액, 지출금액, 원인행위금액"
+    return false
+}
+
+SSOK_Expense_WorkPublic_FindSourceColumns(ws, ByRef headerRow, ByRef cols)
+{
+    used := ws.UsedRange
+    firstRow := used.Row
+    firstCol := used.Column
+    maxRows := used.Rows.Count
+    maxCols := used.Columns.Count
+
+    if (maxRows > 120)
+        maxRows := 120
+    if (maxCols > 80)
+        maxCols := 80
+
+    Loop, %maxRows%
+    {
+        r := firstRow + A_Index - 1
+        temp := {date:0, amount:0, content:0, merchant:0, type:0}
+
+        Loop, %maxCols%
+        {
+            c := firstCol + A_Index - 1
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            role := SSOK_Expense_WorkPublic_SourceHeaderRole(key)
+
+            if (role = "date" && !temp.date)
+                temp.date := c
+            else if (role = "amount" && !temp.amount)
+                temp.amount := c
+            else if (role = "content" && !temp.content)
+                temp.content := c
+            else if (role = "merchant" && !temp.merchant)
+                temp.merchant := c
+            else if (role = "type" && !temp.type)
+                temp.type := c
+        }
+
+        if (temp.date && temp.amount && (temp.content || temp.merchant || temp.type))
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_WorkPublic_SourceHeaderRole(key)
+{
+    if (key = "")
+        return ""
+
+    if (InStr(key,"사용일자") || InStr(key,"집행일자") || InStr(key,"지급일자")
+        || InStr(key,"결제일") || InStr(key,"승인일자") || InStr(key,"회계일자")
+        || InStr(key,"원인행위일자") || key = "일자" || key = "날짜")
+        return "date"
+
+    if (InStr(key,"사용금액") || InStr(key,"집행금액") || InStr(key,"지급금액")
+        || InStr(key,"지출금액") || InStr(key,"원인행위금액") || InStr(key,"결제금액")
+        || InStr(key,"청구금액") || key = "금액")
+        return "amount"
+
+    if (InStr(key,"집행내용") || InStr(key,"사용내역") || InStr(key,"집행내역")
+        || InStr(key,"지출내용") || InStr(key,"품의제목") || key = "제목"
+        || key = "적요" || key = "내용")
+        return "content"
+
+    if (InStr(key,"거래처") || InStr(key,"가맹점") || InStr(key,"업체명")
+        || InStr(key,"채주") || InStr(key,"상대처"))
+        return "merchant"
+
+    if (InStr(key,"집행유형") || InStr(key,"업무추진비유형")
+        || key = "유형" || key = "구분")
+        return "type"
+
+    return ""
+}
+
+SSOK_Expense_WorkPublic_FindTemplateLayout(wb, ByRef errMsg)
+{
+    errMsg := ""
+
+    Loop, % wb.Worksheets.Count
+    {
+        ws := wb.Worksheets(A_Index)
+
+        if !SSOK_Expense_WorkPublic_FindDetailHeader(ws, detailHeaderRow, detailCols)
+            continue
+
+        if !SSOK_Expense_WorkPublic_FindSummaryLayout(ws, detailHeaderRow, summaryInfo)
+            continue
+
+        if (summaryInfo.topRow <= detailHeaderRow + 1)
+            continue
+
+        return {ws:ws
+            , detailHeaderRow:detailHeaderRow
+            , dataStartRow:detailHeaderRow + 1
+            , detailCols:detailCols
+            , summaryTopRow:summaryInfo.topRow
+            , priorCol:summaryInfo.priorCol
+            , currentCol:summaryInfo.currentCol
+            , categoryRows:summaryInfo.categoryRows
+            , totalRow:summaryInfo.totalRow
+            , categoryLabelCol:summaryInfo.labelCol}
+    }
+
+    errMsg := "서식에서 '집행내역' 표와 '유형별 사용현황' 표를 함께 찾지 못했습니다."
+    errMsg .= "`n집행내역 표에는 날짜와 금액 열이 있어야 합니다."
+    errMsg .= "`n유형별 사용현황에는 전월까지/당월 사용실적 열이 있어야 합니다."
+    return ""
+}
+
+SSOK_Expense_WorkPublic_FindDetailHeader(ws, ByRef headerRow, ByRef cols)
+{
+    used := ws.UsedRange
+    firstRow := used.Row
+    firstCol := used.Column
+    maxRows := used.Rows.Count
+    maxCols := used.Columns.Count
+
+    if (maxRows > 180)
+        maxRows := 180
+    if (maxCols > 60)
+        maxCols := 60
+
+    Loop, %maxRows%
+    {
+        r := firstRow + A_Index - 1
+        temp := {date:0, time:0, content:0, target:0, amount:0, type:0, merchant:0}
+
+        Loop, %maxCols%
+        {
+            c := firstCol + A_Index - 1
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            if (!temp.date && (InStr(key,"사용일자") || InStr(key,"집행일자")
+                || InStr(key,"지출일자") || key = "일자"))
+                temp.date := c
+            else if (!temp.time && (InStr(key,"사용시간") || InStr(key,"집행시간") || key = "시간"))
+                temp.time := c
+            else if (!temp.content && (InStr(key,"집행내역") || InStr(key,"사용내역")
+                || InStr(key,"집행내용") || InStr(key,"지출내용") || key = "내용"))
+                temp.content := c
+            else if (!temp.target && (InStr(key,"집행대상") || InStr(key,"사용대상") || key = "대상"))
+                temp.target := c
+            else if (!temp.amount && (InStr(key,"사용금액") || InStr(key,"집행금액")
+                || InStr(key,"지출금액") || key = "금액"))
+                temp.amount := c
+            else if (!temp.type && (InStr(key,"집행유형") || key = "유형" || key = "구분"))
+                temp.type := c
+            else if (!temp.merchant && (InStr(key,"거래처") || InStr(key,"가맹점") || InStr(key,"업체")))
+                temp.merchant := c
+        }
+
+        if (temp.date && temp.amount && (temp.content || temp.time || temp.target || temp.type))
+        {
+            headerRow := r
+            cols := temp
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_WorkPublic_FindSummaryLayout(ws, detailHeaderRow, ByRef info)
+{
+    used := ws.UsedRange
+    firstCol := used.Column
+    lastRow := used.Row + used.Rows.Count - 1
+    lastCol := used.Column + used.Columns.Count - 1
+
+    categoryRows := {}
+    firstCatRow := 0
+    lastCatRow := 0
+    labelCol := 0
+    totalRow := 0
+    sectionRow := 0
+
+    if (lastRow > detailHeaderRow + 250)
+        lastRow := detailHeaderRow + 250
+    if (lastCol > firstCol + 60)
+        lastCol := firstCol + 60
+
+    r := detailHeaderRow + 1
+    while (r <= lastRow)
+    {
+        c := firstCol
+        while (c <= lastCol)
+        {
+            txt := SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c))
+            key := SSOK_Expense_WorkPublic_HeaderKey(txt)
+
+            if (!sectionRow && InStr(key,"유형별사용현황"))
+                sectionRow := r
+
+            cat := SSOK_Expense_WorkPublic_TemplateCategory(txt)
+            if (cat != "")
+            {
+                if !categoryRows.HasKey(cat)
+                    categoryRows[cat] := r
+
+                if (!firstCatRow || r < firstCatRow)
+                    firstCatRow := r
+
+                if (r > lastCatRow)
+                    lastCatRow := r
+
+                if (!labelCol)
+                    labelCol := c
+            }
+
+            if (key = "합계" && firstCatRow && r >= firstCatRow)
+            {
+                if (!totalRow || r < totalRow)
+                    totalRow := r
+            }
+
+            c++
+        }
+
+        r++
+    }
+
+    if (!firstCatRow)
+        return false
+
+    topRow := sectionRow ? sectionRow : firstCatRow - 3
+    if (topRow <= detailHeaderRow)
+        topRow := firstCatRow - 1
+
+    priorCol := 0
+    currentCol := 0
+
+    scanStart := topRow
+    if (scanStart < 1)
+        scanStart := 1
+
+    r := scanStart
+    while (r <= firstCatRow)
+    {
+        c := firstCol
+        while (c <= lastCol)
+        {
+            key := SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c)))
+
+            if (!priorCol && InStr(key,"전월"))
+                priorCol := c
+
+            if (!currentCol && InStr(key,"당월"))
+                currentCol := c
+
+            c++
+        }
+
+        r++
+    }
+
+    if (!priorCol || !currentCol)
+        return false
+
+    if (!totalRow)
+    {
+        r := lastCatRow + 1
+        limit := r + 5
+
+        while (r <= lastRow && r <= limit)
+        {
+            c := firstCol
+            while (c <= lastCol)
+            {
+                if (SSOK_Expense_WorkPublic_HeaderKey(SSOK_Expense_WorkPublic_CellText(ws.Cells(r,c))) = "합계")
+                {
+                    totalRow := r
+                    if (!labelCol)
+                        labelCol := c
+                    break
+                }
+                c++
+            }
+
+            if (totalRow)
+                break
+
+            r++
+        }
+    }
+
+    info := {topRow:topRow
+        , priorCol:priorCol
+        , currentCol:currentCol
+        , categoryRows:categoryRows
+        , totalRow:totalRow
+        , labelCol:labelCol}
+
+    return true
+}
+
+SSOK_Expense_WorkPublic_ClearDetailArea(ws, layout)
+{
+    startRow := layout.dataStartRow
+    endRow := layout.summaryTopRow - 1
+
+    if (endRow < startRow)
+        return
+
+    cols := layout.detailCols
+
+    for _, col in [cols.date, cols.time, cols.content, cols.target, cols.amount, cols.type, cols.merchant]
+    {
+        if (!col)
+            continue
+
+        try ws.Range(ws.Cells(startRow,col), ws.Cells(endRow,col)).ClearContents()
+    }
+}
+
+SSOK_Expense_WorkPublic_WriteDetail(ws, layout, rows)
+{
+    r := layout.dataStartRow
+    cols := layout.detailCols
+
+    for _, row in rows
+    {
+        displayContent := row.content
+
+        if (displayContent = "")
+            displayContent := row.merchant
+
+        if (!cols.type)
+            displayContent := "[" . SSOK_Expense_WorkPublic_CategoryDisplay(row.category) . "] " . displayContent
+
+        ws.Cells(r, cols.date).Value2 := SSOK_Expense_WorkPublic_DateDisplay(row.date)
+
+        if (cols.time)
+            ws.Cells(r, cols.time).Value2 := ""
+
+        if (cols.content)
+            ws.Cells(r, cols.content).Value2 := displayContent
+
+        if (cols.target)
+            ws.Cells(r, cols.target).Value2 := ""
+
+        ws.Cells(r, cols.amount).Value2 := row.amount
+
+        if (cols.type)
+            ws.Cells(r, cols.type).Value2 := SSOK_Expense_WorkPublic_CategoryDisplay(row.category)
+
+        if (cols.merchant)
+            ws.Cells(r, cols.merchant).Value2 := row.merchant
+
+        r++
+    }
+}
+
+SSOK_Expense_WorkPublic_WriteSummary(ws, layout, summary)
+{
+    priorTotal := 0
+    currentTotal := 0
+
+    for _, cat in ["회의비","경조사","위문","격려","물품구입등"]
+    {
+        item := summary[cat]
+        priorTotal += item.prior
+        currentTotal += item.current
+    }
+
+    for key, rowNo in layout.categoryRows
+    {
+        priorValue := 0
+        currentValue := 0
+
+        if (key = "위문격려")
+        {
+            priorValue := summary["위문"].prior + summary["격려"].prior
+            currentValue := summary["위문"].current + summary["격려"].current
+        }
+        else if summary.HasKey(key)
+        {
+            priorValue := summary[key].prior
+            currentValue := summary[key].current
+        }
+        else
+            continue
+
+        ws.Cells(rowNo, layout.priorCol).Value2 := priorValue
+        ws.Cells(rowNo, layout.currentCol).Value2 := currentValue
+    }
+
+    if (layout.totalRow)
+    {
+        ws.Cells(layout.totalRow, layout.priorCol).Value2 := priorTotal
+        ws.Cells(layout.totalRow, layout.currentCol).Value2 := currentTotal
+    }
+}
+
+SSOK_Expense_WorkPublic_Classify(text)
+{
+    s := SSOK_Expense_WorkPublic_HeaderKey(text)
+
+    if (s = "")
+        return "물품구입등"
+
+    if (InStr(s,"경조") || InStr(s,"조의") || InStr(s,"부의")
+        || InStr(s,"축의") || InStr(s,"근조") || InStr(s,"조문")
+        || InStr(s,"장례") || InStr(s,"결혼") || InStr(s,"화환"))
+        return "경조사"
+
+    if (InStr(s,"위문") || InStr(s,"위로") || InStr(s,"병문"))
+        return "위문"
+
+    if (InStr(s,"격려") || InStr(s,"포상") || InStr(s,"표창")
+        || InStr(s,"사기진작") || InStr(s,"격려품"))
+        return "격려"
+
+    if (InStr(s,"회의") || InStr(s,"간담") || InStr(s,"협의")
+        || InStr(s,"토론") || InStr(s,"설명회") || InStr(s,"오찬")
+        || InStr(s,"만찬") || InStr(s,"다과") || InStr(s,"식사")
+        || InStr(s,"식당") || InStr(s,"카페") || InStr(s,"음료"))
+        return "회의비"
+
+    if (InStr(s,"구입") || InStr(s,"구매") || InStr(s,"물품")
+        || InStr(s,"소모품") || InStr(s,"기념품") || InStr(s,"선물")
+        || InStr(s,"용품") || InStr(s,"제작") || InStr(s,"인쇄")
+        || InStr(s,"화분"))
+        return "물품구입등"
+
+    return "물품구입등"
+}
+
+SSOK_Expense_WorkPublic_TemplateCategory(text)
+{
+    s := SSOK_Expense_WorkPublic_HeaderKey(text)
+
+    if (s = "")
+        return ""
+
+    if (InStr(s,"위문") && InStr(s,"격려"))
+        return "위문격려"
+
+    if (InStr(s,"회의"))
+        return "회의비"
+
+    if (InStr(s,"경조"))
+        return "경조사"
+
+    if (InStr(s,"위문"))
+        return "위문"
+
+    if (InStr(s,"격려"))
+        return "격려"
+
+    if (InStr(s,"물품") || InStr(s,"구입") || InStr(s,"구매") || InStr(s,"기타"))
+        return "물품구입등"
+
+    return ""
+}
+
+SSOK_Expense_WorkPublic_CategoryDisplay(cat)
+{
+    if (cat = "회의비")
+        return "회의비"
+    if (cat = "경조사")
+        return "경조사"
+    if (cat = "위문")
+        return "위문"
+    if (cat = "격려")
+        return "격려"
+    if (cat = "위문격려")
+        return "위문·격려"
+    return "물품 구입 등"
+}
+
+SSOK_Expense_WorkPublic_SortRows(ByRef rows)
+{
+    n := rows.Length()
+
+    if (n < 2)
+        return
+
+    Loop, % n - 1
+    {
+        i := A_Index
+        minIndex := i
+
+        Loop, % n - i
+        {
+            j := i + A_Index
+
+            order1 := SSOK_Expense_WorkPublic_CategoryOrder(rows[j].category)
+            order2 := SSOK_Expense_WorkPublic_CategoryOrder(rows[minIndex].category)
+
+            if (order1 < order2)
+                minIndex := j
+            else if (order1 = order2 && rows[j].date < rows[minIndex].date)
+                minIndex := j
+        }
+
+        if (minIndex != i)
+        {
+            temp := rows[i]
+            rows[i] := rows[minIndex]
+            rows[minIndex] := temp
+        }
+    }
+}
+
+SSOK_Expense_WorkPublic_CategoryOrder(cat)
+{
+    if (cat = "회의비")
+        return 1
+    if (cat = "경조사")
+        return 2
+    if (cat = "위문")
+        return 3
+    if (cat = "격려")
+        return 4
+    return 5
+}
+
+SSOK_Expense_WorkPublic_DateKey(value)
+{
+    s := Trim(value . "")
+
+    if (s = "")
+        return ""
+
+    if RegExMatch(s, "^\d+(?:\.\d+)?$") && (s + 0) > 20000 && (s + 0) < 80000
+    {
+        days := Floor(s + 0)
+        stamp := "18991230000000"
+        EnvAdd, stamp, %days%, Days
+        return SubStr(stamp, 1, 8)
+    }
+
+    digits := RegExReplace(s, "[^0-9]", "")
+
+    if (StrLen(digits) >= 8)
+        return SubStr(digits, 1, 8)
+
+    return ""
+}
+
+SSOK_Expense_WorkPublic_DateDisplay(dateKey)
+{
+    if (dateKey = "")
+        return ""
+
+    if (StrLen(dateKey) < 8)
+        return dateKey
+
+    return SubStr(dateKey,1,4) . "-" . SubStr(dateKey,5,2) . "-" . SubStr(dateKey,7,2)
+}
+
+SSOK_Expense_WorkPublic_Amount(value)
+{
+    s := Trim(value . "")
+
+    if (s = "")
+        return ""
+
+    s := StrReplace(s, ",", "")
+    s := StrReplace(s, "원", "")
+    s := RegExReplace(s, "[^0-9\.-]", "")
+
+    if !RegExMatch(s, "^-?\d+(?:\.\d+)?$")
+        return ""
+
+    return Round(s + 0)
+}
+
+SSOK_Expense_WorkPublic_CellText(cell)
+{
+    try value := cell.Value2
+    catch
+        value := ""
+
+    return Trim(value . "", " `t`r`n")
+}
+
+SSOK_Expense_WorkPublic_HeaderKey(s)
+{
+    s := s . ""
+    s := StrReplace(s, "`r", "")
+    s := StrReplace(s, "`n", "")
+    s := StrReplace(s, Chr(160), "")
+    s := StrReplace(s, "　", "")
+    s := RegExReplace(s, "\s+", "")
+    s := StrReplace(s, "·", "")
+    s := StrReplace(s, "ㆍ", "")
+    return s
+}
+
+SSOK_Expense_WorkPublic_FormatMoney(value)
+{
+    value := Round(value)
+    s := value . ""
+    sign := ""
+
+    if (SubStr(s,1,1) = "-")
+    {
+        sign := "-"
+        s := SubStr(s,2)
+    }
+
+    out := ""
+
+    while (StrLen(s) > 3)
+    {
+        out := "," . SubStr(s, -2) . out
+        s := SubStr(s, 1, StrLen(s) - 3)
+    }
+
+    return sign . s . out
+}
+
 SSOK_Expense_WorkPublic_HandleDrop(dropText, targetControl := "")
 {
-    global SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath
+    global SSOK_WorkPublicPrevPath, SSOK_WorkPublicCurrentPath, SSOK_WorkPublicCardPath
 
     files := SSOK_Expense_DropExcelFiles(dropText)
     if (!IsObject(files) || !files.Length())
@@ -7359,52 +11680,47 @@ SSOK_Expense_WorkPublic_HandleDrop(dropText, targetControl := "")
         return
     }
 
-    if (targetControl = "SSOK_WorkPublicPrevPath")
+    if (targetControl = "SSOK_WorkPublicPrevDrop")
     {
         SSOK_WorkPublicPrevPath := files[1]
-        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, % SSOK_WorkPublicPrevPath
-
-        if (files.Length() >= 2)
-        {
-            SSOK_WorkPublicCurrentPath := files[2]
-            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, % SSOK_WorkPublicCurrentPath
-        }
+        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, % SSOK_WorkPublicPrevPath
     }
-    else if (targetControl = "SSOK_WorkPublicCurrentPath")
+    else if (targetControl = "SSOK_WorkPublicCurrentDrop")
     {
         SSOK_WorkPublicCurrentPath := files[1]
-        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, % SSOK_WorkPublicCurrentPath
-
-        if (files.Length() >= 2)
-        {
-            SSOK_WorkPublicPrevPath := files[2]
-            GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, % SSOK_WorkPublicPrevPath
-        }
+        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, % SSOK_WorkPublicCurrentPath
+    }
+    else if (targetControl = "SSOK_WorkPublicCardDrop")
+    {
+        SSOK_WorkPublicCardPath := files[1]
+        GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, % SSOK_WorkPublicCardPath
     }
     else
     {
+        ; 빈 곳에 여러 파일을 놓는 경우 빈 칸을 A -> B -> C 순서로 채웁니다.
         for _, path in files
         {
             if (SSOK_WorkPublicPrevPath = "")
             {
                 SSOK_WorkPublicPrevPath := path
-                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %path%
+                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, %path%
             }
             else if (SSOK_WorkPublicCurrentPath = "")
             {
                 SSOK_WorkPublicCurrentPath := path
-                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentPath, %path%
+                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, %path%
             }
-            else
+            else if (SSOK_WorkPublicCardPath = "")
             {
-                SSOK_WorkPublicPrevPath := path
-                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevPath, %path%
+                SSOK_WorkPublicCardPath := path
+                GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, %path%
             }
         }
     }
 
     Gosub, SSOK_Expense_WorkPublic_UpdateStatus
 }
+
 
 SSOK_Expense_GetCopiedFilePath()
 {
