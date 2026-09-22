@@ -1,4 +1,4 @@
-; SSOK_BUILD_CARD_COMPARE_SIMPLE_FILENAME_NO_POPUP_20260921
+; SSOK_BUILD_CARD_COMPARE_SIMPLE_FILENAME_NO_POPUP_20260922
 ; 간편 지출품의: 선택한 견적서 읽기 → 품명 첫 칸에서 Win+1 입력
 ; AutoHotkey v1 지출품의 모듈입니다. Win+1 / Win+2 / Win+3를 이 파일에서 직접 처리합니다.
 #If SSOK_Expense_HotkeyContext()
