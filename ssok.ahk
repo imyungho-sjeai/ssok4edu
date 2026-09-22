@@ -8428,6 +8428,10 @@ SSOK_EDU_OrgKindChanged:
     SSOK_EDU_RefreshOrgSchoolList()
 return
 
+SSOK_EDU_ClassCountPoll:
+    SSOK_EDU_PollClassCountRequests()
+return
+
 SSOK_EDU_OrgExportExcel:
     SSOK_EDU_ExportOrgSchoolsExcel()
 return
@@ -8453,6 +8457,7 @@ return
 
 SSOK_EDU_OrgGuiClose:
 SSOK_EDU_OrgGuiEscape:
+    SSOK_EDU_CancelClassCountLoad()
     Gui, SSOKEDUOrg:Destroy
 return
 
@@ -8666,7 +8671,7 @@ SSOK_EDU_ShowOrgPicker(defaultOfficeCode := "", defaultSupport := "")
     Gui, SSOKEDUOrg:Add, Button, x1098 y10 w92 h26 gSSOK_EDU_OrgExportExcel, 엑셀 저장
     Gui, SSOKEDUOrg:Add, Button, x1196 y10 w100 h26 gSSOK_EDU_OrgSelectSchool Default, 학교 열기
 
-    Gui, SSOKEDUOrg:Add, ListView, x12 y45 w1284 h395 vSSOK_EDU_OrgSchoolList gSSOK_EDU_OrgSchoolListEvent AltSubmit NoSortHdr, 학교명|학교급|교육청|지원청|주소|전화|팩스|홈페이지
+    Gui, SSOKEDUOrg:Add, ListView, x12 y45 w1284 h395 vSSOK_EDU_OrgSchoolList gSSOK_EDU_OrgSchoolListEvent AltSubmit, 학교명|학교급|학급수|지원청|주소|전화|팩스|홈페이지|학교코드
     Gui, SSOKEDUOrg:Show, w1308 h452, SSOK4edu 관할 교육청
     SSOK_EDU_LoadOrgSchools()
 }
@@ -8703,8 +8708,18 @@ SSOK_EDU_LoadOrgSchools()
     if (officeCode = "")
         return
 
+    ; 교육청을 바꾸면 이전 교육청의 진행 중 학급수 요청부터 즉시 중지합니다.
+    SSOK_EDU_CancelClassCountLoad()
     GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, 학교 목록 불러오는 중...
     schools := SSOK_EDU_FetchSchoolsByOffice(officeCode)
+
+    ; 학교 목록은 먼저 즉시 표시하고, 학급수는 비동기 요청으로 뒤에서 채웁니다.
+    ; 디스크/메모리 캐시는 사용하지 않습니다.
+    if (IsObject(schools))
+    {
+        for idx, item in schools
+            item.classCount := "..."
+    }
     SSOK_EDU_OrgSchools := schools
 
     supportSeen := {}
@@ -8762,12 +8777,14 @@ SSOK_EDU_LoadOrgSchools()
 
     GuiControl, SSOKEDUOrg:Choose, SSOK_EDU_OrgKind, 1
     SSOK_EDU_RefreshOrgSchoolList()
+    SSOK_EDU_StartClassCountLoad(officeCode, A_YYYY, schools)
 }
 
 SSOK_EDU_RefreshOrgSchoolList()
 {
     global SSOK_EDU_OrgSupport, SSOK_EDU_OrgKind, SSOK_EDU_OrgSchools, SSOK_EDU_OrgVisibleSchools
     global SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgStatus
+    global SSOK_EDU_ClassReqLoading, SSOK_EDU_ClassReqDone, SSOK_EDU_ClassReqTotal
 
     Gui, SSOKEDUOrg:Submit, NoHide
     support := Trim(SSOK_EDU_OrgSupport)
@@ -8787,24 +8804,28 @@ SSOK_EDU_RefreshOrgSchoolList()
                 continue
 
             visible.Push(item)
-            LV_Add("", item.schoolName, item.kind, item.officeName, item.parentOrg, item.address, item.tel, item.fax, item.homepage)
+            classText := (item.classCount != "" ? item.classCount : "-")
+            LV_Add("", item.schoolName, item.kind, classText, item.parentOrg, item.address, item.tel, item.fax, item.homepage, item.schoolCode)
         }
     }
 
     SSOK_EDU_OrgVisibleSchools := visible
     LV_ModifyCol(1, 155)
     LV_ModifyCol(2, 78)
-    LV_ModifyCol(3, 145)
+    LV_ModifyCol(3, "70 Integer")
     LV_ModifyCol(4, 170)
     LV_ModifyCol(5, 290)
     LV_ModifyCol(6, 120)
     LV_ModifyCol(7, 120)
     LV_ModifyCol(8, 250)
+    LV_ModifyCol(9, 0)
 
     if (visible.Length() > 0)
         LV_Modify(1, "Select Focus Vis")
 
     status := "학교 " . visible.Length() . "개"
+    if (SSOK_EDU_ClassReqLoading && SSOK_EDU_ClassReqTotal > 0)
+        status .= " · 학급수 " . SSOK_EDU_ClassReqDone . "/" . SSOK_EDU_ClassReqTotal
     GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, %status%
 }
 
@@ -8903,9 +8924,33 @@ SSOK_EDU_GetOfficeNameByIndex(idx)
 SSOK_EDU_SelectOrgSchoolRow(row)
 {
     global SSOK_EDU_OrgVisibleSchools
-    if (!IsObject(SSOK_EDU_OrgVisibleSchools) || row < 1 || row > SSOK_EDU_OrgVisibleSchools.Length())
+    if (!IsObject(SSOK_EDU_OrgVisibleSchools) || row < 1)
         return
-    school := SSOK_EDU_OrgVisibleSchools[row]
+
+    ; 열 제목 정렬 후에도 선택한 화면 행과 실제 학교가 정확히 연결되도록
+    ; 숨김 학교코드를 기준으로 원본 학교 객체를 찾습니다.
+    Gui, SSOKEDUOrg:Default
+    Gui, ListView, SSOK_EDU_OrgSchoolList
+    LV_GetText(schoolCode, row, 9)
+    school := ""
+    if (schoolCode != "")
+    {
+        for idx, item in SSOK_EDU_OrgVisibleSchools
+        {
+            if (item.schoolCode = schoolCode)
+            {
+                school := item
+                break
+            }
+        }
+    }
+
+    ; 예외적으로 학교코드를 읽지 못한 경우 기존 행 순서 방식으로 보완합니다.
+    if (!IsObject(school) && row <= SSOK_EDU_OrgVisibleSchools.Length())
+        school := SSOK_EDU_OrgVisibleSchools[row]
+    if (!IsObject(school))
+        return
+
     Gui, SSOKEDUOrg:Destroy
     SSOK_EDU_OpenSchool(school)
 }
@@ -8964,6 +9009,262 @@ SSOK_EDU_FetchSchoolsByOffice(officeCode)
         }
     }
     return results
+}
+
+SSOK_EDU_StartClassCountLoad(officeCode, year, schools)
+{
+    global SSOK_EDU_ClassReqQueue, SSOK_EDU_ClassReqPending
+    global SSOK_EDU_ClassReqNext, SSOK_EDU_ClassReqTotal, SSOK_EDU_ClassReqDone
+    global SSOK_EDU_ClassReqOffice, SSOK_EDU_ClassReqYear, SSOK_EDU_ClassReqLoading
+
+    SSOK_EDU_CancelClassCountLoad()
+    if (officeCode = "" || year = "" || !IsObject(schools) || schools.Length() < 1)
+        return
+
+    SSOK_EDU_ClassReqQueue := []
+    for idx, item in schools
+    {
+        schoolCode := Trim(item.schoolCode)
+        if (schoolCode != "")
+            SSOK_EDU_ClassReqQueue.Push(schoolCode)
+    }
+
+    SSOK_EDU_ClassReqPending := []
+    SSOK_EDU_ClassReqNext := 1
+    SSOK_EDU_ClassReqTotal := SSOK_EDU_ClassReqQueue.Length()
+    SSOK_EDU_ClassReqDone := 0
+    SSOK_EDU_ClassReqOffice := officeCode
+    SSOK_EDU_ClassReqYear := year
+    SSOK_EDU_ClassReqLoading := (SSOK_EDU_ClassReqTotal > 0)
+
+    if (!SSOK_EDU_ClassReqLoading)
+        return
+
+    ; 먼저 함수에서 빠져나가 목록 GUI를 즉시 그린 뒤, 타이머에서 최대 32개씩 비동기 조회합니다.
+    SetTimer, SSOK_EDU_ClassCountPoll, 30
+    SSOK_EDU_UpdateClassCountStatus()
+}
+
+SSOK_EDU_LaunchClassCountRequests()
+{
+    global SSOK_EDU_ClassReqQueue, SSOK_EDU_ClassReqPending
+    global SSOK_EDU_ClassReqNext, SSOK_EDU_ClassReqTotal
+    global SSOK_EDU_ClassReqOffice, SSOK_EDU_ClassReqYear
+
+    maxActive := 32
+    key := SSOK_EDU_GetApiKey()
+
+    while (IsObject(SSOK_EDU_ClassReqPending)
+        && SSOK_EDU_ClassReqPending.Length() < maxActive
+        && SSOK_EDU_ClassReqNext <= SSOK_EDU_ClassReqTotal)
+    {
+        schoolCode := SSOK_EDU_ClassReqQueue[SSOK_EDU_ClassReqNext]
+        SSOK_EDU_ClassReqNext++
+
+        params := Object("ATPT_OFCDC_SC_CODE", SSOK_EDU_ClassReqOffice
+                       , "SD_SCHUL_CODE", schoolCode
+                       , "AY", SSOK_EDU_ClassReqYear)
+        url := SSOK_EDU_BuildUrl("classInfo", params, 1, key, 1)
+
+        try
+        {
+            http := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+            http.SetTimeouts(900, 1400, 2200, 3500)
+            http.Open("GET", url, true)
+            http.SetRequestHeader("User-Agent", "SSOK4edu")
+            http.Send()
+            SSOK_EDU_ClassReqPending.Push(Object("http", http
+                                               , "schoolCode", schoolCode
+                                               , "started", A_TickCount))
+        }
+        catch e
+        {
+            SSOK_EDU_ClassReqDone++
+            SSOK_EDU_SetClassCountValue(schoolCode, "-")
+        }
+    }
+}
+
+SSOK_EDU_PollClassCountRequests()
+{
+    global SSOK_EDU_ClassReqPending, SSOK_EDU_ClassReqNext
+    global SSOK_EDU_ClassReqTotal, SSOK_EDU_ClassReqDone, SSOK_EDU_ClassReqLoading
+
+    if (!SSOK_EDU_ClassReqLoading || !IsObject(SSOK_EDU_ClassReqPending))
+    {
+        SetTimer, SSOK_EDU_ClassCountPoll, Off
+        return
+    }
+
+    countPending := SSOK_EDU_ClassReqPending.Length()
+    Loop, %countPending%
+    {
+        idx := countPending - A_Index + 1
+        req := SSOK_EDU_ClassReqPending[idx]
+        finished := false
+        value := ""
+        status := ""
+
+        try status := req.http.Status
+        catch e
+            status := ""
+
+        if (status >= 100)
+        {
+            finished := true
+            if (status = 200)
+            {
+                try
+                {
+                    total := SSOK_EDU_ParseTotalCount(req.http.ResponseText)
+                    value := (total > 0 ? total : "-")
+                }
+                catch e
+                    value := "-"
+            }
+            else
+                value := "-"
+        }
+        else if ((A_TickCount - req.started) > 5000)
+        {
+            finished := true
+            value := "-"
+            try req.http.Abort()
+        }
+
+        if (finished)
+        {
+            SSOK_EDU_ClassReqPending.RemoveAt(idx)
+            SSOK_EDU_ClassReqDone++
+            SSOK_EDU_SetClassCountValue(req.schoolCode, value)
+        }
+    }
+
+    SSOK_EDU_LaunchClassCountRequests()
+    SSOK_EDU_UpdateClassCountStatus()
+
+    if (SSOK_EDU_ClassReqDone >= SSOK_EDU_ClassReqTotal
+        && SSOK_EDU_ClassReqPending.Length() = 0
+        && SSOK_EDU_ClassReqNext > SSOK_EDU_ClassReqTotal)
+    {
+        SSOK_EDU_ClassReqLoading := false
+        SetTimer, SSOK_EDU_ClassCountPoll, Off
+        SSOK_EDU_UpdateClassCountStatus()
+    }
+}
+
+SSOK_EDU_SetClassCountValue(schoolCode, value)
+{
+    global SSOK_EDU_OrgSchools, SSOK_EDU_OrgSchoolList
+
+    if (IsObject(SSOK_EDU_OrgSchools))
+    {
+        for idx, item in SSOK_EDU_OrgSchools
+        {
+            if (item.schoolCode = schoolCode)
+            {
+                item.classCount := value
+                break
+            }
+        }
+    }
+
+    ; 현재 필터/정렬 상태를 유지한 채 보이는 행의 학급수 셀만 갱신합니다.
+    Gui, SSOKEDUOrg:Default
+    Gui, ListView, SSOK_EDU_OrgSchoolList
+    rowCount := LV_GetCount()
+    Loop, %rowCount%
+    {
+        LV_GetText(code, A_Index, 9)
+        if (code = schoolCode)
+        {
+            LV_Modify(A_Index, "Col3", value)
+            break
+        }
+    }
+}
+
+SSOK_EDU_UpdateClassCountStatus()
+{
+    global SSOK_EDU_OrgVisibleSchools, SSOK_EDU_OrgStatus
+    global SSOK_EDU_ClassReqLoading, SSOK_EDU_ClassReqDone, SSOK_EDU_ClassReqTotal
+
+    visibleCount := IsObject(SSOK_EDU_OrgVisibleSchools) ? SSOK_EDU_OrgVisibleSchools.Length() : 0
+    status := "학교 " . visibleCount . "개"
+    if (SSOK_EDU_ClassReqLoading && SSOK_EDU_ClassReqTotal > 0)
+        status .= " · 학급수 " . SSOK_EDU_ClassReqDone . "/" . SSOK_EDU_ClassReqTotal
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, %status%
+}
+
+SSOK_EDU_CancelClassCountLoad()
+{
+    global SSOK_EDU_ClassReqPending, SSOK_EDU_ClassReqQueue
+    global SSOK_EDU_ClassReqNext, SSOK_EDU_ClassReqTotal, SSOK_EDU_ClassReqDone
+    global SSOK_EDU_ClassReqOffice, SSOK_EDU_ClassReqYear, SSOK_EDU_ClassReqLoading
+
+    SetTimer, SSOK_EDU_ClassCountPoll, Off
+    if (IsObject(SSOK_EDU_ClassReqPending))
+    {
+        for idx, req in SSOK_EDU_ClassReqPending
+        {
+            try req.http.Abort()
+        }
+    }
+
+    SSOK_EDU_ClassReqPending := []
+    SSOK_EDU_ClassReqQueue := []
+    SSOK_EDU_ClassReqNext := 1
+    SSOK_EDU_ClassReqTotal := 0
+    SSOK_EDU_ClassReqDone := 0
+    SSOK_EDU_ClassReqOffice := ""
+    SSOK_EDU_ClassReqYear := ""
+    SSOK_EDU_ClassReqLoading := false
+}
+
+SSOK_EDU_AccumulateClassCounts(xml, ByRef counts, ByRef seen)
+{
+    added := 0
+    try
+    {
+        dom := ComObjCreate("MSXML2.DOMDocument.6.0")
+        dom.async := false
+        dom.validateOnParse := false
+        dom.resolveExternals := false
+        if (!dom.loadXML(xml))
+            return 0
+
+        nodes := dom.selectNodes("//*[local-name()='row']")
+        Loop, % nodes.length
+        {
+            row := nodes.item(A_Index - 1)
+            schoolCode := SSOK_EDU_XmlText(row, "SD_SCHUL_CODE")
+            if (schoolCode = "")
+                continue
+
+            classKey := schoolCode . "|"
+                      . SSOK_EDU_XmlText(row, "AY") . "|"
+                      . SSOK_EDU_XmlText(row, "GRADE") . "|"
+                      . SSOK_EDU_XmlText(row, "CLASS_NM") . "|"
+                      . SSOK_EDU_XmlText(row, "SCHUL_CRSE_SC_NM") . "|"
+                      . SSOK_EDU_XmlText(row, "ORD_SC_NM") . "|"
+                      . SSOK_EDU_XmlText(row, "DDDEP_NM") . "|"
+                      . SSOK_EDU_XmlText(row, "DGHT_CRSE_SC_NM")
+
+            if (seen.HasKey(classKey))
+                continue
+            seen[classKey] := 1
+
+            if (!counts.HasKey(schoolCode))
+                counts[schoolCode] := 0
+            counts[schoolCode] += 1
+            added++
+        }
+    }
+    catch
+    {
+        return added
+    }
+    return added
 }
 
 SSOK_EDU_SelectSchoolRow(row)

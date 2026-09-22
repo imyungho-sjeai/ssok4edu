@@ -5737,9 +5737,6 @@ SSOK_Sidebar_WorkTools:
 return
 
 SSOK_ShowWorkToolsGui:
-    SSOK_AdminCalendar_LoadSettings()
-    SSOK_AdminCalMenuText := SSOK_AdminCalEnabled ? "업무달력 [ON]" : "업무달력 [OFF]"
-
     ; 업무용 도구 가로폭은 현재 메인 메뉴(사이드바)보다 20px 넓게 사용
     SSOK_WorkToolsW := SSOK_SidebarW + 20
     if (SSOK_WorkToolsW = "" || SSOK_WorkToolsW < 132)
@@ -5761,31 +5758,32 @@ SSOK_ShowWorkToolsGui:
     Gui, SSOKWorkTools:Color, F7FBFF
     ; 기존 s5.6에서 20% 확대 = s6.72
     Gui, SSOKWorkTools:Font, s6.72 bold, Malgun Gothic
-    Gui, SSOKWorkTools:Add, Button, x8 y8 w%SSOK_WorkToolsCalendarW% h25 vSSOK_WorkTools_AdminCalendar gSSOK_WorkTools_AdminCalendarToggle, %SSOK_AdminCalMenuText%
+    Gui, SSOKWorkTools:Add, Button, x8 y8 w%SSOK_WorkToolsCalendarW% h25 vSSOK_WorkTools_AdminCalendar gSSOK_WorkTools_AdminCalendarOpen, 행정업무달력
     Gui, SSOKWorkTools:Add, Button, x%SSOK_WorkToolsSettingsX% y8 w%SSOK_WorkToolsSettingsW% h25 gSSOK_WorkTools_AdminCalendarSettings, 설정
-    Gui, SSOKWorkTools:Add, Button, x8 y39  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Travel, 여비정산서
-    Gui, SSOKWorkTools:Add, Button, x8 y70  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Calc, 계산기
-    Gui, SSOKWorkTools:Add, Button, x8 y101 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_AutoClick, 마우스 매크로
-    Gui, SSOKWorkTools:Add, Button, x8 y132 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Timer, 업무용 타이머
-    Gui, SSOKWorkTools:Add, Button, x8 y163 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CompanyInfo, 국세청·조달청 업체조회
-    Gui, SSOKWorkTools:Add, Button, x8 y194 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Privacy, 개인정보 숨기기
-    Gui, SSOKWorkTools:Add, Button, x8 y225 w%SSOK_WorkToolsNumW% h25 gSSOK_WorkTools_CommaToggle, 숫자-천원
-    Gui, SSOKWorkTools:Add, Button, x%SSOK_WorkToolsNumX2% y225 w%SSOK_WorkToolsNumW% h25 gSSOK_WorkTools_MoneyToggle, 숫자-금액
-    Gui, SSOKWorkTools:Add, Button, x8 y256 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CardCompare, 법인카드내역비교
-    Gui, SSOKWorkTools:Add, Button, x8 y287 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_WorkPublic, 업무추진비공개
-    Gui, SSOKWorkTools:Add, Button, x8 y318 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearch, 학교검색 (전국)
-    Gui, SSOKWorkTools:Add, Button, x8 y349 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearchNational, 학교검색 (세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y380 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_LocalFinanceInfo, 지방교육재정정보
-    Gui, SSOKWorkTools:Add, Button, x8 y411 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractG2B, 계약현황 (나라장터)
-    Gui, SSOKWorkTools:Add, Button, x8 y442 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractLofin365, 계약현황 (지방재정365)
-    Gui, SSOKWorkTools:Add, Button, x8 y473 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractSejong, 계약현황 (세종)
-    Gui, SSOKWorkTools:Add, Button, x8 y504 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Exit gSSOK_Tool_SidebarDeleteProxy, 종료
-    Gui, SSOKWorkTools:Add, Button, x8 y535 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
-    Gui, SSOKWorkTools:Add, Button, x8 y597 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
-    Gui, SSOKWorkTools:Add, Button, x8 y628 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
-    Gui, SSOKWorkTools:Add, Button, x8 y659 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
+    Gui, SSOKWorkTools:Add, Button, x8 y39  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_BudgetDashboard, 예산 DashBoard
+    Gui, SSOKWorkTools:Add, Button, x8 y70  w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Travel, 여비정산서
+    Gui, SSOKWorkTools:Add, Button, x8 y101 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Calc, 계산기
+    Gui, SSOKWorkTools:Add, Button, x8 y132 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_AutoClick, 마우스 매크로
+    Gui, SSOKWorkTools:Add, Button, x8 y163 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Timer, 업무용 타이머
+    Gui, SSOKWorkTools:Add, Button, x8 y194 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CompanyInfo, 국세청·조달청 업체조회
+    Gui, SSOKWorkTools:Add, Button, x8 y225 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_Privacy, 개인정보 숨기기
+    Gui, SSOKWorkTools:Add, Button, x8 y256 w%SSOK_WorkToolsNumW% h25 gSSOK_WorkTools_CommaToggle, 숫자-천원
+    Gui, SSOKWorkTools:Add, Button, x%SSOK_WorkToolsNumX2% y256 w%SSOK_WorkToolsNumW% h25 gSSOK_WorkTools_MoneyToggle, 숫자-금액
+    Gui, SSOKWorkTools:Add, Button, x8 y287 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_CardCompare, 법인카드내역비교
+    Gui, SSOKWorkTools:Add, Button, x8 y318 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_WorkPublic, 업무추진비공개
+    Gui, SSOKWorkTools:Add, Button, x8 y349 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearch, 학교검색 (전국)
+    Gui, SSOKWorkTools:Add, Button, x8 y380 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_SchoolSearchNational, 학교검색 (세종)
+    Gui, SSOKWorkTools:Add, Button, x8 y411 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_LocalFinanceInfo, 지방교육재정정보
+    Gui, SSOKWorkTools:Add, Button, x8 y442 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractG2B, 계약현황 (나라장터)
+    Gui, SSOKWorkTools:Add, Button, x8 y473 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractLofin365, 계약현황 (지방재정365)
+    Gui, SSOKWorkTools:Add, Button, x8 y504 w%SSOK_WorkToolsButtonW% h25 gSSOK_WorkTools_ContractSejong, 계약현황 (세종)
+    Gui, SSOKWorkTools:Add, Button, x8 y535 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Exit gSSOK_Tool_SidebarDeleteProxy, 종료
+    Gui, SSOKWorkTools:Add, Button, x8 y566 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_BetaToggle gSSOK_WorkTools_BetaToggle, 테스트버전 Beta
+    Gui, SSOKWorkTools:Add, Button, x8 y628 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win1 gSSOK_Advanced_Win1 Hidden, 간편 원인행위(win+2)
+    Gui, SSOKWorkTools:Add, Button, x8 y659 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_Win2 gSSOK_Advanced_Win2 Hidden, 간편 원인행위(win+4)
+    Gui, SSOKWorkTools:Add, Button, x8 y690 w%SSOK_WorkToolsButtonW% h25 vSSOK_WorkTools_ExpenseDraft gSSOK_Advanced_ExpenseDraft Hidden, 간편 지출품의(win+1)
 
-    SSOK_WorkToolsH := 567
+    SSOK_WorkToolsH := 598
     SSOK_WorkToolsBetaExpanded := 0
 
     SSOK_WorkToolsX := SSOK_SidebarX - SSOK_WorkToolsW
@@ -5802,12 +5800,20 @@ SSOK_ShowWorkToolsGui:
     WinActivate, ahk_id %SSOK_WorkToolsHwnd%
 return
 
-SSOK_WorkTools_AdminCalendarToggle:
-    SSOK_AdminCalendar_Toggle()
+SSOK_WorkTools_AdminCalendarOpen:
+    ; 업무용 도구에서는 ON/OFF 토글 없이 즉시 오늘의 행정업무달력 팝업을 엽니다.
+    SSOK_AdminCalendar_ShowTodayPopup(true)
 return
 
 SSOK_WorkTools_AdminCalendarSettings:
     SSOK_AdminCalendar_ShowSettings()
+return
+
+SSOK_WorkTools_BudgetDashboard:
+    ; 예산 Dashboard의 실제 기능은 ssok_tool_expense.ahk에 둡니다.
+    SSOK_ToolDynamicLabel := "SSOK_Expense_Tools_BudgetDashboard"
+    if IsLabel(SSOK_ToolDynamicLabel)
+        Gosub, %SSOK_ToolDynamicLabel%
 return
 
 SSOK_WorkTools_BetaToggle:
@@ -8791,6 +8797,12 @@ return
 SSOK_AdminCalendar_Init:
     SSOK_AdminCalendar_LoadSettings()
     SetTimer, SSOK_AdminCalendar_Timer, 15000
+    ; 프로그램 시작 직후에도 오전 최초 1회 표시 조건을 확인합니다.
+    SetTimer, SSOK_AdminCalendar_StartupCheck, -1200
+return
+
+SSOK_AdminCalendar_StartupCheck:
+    SSOK_AdminCalendar_CheckNow()
 return
 
 SSOK_AdminCalendar_Timer:
@@ -8810,6 +8822,40 @@ return
 SSOK_AdminCalendar_OpenMealInfo:
     Gui, SSOKAdminCalPopup:Destroy
     SSOK_AdminCalendar_OpenMySchoolMealInfo()
+return
+
+; 행정업무 달력 팝업의 [학사정보 바로가기]
+; 메인에 저장된 우리학교를 SSOK 교육정보 창으로 열고 학사일정 탭을 바로 선택합니다.
+SSOK_AdminCalendar_OpenScheduleInfo:
+    Gui, SSOKAdminCalPopup:Destroy
+    SSOK_AdminCalendar_OpenMySchoolScheduleInfo()
+return
+
+; 행정업무 달력 팝업의 [설정] - 기존 달력 설정창을 엽니다.
+SSOK_AdminCalendar_OpenSettings:
+    Gui, SSOKAdminCalPopup:Destroy
+    SSOK_AdminCalendar_ShowSettings()
+return
+
+; 행정업무 달력 날짜 이동/선택
+SSOK_AdminCalendar_DatePrev:
+    SSOK_AdminCalendar_ShiftSelectedDate(-1)
+return
+
+SSOK_AdminCalendar_DateNext:
+    SSOK_AdminCalendar_ShiftSelectedDate(1)
+return
+
+SSOK_AdminCalendar_DateToday:
+    todayYmd := A_YYYY . A_MM . A_DD
+    SSOK_AdminCalendar_ShowDatePopup(todayYmd, true)
+return
+
+SSOK_AdminCalendar_DatePickChanged:
+    Gui, SSOKAdminCalPopup:Submit, NoHide
+    pickedYmd := SubStr(SSOK_AdminCalDatePick, 1, 8)
+    if RegExMatch(pickedYmd, "^\d{8}$")
+        SSOK_AdminCalendar_ShowDatePopup(pickedYmd, true)
 return
 
 SSOK_AdminCalendar_Save:
@@ -9198,11 +9244,8 @@ SSOK_AdminCalendar_NormalizeTime(value)
 
 SSOK_AdminCalendar_UpdateMenuText()
 {
-    global SSOK_AdminCalEnabled
-
-    SSOK_AdminCalendar_LoadSettings()
-    text := SSOK_AdminCalEnabled ? "업무달력 [ON]" : "업무달력 [OFF]"
-    GuiControl, SSOKWorkTools:, SSOK_WorkTools_AdminCalendar, %text%
+    ; 업무용 도구 버튼은 상태표시가 아니라 항상 '행정업무달력' 직접 실행 버튼입니다.
+    GuiControl, SSOKWorkTools:, SSOK_WorkTools_AdminCalendar, 행정업무달력
 }
 
 SSOK_AdminCalendar_CheckNow()
@@ -9218,6 +9261,43 @@ SSOK_AdminCalendar_CheckNow()
         return
 
     now := Format("{:02}:{:02}", A_Hour + 0, A_Min + 0)
+    nowMinutes := (A_Hour + 0) * 60 + (A_Min + 0)
+    todayKey := A_YYYY . A_MM . A_DD
+    ini := SSOK_AdminCalendar_GetIniFile()
+
+    ; 오전 07:00~09:30 사이에는 PC/프로그램이 처음 켜진 시점에 오늘 일정을 하루 1회만 표시합니다.
+    ; 스크립트가 다시 실행되어도 같은 날에는 중복 표시되지 않도록 날짜를 INI에 저장합니다.
+    if (nowMinutes >= 420 && nowMinutes <= 570)
+    {
+        IniRead, morningShownDate, %ini%, AdminCalendar, MorningStartupShownDate,
+        if (morningShownDate != todayKey)
+        {
+            IniWrite, %todayKey%, %ini%, AdminCalendar, MorningStartupShownDate
+            SSOK_AdminCalLastShownKey := todayKey . "|MORNING"
+            SSOK_AdminCalendar_ShowTodayPopup(false)
+            return
+        }
+    }
+
+    ; 오전 최초 표시를 사용하므로 기존 09:00 예약은 중복으로 띄우지 않습니다.
+    if (now = "09:00")
+        return
+
+    ; 퇴근 시각 16:30에는 내일의 업무 일정을 하루 1회 표시하고 5초 뒤 자동으로 닫습니다.
+    if (now = "16:30")
+    {
+        IniRead, eveningShownDate, %ini%, AdminCalendar, TomorrowPopupShownDate,
+        if (eveningShownDate != todayKey)
+        {
+            IniWrite, %todayKey%, %ini%, AdminCalendar, TomorrowPopupShownDate
+            tomorrowTs := todayKey . "000000"
+            EnvAdd, tomorrowTs, 1, Days
+            tomorrowYmd := SubStr(tomorrowTs, 1, 8)
+            SSOK_AdminCalLastShownKey := todayKey . "|16:30-TOMORROW"
+            SSOK_AdminCalendar_ShowDatePopup(tomorrowYmd, false, 5000)
+        }
+        return
+    }
 
     matched := false
 
@@ -9233,7 +9313,7 @@ SSOK_AdminCalendar_CheckNow()
     if (!matched)
         return
 
-    key := A_YYYY . A_MM . A_DD . "|" . now
+    key := todayKey . "|" . now
 
     if (SSOK_AdminCalLastShownKey = key)
         return
@@ -9244,41 +9324,58 @@ SSOK_AdminCalendar_CheckNow()
 
 SSOK_AdminCalendar_ShowTodayPopup(manual := false)
 {
-    result := SSOK_AdminCalendar_GetTodaySchedule()
+    todayYmd := A_YYYY . A_MM . A_DD
+    SSOK_AdminCalendar_ShowDatePopup(todayYmd, manual)
+}
 
-    FormatTime, dateTitle,, M월 d일
-    title := dateTitle . " 오늘의 행정업무 달력"
+SSOK_AdminCalendar_ShowDatePopup(targetYmd := "", manual := false, autoHideMs := 0)
+{
+    global SSOK_AdminCalSelectedDate
 
-    ; 서울/전북 일정과 별개로, 설정된 기관의 학교 일정/급식은 항상 조회합니다.
-    schoolWeek := SSOK_AdminCalendar_GetMySchoolWeekSchedule()
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+
+    SSOK_AdminCalSelectedDate := targetYmd
+    result := SSOK_AdminCalendar_GetScheduleForDate(targetYmd)
+
+    y := SubStr(targetYmd, 1, 4) + 0
+    m := SubStr(targetYmd, 5, 2) + 0
+    d := SubStr(targetYmd, 7, 2) + 0
+    todayYmd := A_YYYY . A_MM . A_DD
+    tomorrowTs := todayYmd . "000000"
+    EnvAdd, tomorrowTs, 1, Days
+    tomorrowYmd := SubStr(tomorrowTs, 1, 8)
+
+    if (targetYmd = todayYmd)
+        title := "오늘의 교육행정 업무 일정"
+    else if (targetYmd = tomorrowYmd)
+        title := "내일의 교육행정 업무 일정"
+    else
+        title := m . "월 " . d . "일 교육행정 업무 일정"
+
+    ; 선택한 날짜가 속한 주의 학사일정 + 선택한 날짜의 급식을 함께 조회합니다.
+    schoolWeek := SSOK_AdminCalendar_GetMySchoolWeekScheduleForDate(targetYmd)
     schoolLine := IsObject(schoolWeek) ? schoolWeek.text : ""
-    schoolHasSchedule := IsObject(schoolWeek) && schoolWeek.hasEvents
-    schoolMeal := SSOK_AdminCalendar_GetMySchoolTodayMeals()
+    schoolMeal := SSOK_AdminCalendar_GetMySchoolMealsForDate(targetYmd)
     mealLine := IsObject(schoolMeal) ? schoolMeal.text : ""
 
-    ; 설정된 학교에 금주 학사일정이 있으면 서울/전북 일정은 표시하지 않습니다.
-    ; 학교 학사일정 + 오늘 급식만 간단히 표시합니다.
-    if (schoolHasSchedule)
-    {
-        SSOK_AdminCalendar_ShowSchoolOnlyPopup(title, schoolLine, mealLine)
-    }
-    else if (result.ok)
-    {
-        seoulEvents := IsObject(result.seoulEvents) ? result.seoulEvents : []
-        jeonbukEvents := IsObject(result.jeonbukEvents) ? result.jeonbukEvents : []
-        SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLine, mealLine)
-    }
-    else if (Trim(schoolLine) != "" || Trim(mealLine) != "")
-    {
-        ; 지역 행정달력 조회에 실패해도 학교 일정/급식이 있으면 그 정보는 표시합니다.
-        SSOK_AdminCalendar_ShowPopupColumns(title, [], [], schoolLine, mealLine)
-    }
-    else
-    {
-        errText := "행정달력을 불러오지 못했습니다."
-            . (result.error != "" ? "`n" . result.error : "")
-        SSOK_AdminCalendar_ShowPopup(title, errText, manual ? 12000 : 8500)
-    }
+    ; 한 화면에는 선택한 날짜 1일치만 표시: 서울 / 전북 2칸.
+    seoulEvents := (IsObject(result) && IsObject(result.seoulEvents)) ? result.seoulEvents : []
+    jeonbukEvents := (IsObject(result) && IsObject(result.jeonbukEvents)) ? result.jeonbukEvents : []
+    SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLine, mealLine, targetYmd, result.seoulError, result.jeonbukError, autoHideMs)
+}
+
+SSOK_AdminCalendar_ShiftSelectedDate(deltaDays)
+{
+    global SSOK_AdminCalSelectedDate
+
+    ymd := SSOK_AdminCalSelectedDate
+    if !RegExMatch(ymd, "^\d{8}$")
+        ymd := A_YYYY . A_MM . A_DD
+
+    ts := ymd . "000000"
+    EnvAdd, ts, %deltaDays%, Days
+    SSOK_AdminCalendar_ShowDatePopup(SubStr(ts, 1, 8), true)
 }
 
 SSOK_AdminCalendar_ShowPopup(title, body, duration := 8500)
@@ -9359,6 +9456,9 @@ SSOK_AdminCalendar_ShowSchoolOnlyPopup(title, schoolLine, mealLine := "")
     linkY := buttonY + 4
     Gui, SSOKAdminCalPopup:Font, s8 underline c0066CC, Malgun Gothic
     Gui, SSOKAdminCalPopup:Add, Text, x550 y%linkY% w135 h20 +0x200 Center gSSOK_AdminCalendar_OpenMealInfo, 식단정보 바로가기
+    Gui, SSOKAdminCalPopup:Add, Text, x690 y%linkY% w135 h20 +0x200 Center gSSOK_AdminCalendar_OpenScheduleInfo, 학사정보 바로가기
+    Gui, SSOKAdminCalPopup:Font, s7 underline c666666, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x875 y%linkY% w60 h20 +0x200 Center gSSOK_AdminCalendar_OpenSettings, 설정
 
     SysGet, SSOK_AdminWork, MonitorWorkArea
     workLeft := SSOK_AdminWorkLeft
@@ -9383,42 +9483,54 @@ SSOK_AdminCalendar_ShowSchoolOnlyPopup(title, schoolLine, mealLine := "")
     Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
 }
 
-SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLine := "", mealLine := "")
+SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLine := "", mealLine := "", targetYmd := "", seoulError := "", jeonbukError := "", autoHideMs := 0)
 {
     global SSOK_AdminCalPopupHwnd, SSOK_AdminCalSeoulBody, SSOK_AdminCalJeonbukBody
-    global SSOK_AdminCalSchoolBody
+    global SSOK_AdminCalSchoolBody, SSOK_AdminCalSelectedDate, SSOK_AdminCalDatePick
+
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := (RegExMatch(SSOK_AdminCalSelectedDate, "^\d{8}$") ? SSOK_AdminCalSelectedDate : A_YYYY . A_MM . A_DD)
+    SSOK_AdminCalSelectedDate := targetYmd
 
     seoulText := SSOK_AdminCalendar_FormatEventsAll(seoulEvents)
     jeonbukText := SSOK_AdminCalendar_FormatEventsAll(jeonbukEvents)
+    if (seoulError != "")
+        seoulText := "조회 실패: " . seoulError
+    if (jeonbukError != "")
+        jeonbukText := "조회 실패: " . jeonbukError
     schoolDisplay := Trim(schoolLine)
     mealDisplay := Trim(mealLine)
 
-    ; 서울/전북 일정이 없어도 학교 학사일정 또는 급식이 있으면 팝업을 표시합니다.
-    if (seoulText = "" && jeonbukText = "" && schoolDisplay = "" && mealDisplay = "")
-    {
-        Gui, SSOKAdminCalPopup:Destroy
-        return
-    }
-
-    ; 일정이 없는 지역은 "일정 없음" 문구를 표시하지 않고 빈칸으로 둔다.
+    ; 일정이 없는 지역은 '일정 없음'을 쓰지 않고 빈칸으로 둡니다.
     seoulDisplay := (seoulText = "" ? " " : seoulText)
     jeonbukDisplay := (jeonbukText = "" ? " " : jeonbukText)
-
-    bodyY := 59
 
     Gui, SSOKAdminCalPopup:Destroy
     Gui, SSOKAdminCalPopup:New, +AlwaysOnTop -Caption +ToolWindow +Border +HwndSSOK_AdminCalPopupHwnd
     Gui, SSOKAdminCalPopup:Color, FFF8D8
     Gui, SSOKAdminCalPopup:Margin, 18, 12
 
-    ; 서울/전북 일정이 많아져도 줄바꿈을 줄이도록 폭은 유지하고, 주간일정/급식 본문은 8pt로 통일
+    ; 제목: 선택한 날짜를 표시합니다. 처음 열 때는 오늘 날짜입니다.
     Gui, SSOKAdminCalPopup:Font, s8 Bold, Malgun Gothic
-    Gui, SSOKAdminCalPopup:Add, Text, x20 y13 w920 h22 Center, %title%
+    Gui, SSOKAdminCalPopup:Add, Text, x20 y10 w920 h22 Center, %title%
 
-    Gui, SSOKAdminCalPopup:Font, s6 Normal c909090, Malgun Gothic
-    Gui, SSOKAdminCalPopup:Add, Text, x24 y40 w435 h13 Left, 서울
-    Gui, SSOKAdminCalPopup:Add, Text, x505 y40 w435 h13 Left, 전북
+    ; 날짜 선택: 이전날 / 직접 선택 / 다음날 / 오늘
+    chooseDate := targetYmd . "000000"
+    Gui, SSOKAdminCalPopup:Font, s8 Normal c222222, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Button, x322 y36 w34 h25 gSSOK_AdminCalendar_DatePrev, <
+    Gui, SSOKAdminCalPopup:Add, DateTime, x364 y35 w154 h26 vSSOK_AdminCalDatePick gSSOK_AdminCalendar_DatePickChanged Choose%chooseDate%, yyyy-MM-dd
+    Gui, SSOKAdminCalPopup:Add, Button, x526 y36 w34 h25 gSSOK_AdminCalendar_DateNext, >
+    Gui, SSOKAdminCalPopup:Add, Button, x570 y36 w58 h25 gSSOK_AdminCalendar_DateToday, 오늘
 
+    ; 선택한 날짜의 서울/전북 일정은 항상 2칸만 사용합니다.
+    ; 해당 지역에 표시할 일정(또는 조회 오류)이 있을 때만 지역명을 표시합니다.
+    Gui, SSOKAdminCalPopup:Font, s7 Bold c555555, Malgun Gothic
+    if (Trim(seoulText) != "")
+        Gui, SSOKAdminCalPopup:Add, Text, x24 y70 w435 h18 Left, 서울
+    if (Trim(jeonbukText) != "")
+        Gui, SSOKAdminCalPopup:Add, Text, x505 y70 w435 h18 Left, 전북
+
+    bodyY := 91
     Gui, SSOKAdminCalPopup:Font, s8 Normal c000000, Malgun Gothic
     Gui, SSOKAdminCalPopup:Add, Text, x24 y%bodyY% w435 +0x80 Left vSSOK_AdminCalSeoulBody, %seoulDisplay%
     Gui, SSOKAdminCalPopup:Add, Text, x505 y%bodyY% w435 +0x80 Left vSSOK_AdminCalJeonbukBody, %jeonbukDisplay%
@@ -9429,14 +9541,18 @@ SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLin
     if (contentH < 18)
         contentH := 18
 
-    ; 세로 구분선은 실제 서울/전북 일정 높이에 맞춰 자동 연장
-    sepY := 39
+    ; 세로 구분선은 서울/전북 일정 영역까지만 표시합니다.
+    sepY := 68
     sepH := bodyY + contentH - sepY + 2
     Gui, SSOKAdminCalPopup:Add, Progress, x482 y%sepY% w1 h%sepH% cE8E3D3 BackgroundE8E3D3, 100
 
     nextY := bodyY + contentH + 7
 
-    ; 메인 상단 기관명에 연결된 학교의 이번 주(월~일) 학사일정
+    ; 서울/전북 행정일정과 우리학교 주간일정/급식을 가로선으로 구분
+    Gui, SSOKAdminCalPopup:Add, Progress, x24 y%nextY% w916 h1 cD7D1C1 BackgroundD7D1C1, 100
+    nextY += 8
+
+    ; 선택한 날짜가 속한 주의 학교 학사일정
     if (schoolDisplay != "")
     {
         Gui, SSOKAdminCalPopup:Font, s8 Bold c30445A, Malgun Gothic
@@ -9448,15 +9564,19 @@ SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLin
         nextY += schoolH + 3
     }
 
-    ; 오늘 급식: 조식/중식/석식 모두 같은 들여쓰기 규칙 적용
+    ; 선택한 날짜의 조식/중식/석식
     if (mealDisplay != "")
         nextY := SSOK_AdminCalendar_AddMealRows(mealDisplay, 24, nextY, 916)
 
     buttonY := nextY + 3
+    Gui, SSOKAdminCalPopup:Font, s8 Normal c000000, Malgun Gothic
     Gui, SSOKAdminCalPopup:Add, Button, x420 y%buttonY% w120 h28 gSSOK_AdminCalendar_PopupHide, 확인
     linkY := buttonY + 4
     Gui, SSOKAdminCalPopup:Font, s8 underline c0066CC, Malgun Gothic
     Gui, SSOKAdminCalPopup:Add, Text, x550 y%linkY% w135 h20 +0x200 Center gSSOK_AdminCalendar_OpenMealInfo, 식단정보 바로가기
+    Gui, SSOKAdminCalPopup:Add, Text, x690 y%linkY% w135 h20 +0x200 Center gSSOK_AdminCalendar_OpenScheduleInfo, 학사정보 바로가기
+    Gui, SSOKAdminCalPopup:Font, s7 underline c666666, Malgun Gothic
+    Gui, SSOKAdminCalPopup:Add, Text, x875 y%linkY% w60 h20 +0x200 Center gSSOK_AdminCalendar_OpenSettings, 설정
 
     SysGet, SSOK_AdminWork, MonitorWorkArea
     workLeft := SSOK_AdminWorkLeft
@@ -9479,8 +9599,12 @@ SSOK_AdminCalendar_ShowPopupColumns(title, seoulEvents, jeonbukEvents, schoolLin
 
     SetTimer, SSOK_AdminCalendar_PopupHide, Off
     Gui, SSOKAdminCalPopup:Show, x%popupX% y%popupY% AutoSize NoActivate, %title%
+    if (autoHideMs > 0)
+    {
+        hideDelay := -Abs(autoHideMs)
+        SetTimer, SSOK_AdminCalendar_PopupHide, %hideDelay%
+    }
 }
-
 
 ; 급식 행을 "조식:/중식:/석식:" 라벨과 내용으로 나눠 그립니다.
 ; 내용이 두 줄 이상으로 내려가도 첫 줄의 메뉴 시작 위치에 맞춰 자동 들여쓰기됩니다.
@@ -9531,94 +9655,26 @@ SSOK_AdminCalendar_AddMealRows(mealDisplay, x, y, totalW)
 }
 SSOK_AdminCalendar_GetTodaySchedule()
 {
-    global SSOK_AdminCalCacheDate
-    global SSOK_AdminCalCacheText
-    global SSOK_AdminCalCacheCount
-    global SSOK_AdminCalCacheRegions
-    global SSOK_AdminCalCacheSeoulEvents
-    global SSOK_AdminCalCacheJeonbukEvents
-    global SSOK_AdminCalUseSeoul, SSOK_AdminCalUseJeonbuk
-
-    SSOK_AdminCalendar_LoadSettings()
-
-    todayKey := A_YYYY . A_MM . A_DD
-    regionKey := (SSOK_AdminCalUseSeoul ? "S" : "") . (SSOK_AdminCalUseJeonbuk ? "J" : "")
-    merged := []
-    seen := {}
-    seoulEvents := []
-    seoulSeen := {}
-    jeonbukEvents := []
-    jeonbukSeen := {}
-    errors := []
-    okAny := false
-
-    if (SSOK_AdminCalUseSeoul)
-    {
-        htmlS := SSOK_AdminCalendar_DownloadSeoulHtml(errS)
-        if (htmlS != "")
-        {
-            resultS := SSOK_AdminCalendar_ParseTodaySeoul(htmlS)
-            if (resultS.ok)
-            {
-                okAny := true
-                SSOK_AdminCalendar_MergeEvents(seoulEvents, seoulSeen, resultS.events)
-                SSOK_AdminCalendar_MergeEvents(merged, seen, resultS.events)
-            }
-            else if (resultS.error != "")
-                errors.Push(resultS.error)
-        }
-        else if (errS != "")
-            errors.Push(errS)
-    }
-
-    if (SSOK_AdminCalUseJeonbuk)
-    {
-        htmlJ := SSOK_AdminCalendar_DownloadHtml(errJ)
-        if (htmlJ != "")
-        {
-            resultJ := SSOK_AdminCalendar_ParseToday(htmlJ)
-            if (resultJ.ok)
-            {
-                okAny := true
-                SSOK_AdminCalendar_MergeEvents(jeonbukEvents, jeonbukSeen, resultJ.events)
-                SSOK_AdminCalendar_MergeEvents(merged, seen, resultJ.events)
-            }
-            else if (resultJ.error != "")
-                errors.Push(resultJ.error)
-        }
-        else if (errJ != "")
-            errors.Push(errJ)
-    }
-
-    if (!okAny)
-    {
-        if (SSOK_AdminCalCacheDate = todayKey && SSOK_AdminCalCacheRegions = regionKey)
-            return {ok:true, text:SSOK_AdminCalCacheText, count:SSOK_AdminCalCacheCount
-                , seoulEvents:IsObject(SSOK_AdminCalCacheSeoulEvents) ? SSOK_AdminCalCacheSeoulEvents : []
-                , jeonbukEvents:IsObject(SSOK_AdminCalCacheJeonbukEvents) ? SSOK_AdminCalCacheJeonbukEvents : []}
-
-        errText := ""
-        for _, e in errors
-        {
-            if (e != "" && !InStr("`n" . errText . "`n", "`n" . e . "`n"))
-                errText .= (errText = "" ? "" : "`n") . e
-        }
-        return {ok:false, text:"", count:0, error:errText, seoulEvents:[], jeonbukEvents:[]}
-    }
-
-    out := SSOK_AdminCalendar_FormatEvents(merged)
-    result := {ok:true, text:out, count:merged.Length(), error:"", events:merged
-        , seoulEvents:seoulEvents, jeonbukEvents:jeonbukEvents}
-
-    SSOK_AdminCalCacheDate := todayKey
-    SSOK_AdminCalCacheRegions := regionKey
-    SSOK_AdminCalCacheText := result.text
-    SSOK_AdminCalCacheCount := result.count
-    SSOK_AdminCalCacheSeoulEvents := seoulEvents
-    SSOK_AdminCalCacheJeonbukEvents := jeonbukEvents
-    return result
+    todayYmd := A_YYYY . A_MM . A_DD
+    return SSOK_AdminCalendar_GetScheduleForDate(todayYmd)
 }
 
+SSOK_AdminCalendar_GetScheduleForDate(targetYmd)
+{
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+    htmlS := SSOK_AdminCalendar_DownloadSeoulHtml(errS, targetYmd)
+    resultS := (htmlS != "") ? SSOK_AdminCalendar_ParseDateSeoul(htmlS, targetYmd) : {ok:false, events:[], error:errS}
+    htmlJ := SSOK_AdminCalendar_DownloadHtml(errJ, targetYmd)
+    resultJ := (htmlJ != "") ? SSOK_AdminCalendar_ParseDate(htmlJ, targetYmd) : {ok:false, events:[], error:errJ}
+    merged := []
+    seen := {}
+    SSOK_AdminCalendar_MergeEvents(merged, seen, resultS.events)
+    SSOK_AdminCalendar_MergeEvents(merged, seen, resultJ.events)
+    return {ok:resultS.ok || resultJ.ok, text:SSOK_AdminCalendar_FormatEvents(merged), count:merged.Length()
+        , events:merged, seoulEvents:resultS.events, jeonbukEvents:resultJ.events
+        , seoulError:resultS.error, jeonbukError:resultJ.error}
+}
 
 ; =========================================================
 ; 행정업무 달력 -> SSOK 교육정보 -> 우리학교 식단정보 바로가기
@@ -9718,10 +9774,113 @@ SSOK_AdminCalendar_OpenMySchoolMealInfo()
 }
 
 ; =========================================================
+; 행정업무 달력 -> SSOK 교육정보 -> 우리학교 학사정보 바로가기
+; - [MySchool]에 저장된 학교를 우선 사용
+; - 학교코드가 없으면 메인 기관명을 정확히 검색하여 자동 연결
+; - SSOK 본체의 교육정보 창을 열고 '학사일정' 탭(4번)을 바로 선택
+; =========================================================
+SSOK_AdminCalendar_OpenMySchoolScheduleInfo()
+{
+    ini := SSOK_AdminCalendar_GetIniFile()
+
+    IniRead, orgName, %ini%, MajorTodos, OrgName, __SSOK_EMPTY__
+    IniRead, schoolName, %ini%, MySchool, Name, __SSOK_EMPTY__
+    IniRead, officeCode, %ini%, MySchool, OfficeCode, __SSOK_EMPTY__
+    IniRead, schoolCode, %ini%, MySchool, SchoolCode, __SSOK_EMPTY__
+    IniRead, officeName, %ini%, MySchool, OfficeName, __SSOK_EMPTY__
+    IniRead, schoolKind, %ini%, MySchool, SchoolKind, __SSOK_EMPTY__
+    IniRead, supportOffice, %ini%, MySchool, SupportOffice, __SSOK_EMPTY__
+    IniRead, schoolAddress, %ini%, MySchool, Address, __SSOK_EMPTY__
+
+    orgName := Trim(orgName)
+    schoolName := Trim(schoolName)
+    officeCode := Trim(officeCode)
+    schoolCode := Trim(schoolCode)
+    officeName := Trim(officeName)
+    schoolKind := Trim(schoolKind)
+    supportOffice := Trim(supportOffice)
+    schoolAddress := Trim(schoolAddress)
+
+    needResolve := (schoolName = "" || schoolName = "__SSOK_EMPTY__"
+        || officeCode = "" || officeCode = "__SSOK_EMPTY__"
+        || schoolCode = "" || schoolCode = "__SSOK_EMPTY__")
+
+    if (!needResolve && orgName != "" && orgName != "__SSOK_EMPTY__" && schoolName != orgName)
+        needResolve := true
+
+    if (needResolve)
+    {
+        if (orgName = "" || orgName = "__SSOK_EMPTY__")
+        {
+            MsgBox, 48, SSOK 안내, 메인 화면의 기관명을 먼저 설정해 주세요.
+            return false
+        }
+
+        exact := SSOK_AdminCalendar_FindExactSchool(orgName)
+        cnt := IsObject(exact) ? exact.Length() : 0
+        if (cnt != 1)
+        {
+            MsgBox, 48, SSOK 안내, 현재 기관명과 정확히 일치하는 학교를 찾지 못했습니다.`n`n기관명: %orgName%
+            return false
+        }
+
+        school := exact[1]
+        schoolName := school.schoolName
+        officeCode := school.officeCode
+        schoolCode := school.schoolCode
+        officeName := school.officeName
+        schoolKind := school.kind
+        supportOffice := school.parentOrg
+        schoolAddress := school.address
+
+        IniWrite, %schoolName%, %ini%, MySchool, Name
+        IniWrite, %officeCode%, %ini%, MySchool, OfficeCode
+        IniWrite, %schoolCode%, %ini%, MySchool, SchoolCode
+        IniWrite, %officeName%, %ini%, MySchool, OfficeName
+        IniWrite, %schoolKind%, %ini%, MySchool, SchoolKind
+        IniWrite, %supportOffice%, %ini%, MySchool, SupportOffice
+        IniWrite, %schoolAddress%, %ini%, MySchool, Address
+    }
+
+    if (!IsFunc("SSOK_EDU_OpenSchool"))
+    {
+        MsgBox, 48, SSOK 안내, 이 바로가기는 SSOK 본체의 [교육정보] 기능과 함께 사용할 때 동작합니다.
+        return false
+    }
+
+    school := {schoolName:schoolName
+             , officeCode:officeCode
+             , schoolCode:schoolCode
+             , officeName:(officeName = "__SSOK_EMPTY__" ? "" : officeName)
+             , kind:(schoolKind = "__SSOK_EMPTY__" ? "" : schoolKind)
+             , parentOrg:(supportOffice = "__SSOK_EMPTY__" ? "" : supportOffice)
+             , address:(schoolAddress = "__SSOK_EMPTY__" ? "" : schoolAddress)
+             , homepage:""}
+
+    fn := Func("SSOK_EDU_OpenSchool")
+    fn.Call(school)
+
+    ; SSOK 교육정보 창이 만들어진 뒤 네 번째 탭인 '학사일정'을 선택합니다.
+    GuiControl, SSOKEDU:Choose, SSOK_EDU_Tab, 4
+    if (IsFunc("SSOK_EDU_LoadSchedule"))
+    {
+        fnSchedule := Func("SSOK_EDU_LoadSchedule")
+        fnSchedule.Call()
+    }
+    return true
+}
+
+; =========================================================
 ; 메인 기관명에 연결된 학교의 금주(월~일) 학사일정 - 나이스 OPEN API
 ; [MySchool]의 교육청코드/학교코드를 우선 사용하고, 없을 때만 기관명을 정확히 검색합니다.
 ; =========================================================
 SSOK_AdminCalendar_GetMySchoolWeekSchedule()
+{
+    todayYmd := A_YYYY . A_MM . A_DD
+    return SSOK_AdminCalendar_GetMySchoolWeekScheduleForDate(todayYmd)
+}
+
+SSOK_AdminCalendar_GetMySchoolWeekScheduleForDate(targetYmd)
 {
     global SSOK_AdminCalSchoolWeekCacheKey, SSOK_AdminCalSchoolWeekCacheText, SSOK_AdminCalSchoolWeekCacheHasEvents
 
@@ -9763,7 +9922,7 @@ SSOK_AdminCalendar_GetMySchoolWeekSchedule()
             return {ok:false, text:orgName . ": 나이스 학교정보 없음"}
     }
 
-    SSOK_AdminCalendar_GetWeekRange(weekFrom, weekTo)
+    SSOK_AdminCalendar_GetWeekRangeForDate(targetYmd, weekFrom, weekTo)
     cacheKey := orgName . "|" . officeCode . "|" . schoolCode . "|" . weekFrom
     if (SSOK_AdminCalSchoolWeekCacheKey = cacheKey && SSOK_AdminCalSchoolWeekCacheText != "")
         return {ok:true, text:SSOK_AdminCalSchoolWeekCacheText, hasEvents:SSOK_AdminCalSchoolWeekCacheHasEvents}
@@ -9781,9 +9940,9 @@ SSOK_AdminCalendar_GetMySchoolWeekSchedule()
     events := SSOK_AdminCalendar_ParseNeisSchoolSchedule(resp.text)
     hasEvents := IsObject(events) && events.Length() > 0
     if (!hasEvents)
-        line := "주간일정: 금주 학사일정 없음"
+        line := ""
     else
-        line := "주간일정: " . SSOK_AdminCalendar_FormatSchoolWeekEvents(events)
+        line := orgName . " 학사일정: " . SSOK_AdminCalendar_FormatSchoolWeekEvents(events)
 
     SSOK_AdminCalSchoolWeekCacheKey := cacheKey
     SSOK_AdminCalSchoolWeekCacheText := line
@@ -9796,6 +9955,12 @@ SSOK_AdminCalendar_GetMySchoolWeekSchedule()
 ; 조식/중식/석식 중 실제로 제공되는 급식만 표시합니다.
 ; =========================================================
 SSOK_AdminCalendar_GetMySchoolTodayMeals()
+{
+    todayYmd := A_YYYY . A_MM . A_DD
+    return SSOK_AdminCalendar_GetMySchoolMealsForDate(todayYmd)
+}
+
+SSOK_AdminCalendar_GetMySchoolMealsForDate(targetYmd)
 {
     global SSOK_AdminCalMealCacheKey, SSOK_AdminCalMealCacheText
 
@@ -9835,7 +10000,9 @@ SSOK_AdminCalendar_GetMySchoolTodayMeals()
             return {ok:false, text:""}
     }
 
-    todayKey := A_YYYY . A_MM . A_DD
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+    todayKey := targetYmd
     cacheKey := orgName . "|" . officeCode . "|" . schoolCode . "|" . todayKey
     if (SSOK_AdminCalMealCacheKey = cacheKey)
         return {ok:true, text:SSOK_AdminCalMealCacheText}
@@ -9944,9 +10111,20 @@ SSOK_AdminCalendar_FormatTodayMeals(meals)
 
 SSOK_AdminCalendar_GetWeekRange(ByRef weekFrom, ByRef weekTo)
 {
-    ; A_WDay: 일=1, 월=2 ... 토=7
-    offset := (A_WDay = 1 ? -6 : 2 - A_WDay)
-    ts := A_Now
+    todayYmd := A_YYYY . A_MM . A_DD
+    SSOK_AdminCalendar_GetWeekRangeForDate(todayYmd, weekFrom, weekTo)
+}
+
+SSOK_AdminCalendar_GetWeekRangeForDate(targetYmd, ByRef weekFrom, ByRef weekTo)
+{
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+
+    ts := targetYmd . "000000"
+    FormatTime, targetWDay, %ts%, WDay
+    targetWDay += 0
+    ; WDay: 일=1, 월=2 ... 토=7
+    offset := (targetWDay = 1 ? -6 : 2 - targetWDay)
     EnvAdd, ts, %offset%, Days
     weekFrom := SubStr(ts, 1, 8)
 
@@ -10088,6 +10266,9 @@ SSOK_AdminCalendar_ParseNeisSchoolSchedule(xml)
             row := nodes.item(A_Index - 1)
             date := SSOK_AdminCalendar_XmlText(row, "AA_YMD")
             name := SSOK_AdminCalendar_CleanNeisText(SSOK_AdminCalendar_XmlText(row, "EVENT_NM"))
+            ; 토요휴업일만 제외합니다. 재량휴업일과 다른 토요일 행사는 유지합니다.
+            if (RegExReplace(name, "\s+", "") = "토요휴업일")
+                continue
             if (date = "" || name = "")
                 continue
             uniq := date . "|" . name
@@ -10192,126 +10373,687 @@ SSOK_AdminCalendar_DayName(ymd)
     return wd
 }
 
+; =========================================================
+; 행정업무달력 선택 월 페이지 자동 탐색
+; 기본 URL이 항상 '현재 월'만 내려주는 경우를 보완합니다.
+; 현재 HTML에서 날짜/월 파라미터명을 우선 찾고,
+; 일반적으로 쓰는 연월 파라미터를 GET/POST로 순차 시도합니다.
+; =========================================================
+SSOK_AdminCalendar_HttpText(method, url, body := "", ByRef error := "")
+{
+    error := ""
+
+    try
+    {
+        req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        req.SetTimeouts(1800, 1800, 2600, 3200)
+        req.Open(method, url, false)
+        req.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSOK/1.0")
+        req.SetRequestHeader("Accept-Language", "ko-KR,ko;q=0.9")
+        if (method = "POST")
+            req.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+        req.Send(body)
+
+        if (req.Status < 200 || req.Status >= 400)
+        {
+            error := "HTTP " . req.Status
+            return ""
+        }
+
+        htmlUtf8 := SSOK_AdminCalendar_ResponseBodyToUtf8(req.ResponseBody)
+        if (htmlUtf8 != "")
+            return htmlUtf8
+
+        return req.ResponseText . ""
+    }
+    catch e
+    {
+        error := e.Message
+        return ""
+    }
+}
+
+SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode)
+{
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        return false
+    y := SubStr(targetYmd, 1, 4)
+    m := SubStr(targetYmd, 5, 2)
+    if (siteCode = "J")
+    {
+        ; <em>2026</em>.<strong>10</strong>처럼 태그로 나뉜 실제 달력 제목만 확인합니다.
+        if !RegExMatch(html, "is)<p\b[^>]*class\s*=\s*[""']month[""'][^>]*>(.*?)</p>", heading)
+            return false
+        title := RegExReplace(heading1, "is)<button\b.*?</button>", "")
+        title := RegExReplace(title, "is)<[^>]+>|\s+", "")
+        return (title = y . "." . m)
+    }
+    return RegExMatch(html, "is)<strong\b[^>]*>\s*" . y . "-" . m . "\s*</strong>")
+        && RegExMatch(html, "i)<ul\b[^>]*class\s*=\s*[""']calendar[""']")
+}
+
+SSOK_AdminCalendar_FindMonthPage(baseUrl, seedHtml, targetYmd, siteCode, ByRef error := "")
+{
+    error := ""
+
+    y := SubStr(targetYmd, 1, 4)
+    m2 := SubStr(targetYmd, 5, 2)
+    ym := y . m2
+    ymDash := y . "-" . m2
+    ymd := targetYmd
+    ymdDash := y . "-" . m2 . "-" . SubStr(targetYmd, 7, 2)
+
+    ; -----------------------------------------------------
+    ; 0) 실제 페이지의 달력 form을 통째로 복제해서 선택 월을 제출
+    ;    (boardId/menuCd/hidden 필드가 함께 필요한 사이트 대응)
+    ; -----------------------------------------------------
+    formHtml := SSOK_AdminCalendar_TryCalendarForms(baseUrl, seedHtml, targetYmd, siteCode, formErr)
+    if (formHtml != "")
+        return formHtml
+
+    ; -----------------------------------------------------
+    ; 1) HTML 안에 목표 월이 들어간 직접 링크가 있으면 최우선
+    ; -----------------------------------------------------
+    directUrl := SSOK_AdminCalendar_FindDirectMonthUrl(seedHtml, baseUrl, targetYmd)
+    if (directUrl != "")
+    {
+        html := SSOK_AdminCalendar_HttpText("GET", directUrl, "", reqErr)
+        if (html != "" && SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode))
+            return html
+    }
+
+    ; -----------------------------------------------------
+    ; 2) 현재 페이지 소스에 실제로 쓰인 날짜 관련 파라미터명을 자동 추출
+    ; -----------------------------------------------------
+    keys := SSOK_AdminCalendar_FindDateKeys(seedHtml)
+
+    ; 가능성이 높은 이름은 앞쪽에 추가
+    preferred := ["searchYm","searchYM","searchMonth","searchDate","searchYmd"
+        ,"schdulYm","schdlYm","scheduleYm","calendarYm","calYm","currYm","currentYm"
+        ,"yyyymm","yearMonth","ym","monthDate","viewDate","date"]
+
+    for _, k in preferred
+        SSOK_AdminCalendar_ArrayAddUnique(keys, k)
+
+    ; 이름에 따라 가장 가능성 높은 값 형식을 먼저 시도
+    for _, key in keys
+    {
+        keyLow := key
+        StringLower, keyLow, keyLow
+
+        vals := []
+        if (InStr(keyLow, "ymd") || InStr(keyLow, "date"))
+        {
+            vals.Push(ymdDash)
+            vals.Push(ymd)
+            vals.Push(ym)
+        }
+        else
+        {
+            vals.Push(ym)
+            vals.Push(ymDash)
+            vals.Push(ymdDash)
+        }
+
+        for _, val in vals
+        {
+            pair := SSOK_AdminCalendar_UrlEncode(key) . "=" . SSOK_AdminCalendar_UrlEncode(val)
+
+            testUrl := SSOK_AdminCalendar_AddQuery(baseUrl, pair)
+            html := SSOK_AdminCalendar_HttpText("GET", testUrl, "", reqErr)
+            if (html != "" && SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode))
+                return html
+
+            html := SSOK_AdminCalendar_HttpText("POST", baseUrl, pair, reqErr)
+            if (html != "" && SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode))
+                return html
+        }
+    }
+
+    ; -----------------------------------------------------
+    ; 3) 연도/월을 따로 받는 방식
+    ; -----------------------------------------------------
+    pairs := []
+    pairs.Push("year=" . y . "&month=" . m2)
+    pairs.Push("searchYear=" . y . "&searchMonth=" . m2)
+    pairs.Push("srchYear=" . y . "&srchMonth=" . m2)
+    pairs.Push("schdlYear=" . y . "&schdlMonth=" . m2)
+    pairs.Push("schdulYear=" . y . "&schdulMonth=" . m2)
+    pairs.Push("calYear=" . y . "&calMonth=" . m2)
+    pairs.Push("yyyy=" . y . "&mm=" . m2)
+
+    for _, pair in pairs
+    {
+        testUrl := SSOK_AdminCalendar_AddQuery(baseUrl, pair)
+        html := SSOK_AdminCalendar_HttpText("GET", testUrl, "", reqErr)
+        if (html != "" && SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode))
+            return html
+
+        html := SSOK_AdminCalendar_HttpText("POST", baseUrl, pair, reqErr)
+        if (html != "" && SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode))
+            return html
+    }
+
+    error := "선택한 월(" . ymDash . ")의 페이지를 서버에서 찾지 못했습니다."
+    return ""
+}
+
+SSOK_AdminCalendar_FindDateKeys(html)
+{
+    out := []
+    seen := {}
+
+    ; input/select 이름 중 날짜/월/달력 계열을 자동 수집
+    pos := 1
+    while (pos := RegExMatch(html, "is)<(?:input|select)\b[^>]*\bname\s*=\s*[""']([^""']+)[""'][^>]*>", m, pos))
+    {
+        key := Trim(m1)
+        keyLow := key
+        StringLower, keyLow, keyLow
+
+        if (InStr(keyLow, "date") || InStr(keyLow, "month") || InStr(keyLow, "year")
+            || InStr(keyLow, "ym") || InStr(keyLow, "cal") || InStr(keyLow, "schd"))
+        {
+            if (!seen.HasKey(key))
+            {
+                seen[key] := true
+                out.Push(key)
+            }
+        }
+
+        pos += StrLen(m)
+    }
+
+    ; 현재 값 자체가 YYYYMM / YYYY-MM / YYYY-MM-DD 형태인 input도 후보로 포함
+    pos := 1
+    while (pos := RegExMatch(html, "is)<input\b[^>]*>", t, pos))
+    {
+        name := SSOK_AdminCalendar_GetHtmlAttr(t, "name")
+        value := SSOK_AdminCalendar_GetHtmlAttr(t, "value")
+        if (name != "" && RegExMatch(Trim(value), "^20\d{2}[-./]?\d{2}(?:[-./]?\d{2})?$"))
+        {
+            if (!seen.HasKey(name))
+            {
+                seen[name] := true
+                out.Push(name)
+            }
+        }
+        pos += StrLen(t)
+    }
+
+    ; document.form.field.value = ... / document.getElementById(...).value = ...
+    pos := 1
+    while (pos := RegExMatch(html, "i)(?:document\.[A-Za-z0-9_]+\.)?([A-Za-z_][A-Za-z0-9_]*)\.value\s*=", m, pos))
+    {
+        key := Trim(m1)
+        keyLow := key
+        StringLower, keyLow, keyLow
+        if (InStr(keyLow, "date") || InStr(keyLow, "month") || InStr(keyLow, "year")
+            || InStr(keyLow, "ym") || InStr(keyLow, "cal") || InStr(keyLow, "schd"))
+        {
+            if (!seen.HasKey(key))
+            {
+                seen[key] := true
+                out.Push(key)
+            }
+        }
+        pos += StrLen(m)
+    }
+
+    ; jQuery $('...').val(...) 형태에서 id/name 후보 수집
+    pos := 1
+    while (pos := RegExMatch(html, "i)\$\(\s*[""'][#]?([A-Za-z_][A-Za-z0-9_-]*)[""']\s*\)\.val\s*\(", m, pos))
+    {
+        key := Trim(m1)
+        keyLow := key
+        StringLower, keyLow, keyLow
+        if (InStr(keyLow, "date") || InStr(keyLow, "month") || InStr(keyLow, "year")
+            || InStr(keyLow, "ym") || InStr(keyLow, "cal") || InStr(keyLow, "schd"))
+        {
+            if (!seen.HasKey(key))
+            {
+                seen[key] := true
+                out.Push(key)
+            }
+        }
+        pos += StrLen(m)
+    }
+
+    ; 자바스크립트 객체/변수의 날짜 키도 수집
+    pos := 1
+    while (pos := RegExMatch(html, "i)([A-Za-z_][A-Za-z0-9_]*)\s*[:=]\s*[""']20\d{2}[-./]?\d{2}(?:[-./]?\d{2})?[""']", m, pos))
+    {
+        key := Trim(m1)
+        keyLow := key
+        StringLower, keyLow, keyLow
+
+        if (InStr(keyLow, "date") || InStr(keyLow, "month") || InStr(keyLow, "year")
+            || InStr(keyLow, "ym") || InStr(keyLow, "cal") || InStr(keyLow, "schd"))
+        {
+            if (!seen.HasKey(key))
+            {
+                seen[key] := true
+                out.Push(key)
+            }
+        }
+
+        pos += StrLen(m)
+    }
+
+    return out
+}
+
+SSOK_AdminCalendar_ArrayAddUnique(ByRef arr, value)
+{
+    if (!IsObject(arr))
+        arr := []
+
+    for _, old in arr
+    {
+        if (old = value)
+            return
+    }
+    arr.Push(value)
+}
+
+SSOK_AdminCalendar_FindDirectMonthUrl(html, baseUrl, targetYmd)
+{
+    y := SubStr(targetYmd, 1, 4)
+    m2 := SubStr(targetYmd, 5, 2)
+
+    tokens := [y . m2, y . "-" . m2, y . "." . m2]
+
+    for _, token in tokens
+    {
+        safe := RegExReplace(token, "([\.\-\+\*\?\[\]\(\)\{\}\^\$\|\\])", "\$1")
+
+        ; href / data-url 등 속성에서 목표 월이 들어간 URL 찾기
+        pos := 1
+        pat := "is)(?:href|data-url|data-href)\s*=\s*[""']([^""']*" . safe . "[^""']*)[""']"
+        while (pos := RegExMatch(html, pat, m, pos))
+        {
+            href := Trim(m1)
+            href := StrReplace(href, "&amp;", "&")
+            href := StrReplace(href, "&#38;", "&")
+
+            if (href != "" && href != "#" && !InStr(href, "javascript:"))
+                return SSOK_AdminCalendar_AbsoluteUrl(baseUrl, href)
+
+            pos += StrLen(m)
+        }
+
+        ; 스크립트 안의 완성 URL 문자열도 확인
+        pos := 1
+        pat2 := "is)[""']([^""']*\.do\?[^""']*" . safe . "[^""']*)[""']"
+        while (pos := RegExMatch(html, pat2, m2u, pos))
+        {
+            href := Trim(m2u1)
+            href := StrReplace(href, "&amp;", "&")
+            if (href != "")
+                return SSOK_AdminCalendar_AbsoluteUrl(baseUrl, href)
+            pos += StrLen(m2u)
+        }
+    }
+
+    return ""
+}
+
+SSOK_AdminCalendar_AddQuery(url, query)
+{
+    return url . (InStr(url, "?") ? "&" : "?") . query
+}
+
+SSOK_AdminCalendar_AbsoluteUrl(baseUrl, href)
+{
+    if RegExMatch(href, "i)^https?://")
+        return href
+
+    if (SubStr(href, 1, 2) = "//")
+        return "https:" . href
+
+    if !RegExMatch(baseUrl, "i)^(https?://[^/]+)", m)
+        return href
+
+    root := m1
+
+    if (SubStr(href, 1, 1) = "/")
+        return root . href
+
+    clean := RegExReplace(baseUrl, "[?#].*$", "")
+    clean := RegExReplace(clean, "[^/]*$", "")
+    return clean . href
+}
+
+SSOK_AdminCalendar_UrlEncode(text)
+{
+    size := StrPut(text, "UTF-8")
+    VarSetCapacity(buf, size, 0)
+    len := StrPut(text, &buf, size, "UTF-8") - 1
+    out := ""
+
+    Loop, %len%
+    {
+        ch := NumGet(buf, A_Index - 1, "UChar")
+        if ((ch >= 0x30 && ch <= 0x39) || (ch >= 0x41 && ch <= 0x5A)
+            || (ch >= 0x61 && ch <= 0x7A) || ch = 0x2D || ch = 0x2E
+            || ch = 0x5F || ch = 0x7E)
+            out .= Chr(ch)
+        else
+            out .= "%" . Format("{:02X}", ch)
+    }
+
+    return out
+}
+
+
+; ---------------------------------------------------------
+; 달력 form 전체 제출 방식
+; ---------------------------------------------------------
+SSOK_AdminCalendar_TryCalendarForms(baseUrl, html, targetYmd, siteCode, ByRef error := "")
+{
+    error := ""
+    y := SubStr(targetYmd, 1, 4)
+    m2 := SubStr(targetYmd, 5, 2)
+    ym := y . m2
+    ymDash := y . "-" . m2
+    ymd := targetYmd
+    ymdDash := y . "-" . m2 . "-" . SubStr(targetYmd, 7, 2)
+
+    formFound := false
+    pos := 1
+
+    while (pos := RegExMatch(html, "is)<form\b([^>]*)>(.*?)</form>", fm, pos))
+    {
+        attrs := fm1
+        body := fm2
+        whole := fm
+
+        ; 달력/이전달/다음달/학교급별 일정과 관련된 form을 우선 처리
+        if (!InStr(body, "다음달") && !InStr(body, "이전달")
+            && !InStr(body, "행정달력") && !InStr(body, "학교급별 일정")
+            && !InStr(body, "calendar") && !InStr(body, "Calendar"))
+        {
+            pos += StrLen(fm)
+            continue
+        }
+
+        formFound := true
+        action := SSOK_AdminCalendar_GetHtmlAttr("<form " . attrs . ">", "action")
+        method := SSOK_AdminCalendar_GetHtmlAttr("<form " . attrs . ">", "method")
+        StringUpper, method, method
+        if (method != "POST")
+            method := "GET"
+
+        if (action = "")
+            action := baseUrl
+        else
+            action := SSOK_AdminCalendar_AbsoluteUrl(baseUrl, action)
+
+        params := SSOK_AdminCalendar_ParseFormInputs(whole)
+        SSOK_AdminCalendar_MergeUrlQueryIntoMap(baseUrl, params)
+
+        keys := SSOK_AdminCalendar_FindDateKeys(whole)
+        for k, v in params
+        {
+            v2 := Trim(v)
+            if RegExMatch(v2, "^20\d{2}[-./]?\d{2}(?:[-./]?\d{2})?$")
+                SSOK_AdminCalendar_ArrayAddUnique(keys, k)
+        }
+
+        preferred := ["searchYm","searchYM","searchMonth","searchDate","searchYmd"
+            ,"schdulYm","schdlYm","scheduleYm","calendarYm","calYm","currYm","currentYm"
+            ,"yyyymm","yearMonth","ym","monthDate","viewDate","date","calendarDate","schdulDate"]
+
+        for _, k in preferred
+            SSOK_AdminCalendar_ArrayAddUnique(keys, k)
+
+        for _, key in keys
+        {
+            keyLow := key
+            StringLower, keyLow, keyLow
+            vals := []
+
+            if (InStr(keyLow, "ymd") || InStr(keyLow, "date"))
+            {
+                vals.Push(ymdDash)
+                vals.Push(ymd)
+                vals.Push(ymDash)
+                vals.Push(ym)
+            }
+            else
+            {
+                vals.Push(ym)
+                vals.Push(ymDash)
+                vals.Push(ymdDash)
+                vals.Push(ymd)
+            }
+
+            for _, val in vals
+            {
+                data := SSOK_AdminCalendar_BuildFormData(params, key, val)
+
+                ; form method 우선
+                if (method = "POST")
+                    resp := SSOK_AdminCalendar_HttpText("POST", action, data, reqErr)
+                else
+                    resp := SSOK_AdminCalendar_HttpText("GET", SSOK_AdminCalendar_AddQuery(action, data), "", reqErr)
+
+                if (resp != "" && SSOK_AdminCalendar_PageIsTargetMonth(resp, targetYmd, siteCode))
+                    return resp
+
+                ; 사이트 구현 차이 대비 GET/POST 반대 방식도 한 번 시도
+                if (method = "POST")
+                    resp := SSOK_AdminCalendar_HttpText("GET", SSOK_AdminCalendar_AddQuery(action, data), "", reqErr)
+                else
+                    resp := SSOK_AdminCalendar_HttpText("POST", action, data, reqErr)
+
+                if (resp != "" && SSOK_AdminCalendar_PageIsTargetMonth(resp, targetYmd, siteCode))
+                    return resp
+            }
+        }
+
+        pos += StrLen(fm)
+    }
+
+    if (!formFound)
+        error := "달력 form을 찾지 못했습니다."
+    else
+        error := "달력 form 제출로 선택 월을 찾지 못했습니다."
+    return ""
+}
+
+SSOK_AdminCalendar_ParseFormInputs(formHtml)
+{
+    params := {}
+    pos := 1
+
+    while (pos := RegExMatch(formHtml, "is)<input\b[^>]*>", tag, pos))
+    {
+        inputTag := tag
+        name := SSOK_AdminCalendar_GetHtmlAttr(inputTag, "name")
+        value := SSOK_AdminCalendar_GetHtmlAttr(inputTag, "value")
+        type := SSOK_AdminCalendar_GetHtmlAttr(inputTag, "type")
+        StringLower, type, type
+
+        if (name != "" && type != "submit" && type != "button" && type != "image"
+            && type != "file" && type != "reset")
+        {
+            ; checkbox/radio는 checked일 때만 전송
+            if ((type = "checkbox" || type = "radio") && !RegExMatch(inputTag, "i)\bchecked(?:\s*=\s*[""'][^""']*[""'])?"))
+            {
+                pos += StrLen(tag)
+                continue
+            }
+            params[name] := value
+        }
+
+        pos += StrLen(tag)
+    }
+
+    ; select의 현재 선택값도 포함
+    pos := 1
+    while (pos := RegExMatch(formHtml, "is)<select\b([^>]*)>(.*?)</select>", sm, pos))
+    {
+        selTag := "<select " . sm1 . ">"
+        name := SSOK_AdminCalendar_GetHtmlAttr(selTag, "name")
+        if (name != "")
+        {
+            value := ""
+            if RegExMatch(sm2, "is)<option\b[^>]*\bselected\b[^>]*>", om)
+                value := SSOK_AdminCalendar_GetHtmlAttr(om, "value")
+            else if RegExMatch(sm2, "is)<option\b[^>]*>", om)
+                value := SSOK_AdminCalendar_GetHtmlAttr(om, "value")
+            params[name] := value
+        }
+        pos += StrLen(sm)
+    }
+
+    return params
+}
+
+SSOK_AdminCalendar_GetHtmlAttr(tag, attrName)
+{
+    safe := RegExReplace(attrName, "([\\.^$|?*+(){}\[\]])", "\\$1")
+
+    if RegExMatch(tag, "is)\b" . safe . "\s*=\s*[""']([^""']*)[""']", m)
+        return m1
+    if RegExMatch(tag, "is)\b" . safe . "\s*=\s*([^\s>]+)", m)
+        return m1
+    return ""
+}
+
+SSOK_AdminCalendar_MergeUrlQueryIntoMap(url, ByRef params)
+{
+    qPos := InStr(url, "?")
+    if (!qPos)
+        return
+
+    query := SubStr(url, qPos + 1)
+    hashPos := InStr(query, "#")
+    if (hashPos)
+        query := SubStr(query, 1, hashPos - 1)
+
+    Loop, Parse, query, &
+    {
+        pair := A_LoopField
+        eq := InStr(pair, "=")
+        if (eq)
+        {
+            k := SubStr(pair, 1, eq - 1)
+            v := SubStr(pair, eq + 1)
+        }
+        else
+        {
+            k := pair
+            v := ""
+        }
+
+        if (k != "" && !params.HasKey(k))
+            params[k] := v
+    }
+}
+
+SSOK_AdminCalendar_BuildFormData(params, overrideKey := "", overrideValue := "")
+{
+    out := ""
+    usedOverride := false
+
+    for k, v in params
+    {
+        if (k = overrideKey)
+        {
+            v := overrideValue
+            usedOverride := true
+        }
+
+        part := SSOK_AdminCalendar_UrlEncode(k) . "=" . SSOK_AdminCalendar_UrlEncode(v)
+        out .= (out = "" ? "" : "&") . part
+    }
+
+    if (overrideKey != "" && !usedOverride)
+    {
+        part := SSOK_AdminCalendar_UrlEncode(overrideKey) . "=" . SSOK_AdminCalendar_UrlEncode(overrideValue)
+        out .= (out = "" ? "" : "&") . part
+    }
+
+    return out
+}
+
 SSOK_AdminCalendar_GetSeoulUrl()
 {
     return "https://baro.sen.go.kr/"
 }
 
-SSOK_AdminCalendar_DownloadSeoulHtml(ByRef error)
+SSOK_AdminCalendar_DownloadSeoulHtml(ByRef error, targetYmd := "")
 {
-    error := ""
-    urls := [SSOK_AdminCalendar_GetSeoulUrl()
-        , "https://baro.sen.go.kr/fus/main/view0000v.do"]
-
-    for _, url in urls
-    {
-        try
-        {
-            req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-            req.SetTimeouts(3000, 3000, 5000, 5000)
-            req.Open("GET", url, false)
-            req.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSOK/1.0")
-            req.SetRequestHeader("Accept-Language", "ko-KR,ko;q=0.9")
-            req.Send()
-
-            if (req.Status >= 200 && req.Status < 400)
-            {
-                htmlUtf8 := SSOK_AdminCalendar_ResponseBodyToUtf8(req.ResponseBody)
-                if (InStr(htmlUtf8, "학교급별 일정") || InStr(htmlUtf8, "초등학교"))
-                    return htmlUtf8
-
-                htmlText := req.ResponseText . ""
-                if (InStr(htmlText, "학교급별 일정") || InStr(htmlText, "초등학교"))
-                    return htmlText
-            }
-        }
-        catch e
-        {
-            error := e.Message
-        }
-    }
-
-    if (error = "")
-        error := "서울교육청 학교급별 일정 페이지에 연결되지 않았습니다."
-    return ""
+    return SSOK_AdminCalendar_DownloadMonth("S", targetYmd, error)
 }
 
 SSOK_AdminCalendar_ParseTodaySeoul(html)
 {
-    ; 서울교육청 메인 화면에서 기본으로 내려오는 '유' 일정 사용
-    dateText := A_YYYY . "-" . A_MM . "-" . A_DD
+    todayYmd := A_YYYY . A_MM . A_DD
+    return SSOK_AdminCalendar_ParseDateSeoul(html, todayYmd)
+}
+
+SSOK_AdminCalendar_ParseDateSeoul(html, targetYmd)
+{
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+
+    dateText := SubStr(targetYmd, 1, 4) . "-" . SubStr(targetYmd, 5, 2) . "-" . SubStr(targetYmd, 7, 2)
+    targetMonth := SubStr(targetYmd, 1, 4) . "-" . SubStr(targetYmd, 5, 2)
     plain := SSOK_AdminCalendar_HtmlToLines(html)
+
+    if !SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, "S")
+        return {ok:false, text:"", count:0, error:"선택한 월의 서울교육청 일정을 현재 페이지에서 찾지 못했습니다.", events:[]}
+
     lines := StrSplit(plain, "`n")
-    target := 0
+    events := []
+    seen := {}
+    foundDate := false
 
     for i, line in lines
     {
-        cur := Trim(line)
-        if (cur != dateText)
+        if (Trim(line) != dateText)
             continue
 
-        isKindergarten := false
-        j := i - 1
-        minJ := i - 5
-        if (minJ < 1)
-            minJ := 1
+        foundDate := true
 
-        while (j >= minJ)
+        Loop, 100
         {
-            prev := Trim(lines[j])
-            if (prev = "유" || InStr(prev, "유치원"))
-            {
-                isKindergarten := true
+            idx := i + A_Index
+            if (idx > lines.Length())
                 break
-            }
-            if (prev = "초" || prev = "중" || prev = "고")
+
+            item := Trim(lines[idx])
+            if (item = "")
+                continue
+
+            ; 다음 날짜 또는 다른 학교급 블록으로 넘어가면 현재 날짜 블록 종료
+            if RegExMatch(item, "^20\d{2}-\d{2}-\d{2}$")
                 break
-            j--
-        }
+            if (item = "유" || item = "초" || item = "중" || item = "고")
+                break
+            if RegExMatch(item, "^\d{1,2}$")
+                break
+            if (InStr(item, "학교급별 일정") || InStr(item, "개인정보처리방침"))
+                break
+            if (item = "유치원" || item = "초등학교" || item = "중학교" || item = "고등학교"
+                || item = "업무일정표" || item = "나의 일정")
+                continue
 
-        if (isKindergarten)
-        {
-            target := i
-            break
-        }
-    }
+            item := SSOK_AdminCalendar_CleanText(item)
+            if (item = "" || item = "일정 닫기" || seen.HasKey(item))
+                continue
 
-    if (!target)
-        return {ok:false, text:"", count:0, error:"서울교육청 오늘 일정(유) 영역을 찾지 못했습니다.", events:[]}
-
-    events := []
-    seen := {}
-
-    Loop, 80
-    {
-        idx := target + A_Index
-        if (idx > lines.Length())
-            break
-
-        item := Trim(lines[idx])
-        if (item = "")
-            continue
-
-        if RegExMatch(item, "^20\d{2}-\d{2}-\d{2}$")
-            break
-        if (item = "유" || item = "초" || item = "중" || item = "고")
-            break
-        if RegExMatch(item, "^\d{1,2}$")
-            break
-        if (InStr(item, "학교급별 일정") || InStr(item, "개인정보처리방침"))
-            break
-        if (item = "유치원" || item = "업무일정표" || item = "나의 일정")
-            continue
-
-        item := SSOK_AdminCalendar_CleanText(item)
-        if (item = "일정 닫기")
-            continue
-        if (item != "" && !seen.HasKey(item))
-        {
             seen[item] := true
             events.Push(item)
         }
     }
+
+    ; 해당 날짜가 달력에는 존재하지만 일정이 없으면 정상 빈칸
+    if (!foundDate)
+        return {ok:true, text:"", count:0, error:"", events:[]}
 
     out := SSOK_AdminCalendar_FormatEvents(events)
     return {ok:true, text:out, count:events.Length(), error:"", events:events}
@@ -10395,56 +11137,45 @@ SSOK_AdminCalendar_GetUrl()
     return "https://www.jbe.go.kr/board/list.jbe?boardId=BBS_0000084&contentsSid=335&cpath=%2Fsupport&menuCd=DOM_000000106002001000"
 }
 
-SSOK_AdminCalendar_DownloadHtml(ByRef error)
+SSOK_AdminCalendar_DownloadHtml(ByRef error, targetYmd := "")
 {
+    return SSOK_AdminCalendar_DownloadMonth("J", targetYmd, error)
+}
+
+; 실제 홈페이지의 월 이동 요청을 사용합니다. 추측 파라미터 탐색은 하지 않습니다.
+SSOK_AdminCalendar_DownloadMonth(siteCode, targetYmd, ByRef error)
+{
+    static pages := {}
     error := ""
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+    ym := SubStr(targetYmd, 1, 6)
+    key := siteCode . "|" . ym
+    if (pages.HasKey(key) && A_TickCount >= pages[key].tick && A_TickCount - pages[key].tick < 900000)
+        return pages[key].html
 
-    urls := [SSOK_AdminCalendar_GetUrl()
-        , "https://www.jbe.go.kr/board/list.jbe?boardId=BBS_0000084&contentsSid=335&cpath=&cpath=%2Fsupport&menuCd=DOM_000000106002001000"
-        , "https://www.jbe.go.kr/schedule/list.jbe?boardId=BBS_0000084&menuCd=DOM_000000106002001000&contentsSid=335&cpath="]
-
-    for _, url in urls
+    y := SubStr(ym, 1, 4)
+    m := SubStr(ym, 5, 2)
+    if (siteCode = "S")
     {
-        try
-        {
-            req := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-            req.SetTimeouts(3000, 3000, 5000, 5000)
-            req.Open("GET", url, false)
-            req.SetRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SSOK/1.0")
-            req.SetRequestHeader("Accept-Language", "ko-KR,ko;q=0.9")
-            req.Send()
-
-            if (req.Status >= 200 && req.Status < 400)
-            {
-                ; 사이트가 UTF-8이므로 ResponseBody를 먼저 명시적으로 UTF-8로 해석
-                htmlUtf8 := SSOK_AdminCalendar_ResponseBodyToUtf8(req.ResponseBody)
-
-                if (InStr(htmlUtf8, "행정달력") || InStr(htmlUtf8, "오늘날짜"))
-                    return htmlUtf8
-
-                ; 환경에 따라 ResponseText가 정상일 수 있으므로 두 번째로 사용
-                htmlText := req.ResponseText . ""
-
-                if (InStr(htmlText, "행정달력") || InStr(htmlText, "오늘날짜"))
-                    return htmlText
-
-                ; 마지막으로 보드 식별자가 있으면 HTML 자체는 받아온 것으로 판단
-                if (InStr(htmlUtf8, "BBS_0000084"))
-                    return htmlUtf8
-
-                if (InStr(htmlText, "BBS_0000084"))
-                    return htmlText
-            }
-        }
-        catch e
-        {
-            error := e.Message
-        }
+        body := "schedule_year=" . y . "&schedule_month=" . m . "&searchKeyword=" . ym . "&sch_school=CD1601"
+        html := SSOK_AdminCalendar_HttpText("POST", "https://baro.sen.go.kr/fus/main/mainScheduleCal0010f.do", body, error)
     }
-
+    else
+    {
+        query := "boardId=BBS_0000084&menuCd=DOM_000000106002001000&searchStartDt=" . y . "-" . m . "-01&searchEndDt=" . y . "-" . m . "-31"
+        html := SSOK_AdminCalendar_HttpText("GET", "https://www.jbe.go.kr/schedule/list.jbe?" . query, "", error)
+        if (!SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, "J"))
+            html := SSOK_AdminCalendar_HttpText("GET", "https://www.jbe.go.kr/board/list.jbe?" . query, "", error)
+    }
+    if (html != "" && SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, siteCode))
+    {
+        pages[key] := {html:html, tick:A_TickCount}
+        error := ""
+        return html
+    }
     if (error = "")
-        error := "전북교육청 행정달력 페이지에 연결되지 않았습니다."
-
+        error := "선택한 월(" . y . "-" . m . ")의 달력 응답을 확인하지 못했습니다."
     return ""
 }
 
@@ -10473,16 +11204,33 @@ SSOK_AdminCalendar_ResponseBodyToUtf8(body)
 
 SSOK_AdminCalendar_ParseToday(html)
 {
-    day := A_DD + 0
+    todayYmd := A_YYYY . A_MM . A_DD
+    return SSOK_AdminCalendar_ParseDate(html, todayYmd)
+}
+
+SSOK_AdminCalendar_ParseDate(html, targetYmd)
+{
+    if !RegExMatch(targetYmd, "^\d{8}$")
+        targetYmd := A_YYYY . A_MM . A_DD
+    if !SSOK_AdminCalendar_PageIsTargetMonth(html, targetYmd, "J")
+        return {ok:false, text:"", count:0, error:"선택한 월의 전북교육청 달력을 확인하지 못했습니다.", events:[]}
+    ; 다른 표의 숫자를 날짜로 오인하지 않도록 월별일정 표로 한정합니다.
+    if !RegExMatch(html, "is)<table\b[^>]*>\s*<caption>\s*<strong>월별일정</strong>.*?</table>", calendarTable)
+        return {ok:false, text:"", count:0, error:"전북교육청 달력 표를 찾지 못했습니다.", events:[]}
+    html := calendarTable
+    day := SubStr(targetYmd, 7, 2) + 0
     cellHtml := ""
 
-    ; 1순위: 서버가 붙여 주는 "오늘날짜" 표기가 들어간 td를 직접 찾음
-    patToday := "is)<td\b[^>]*>(?:(?!</td>)[\s\S])*?오늘날짜(?:(?!</td>)[\s\S])*?</td>"
+    ; 오늘을 선택한 경우에는 서버의 '오늘날짜' 표시를 가장 먼저 사용합니다.
+    todayYmd := A_YYYY . A_MM . A_DD
+    if (targetYmd = todayYmd)
+    {
+        patToday := "is)<td\b[^>]*>(?:(?!</td>)[\s\S])*?오늘날짜(?:(?!</td>)[\s\S])*?</td>"
+        if RegExMatch(html, patToday, mToday)
+            cellHtml := mToday
+    }
 
-    if RegExMatch(html, patToday, mToday)
-        cellHtml := mToday
-
-    ; 2순위: 모든 td를 순회하며 셀의 첫 숫자가 오늘 날짜인지 확인
+    ; 2순위: 모든 td를 순회하며 셀의 첫 숫자가 선택 날짜인지 확인
     if (cellHtml = "")
     {
         pos := 1
@@ -10502,9 +11250,9 @@ SSOK_AdminCalendar_ParseToday(html)
     }
 
     if (cellHtml = "")
-        return {ok:false, text:"", count:0, error:"오늘 날짜의 달력 칸을 찾지 못했습니다.", events:[]}
+        return {ok:false, text:"", count:0, error:"선택 날짜의 달력 칸을 찾지 못했습니다.", events:[]}
 
-    ; 오늘 칸을 찾았으면, 일정이 한 건도 없어도 이것은 정상입니다.
+    ; 선택 날짜 칸을 찾았으면 일정이 한 건도 없어도 정상입니다.
     events := []
     pos := 1
 

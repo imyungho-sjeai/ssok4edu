@@ -6737,6 +6737,10 @@ SSOK_Expense_Tools_Win4:
     Gosub, SSOK_Expense_DoWin4_KEdufine_TabSeq
 return
 
+SSOK_Expense_Tools_BudgetDashboard:
+    SSOK_Expense_BudgetDashboard_Show()
+return
+
 SSOK_Expense_Tools_CardCompare:
     ; Beta 메뉴는 닫지 않습니다.
     SSOK_Expense_CardCompare_Show()
@@ -6859,6 +6863,100 @@ SSOK_Expense_Tools_RunWin2()
     SendInput, {Enter}
 }
 
+
+
+; ============================================================================
+; 예산 DashBoard - 1차 입력 화면
+; - 회계 장표를 Excel/K-에듀파인에서 복사한 뒤 그대로 붙여넣는 단계
+; - 분석/Sorting/추출 기능은 이 원본 데이터를 기준으로 다음 단계에서 연결
+; ============================================================================
+
+SSOKBudgetDashboardGuiClose:
+SSOKBudgetDashboardGuiEscape:
+    Gui, SSOKBudgetDashboard:Destroy
+return
+
+SSOK_Expense_BudgetDashboard_Paste:
+    if (Clipboard = "")
+    {
+        MsgBox, 48, 예산 DashBoard, 클립보드에 붙여넣을 장표가 없습니다.
+        return
+    }
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardRaw, %Clipboard%
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, 회계 장표를 붙여넣었습니다. OK를 눌러 입력을 확인해 주세요.
+return
+
+SSOK_Expense_BudgetDashboard_Clear:
+    SSOK_BudgetDashboardData := ""
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardRaw,
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus,
+return
+
+SSOK_Expense_BudgetDashboard_OK:
+    Gui, SSOKBudgetDashboard:Submit, NoHide
+    raw := SSOK_BudgetDashboardRaw
+    raw := StrReplace(raw, "`r`n", "`n")
+    raw := StrReplace(raw, "`r", "`n")
+    raw := Trim(raw, " `t`n")
+
+    if (raw = "")
+    {
+        MsgBox, 48, 예산 DashBoard, 회계 장표를 붙여넣어 주세요.
+        return
+    }
+
+    rowCount := 0
+    maxCols := 0
+    Loop, Parse, raw, `n
+    {
+        line := RTrim(A_LoopField, " `t")
+        if (Trim(line, " `t") = "")
+            continue
+
+        rowCount++
+        cols := StrSplit(line, "`t").Length()
+        if (cols > maxCols)
+            maxCols := cols
+    }
+
+    SSOK_BudgetDashboardData := raw
+    status := "입력 완료: " . rowCount . "행"
+    if (maxCols > 0)
+        status .= " / 최대 " . maxCols . "열"
+    status .= "  ·  분석/Sorting/추출용 원본 장표를 보관했습니다."
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, %status%
+return
+
+SSOK_Expense_BudgetDashboard_Show()
+{
+    global SSOK_BudgetDashboardRaw, SSOK_BudgetDashboardData, SSOK_BudgetDashboardStatus
+    global SSOK_BudgetDashboardHwnd
+
+    Gui, SSOKBudgetDashboard:Destroy
+    Gui, SSOKBudgetDashboard:New, +AlwaysOnTop +ToolWindow +HwndSSOK_BudgetDashboardHwnd, 예산 DashBoard
+    Gui, SSOKBudgetDashboard:Margin, 18, 16
+    Gui, SSOKBudgetDashboard:Color, F7FBFF
+
+    Gui, SSOKBudgetDashboard:Font, s13 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y14 w864 h30 c005BAC, 예산 DashBoard
+
+    Gui, SSOKBudgetDashboard:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y48 w864 h38 c555555, 에듀파인/Excel의 회계 장표 영역을 복사한 뒤 아래 입력창에 Ctrl+V로 붙여넣거나 [회계 장표 붙여넣기]를 눌러 주세요.`n붙여넣은 원본은 이후 예산 분석 · Sorting · 조건별 추출 기능의 기준 데이터로 사용합니다.
+
+    Gui, SSOKBudgetDashboard:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Button, x18 y94 w210 h36 gSSOK_Expense_BudgetDashboard_Paste, 회계 장표 붙여넣기
+
+    Gui, SSOKBudgetDashboard:Font, s9 Norm, Malgun Gothic
+    initialText := (SSOK_BudgetDashboardData != "") ? SSOK_BudgetDashboardData : ""
+    Gui, SSOKBudgetDashboard:Add, Edit, x18 y140 w864 h380 vSSOK_BudgetDashboardRaw WantTab HScroll -Wrap, %initialText%
+
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y532 w864 h28 +0x200 vSSOK_BudgetDashboardStatus c005BAC,
+
+    Gui, SSOKBudgetDashboard:Add, Button, x18 y570 w120 h38 gSSOK_Expense_BudgetDashboard_Clear, 초기화
+    Gui, SSOKBudgetDashboard:Add, Button, x148 yp w120 h38 gSSOK_Expense_BudgetDashboard_OK Default, OK
+
+    Gui, SSOKBudgetDashboard:Show, w900 h628 Center, 예산 DashBoard
+}
 
 
 ; ============================================================================
