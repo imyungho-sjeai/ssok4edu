@@ -8416,16 +8416,41 @@ SSOK_EDU_OpenOrgPicker:
     SSOK_EDU_ShowOrgPicker()
 return
 
+SSOK_EDU_OrgViewSchool:
+    SSOK_EDU_SetOrgViewMode("school")
+return
+
+SSOK_EDU_OrgViewOffice:
+    SSOK_EDU_SetOrgViewMode("office")
+return
+
 SSOK_EDU_OrgOfficeChanged:
+    if (SSOK_EDU_OrgViewMode = "office")
+        return
+    SSOK_EDU_OrgSearch := ""
+    SSOK_EDU_OrgSearchMode := "office"
+    SSOK_EDU_OrgGlobalResults := []
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgSearch,
     SSOK_EDU_LoadOrgSchools()
 return
 
 SSOK_EDU_OrgSupportChanged:
-    SSOK_EDU_RefreshOrgSchoolList()
+    if (SSOK_EDU_OrgViewMode != "office")
+        SSOK_EDU_RefreshOrgSchoolList()
 return
 
 SSOK_EDU_OrgKindChanged:
-    SSOK_EDU_RefreshOrgSchoolList()
+    if (SSOK_EDU_OrgViewMode != "office")
+        SSOK_EDU_RefreshOrgSchoolList()
+return
+
+SSOK_EDU_OrgSearchChanged:
+    SetTimer, SSOK_EDU_OrgGlobalSearchTimer, Off
+    SetTimer, SSOK_EDU_OrgGlobalSearchTimer, -350
+return
+
+SSOK_EDU_OrgGlobalSearchTimer:
+    SSOK_EDU_ApplyOrgGlobalSearch()
 return
 
 SSOK_EDU_ClassCountPoll:
@@ -8439,6 +8464,9 @@ return
 SSOK_EDU_OrgSchoolListEvent:
     if (A_GuiEvent = "DoubleClick" && A_EventInfo > 0)
         SSOK_EDU_SelectOrgSchoolRow(A_EventInfo)
+return
+
+SSOK_EDU_OrgOfficeListEvent:
 return
 
 SSOK_EDU_OrgSelectSchool:
@@ -8457,6 +8485,7 @@ return
 
 SSOK_EDU_OrgGuiClose:
 SSOK_EDU_OrgGuiEscape:
+    SetTimer, SSOK_EDU_OrgGlobalSearchTimer, Off
     SSOK_EDU_CancelClassCountLoad()
     Gui, SSOKEDUOrg:Destroy
 return
@@ -8636,7 +8665,14 @@ SSOK_EDU_ShowSchoolPicker(results, query)
 SSOK_EDU_ShowOrgPicker(defaultOfficeCode := "", defaultSupport := "")
 {
     global SSOK_EDU_SelectedSchool, SSOK_EDU_OrgOffice, SSOK_EDU_OrgSupport, SSOK_EDU_OrgKind
-    global SSOK_EDU_OrgDefaultSupport, SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgStatus
+    global SSOK_EDU_OrgDefaultSupport, SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgOfficeList, SSOK_EDU_OrgStatus, SSOK_EDU_OrgSearch
+    global SSOK_EDU_OrgSearchMode, SSOK_EDU_OrgGlobalResults, SSOK_EDU_OrgViewMode
+    global SSOK_EDU_OrgSelectSchoolBtn
+
+    SSOK_EDU_OrgSearch := ""
+    SSOK_EDU_OrgSearchMode := "office"
+    SSOK_EDU_OrgGlobalResults := []
+    SSOK_EDU_OrgViewMode := "school"
 
     if (defaultOfficeCode = "" && IsObject(SSOK_EDU_SelectedSchool))
     {
@@ -8654,26 +8690,374 @@ SSOK_EDU_ShowOrgPicker(defaultOfficeCode := "", defaultSupport := "")
     officePipe := SSOK_EDU_GetOfficeNamesPipe()
 
     Gui, SSOKEDUOrg:Destroy
-    Gui, SSOKEDUOrg:New, +Resize +MinSize1100x430 +LabelSSOK_EDU_OrgGui
+    Gui, SSOKEDUOrg:New, +Resize +MinSize1100x465 +LabelSSOK_EDU_OrgGui
     Gui, SSOKEDUOrg:Color, F7FBFF
     Gui, SSOKEDUOrg:Margin, 12, 12
-    Gui, SSOKEDUOrg:Font, s10 bold c005BAC, Malgun Gothic
-    Gui, SSOKEDUOrg:Add, Text, x12 y14 w48 h20 +0x200, 교육청
-    Gui, SSOKEDUOrg:Font, s9 norm c222222, Malgun Gothic
-    Gui, SSOKEDUOrg:Add, DropDownList, x62 y12 w230 h240 vSSOK_EDU_OrgOffice gSSOK_EDU_OrgOfficeChanged AltSubmit Choose%idx%, %officePipe%
-    Gui, SSOKEDUOrg:Add, Text, x307 y14 w48 h20 +0x200, 지원청
-    Gui, SSOKEDUOrg:Add, DropDownList, x357 y12 w270 h240 vSSOK_EDU_OrgSupport gSSOK_EDU_OrgSupportChanged, 교육청 전체
-    Gui, SSOKEDUOrg:Add, Text, x642 y14 w48 h20 +0x200, 학교급
-    Gui, SSOKEDUOrg:Add, DropDownList, x692 y12 w120 h240 vSSOK_EDU_OrgKind gSSOK_EDU_OrgKindChanged, 전체
-    Gui, SSOKEDUOrg:Font, s8 norm c4B5563, Malgun Gothic
-    Gui, SSOKEDUOrg:Add, Text, x825 y14 w180 h20 vSSOK_EDU_OrgStatus +0x200, 학교 목록 불러오는 중...
-    Gui, SSOKEDUOrg:Font, s9 norm c222222, Malgun Gothic
-    Gui, SSOKEDUOrg:Add, Button, x1098 y10 w92 h26 gSSOK_EDU_OrgExportExcel, 엑셀 저장
-    Gui, SSOKEDUOrg:Add, Button, x1196 y10 w100 h26 gSSOK_EDU_OrgSelectSchool Default, 학교 열기
 
-    Gui, SSOKEDUOrg:Add, ListView, x12 y45 w1284 h395 vSSOK_EDU_OrgSchoolList gSSOK_EDU_OrgSchoolListEvent AltSubmit, 학교명|학교급|학급수|지원청|주소|전화|팩스|홈페이지|학교코드
-    Gui, SSOKEDUOrg:Show, w1308 h452, SSOK4edu 관할 교육청
+    Gui, SSOKEDUOrg:Font, s9 bold c005BAC, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Text, x12 y14 w38 h24 +0x200, 구분
+    Gui, SSOKEDUOrg:Add, Button, x54 y10 w82 h26 gSSOK_EDU_OrgViewSchool, 학교
+    Gui, SSOKEDUOrg:Add, Button, x142 y10 w82 h26 gSSOK_EDU_OrgViewOffice, 교육청
+
+    Gui, SSOKEDUOrg:Font, s10 bold c005BAC, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Text, x12 y48 w48 h20 +0x200, 교육청
+    Gui, SSOKEDUOrg:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, DropDownList, x62 y46 w230 h240 vSSOK_EDU_OrgOffice gSSOK_EDU_OrgOfficeChanged AltSubmit Choose%idx%, %officePipe%
+    Gui, SSOKEDUOrg:Add, Text, x307 y48 w48 h20 +0x200, 지원청
+    Gui, SSOKEDUOrg:Add, DropDownList, x357 y46 w270 h240 vSSOK_EDU_OrgSupport gSSOK_EDU_OrgSupportChanged, 교육청 전체
+    Gui, SSOKEDUOrg:Add, Text, x642 y48 w48 h20 +0x200, 학교급
+    Gui, SSOKEDUOrg:Add, DropDownList, x692 y46 w120 h240 vSSOK_EDU_OrgKind gSSOK_EDU_OrgKindChanged, 전체
+    Gui, SSOKEDUOrg:Font, s8 norm c4B5563, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Text, x825 y48 w105 h20 vSSOK_EDU_OrgStatus +0x200, 학교 목록 불러오는 중...
+    Gui, SSOKEDUOrg:Font, s9 norm c222222, Malgun Gothic
+    Gui, SSOKEDUOrg:Add, Text, x928 y48 w58 h20 +0x200, 전국검색
+    Gui, SSOKEDUOrg:Add, Edit, x988 y44 w102 h26 vSSOK_EDU_OrgSearch gSSOK_EDU_OrgSearchChanged
+    Gui, SSOKEDUOrg:Add, Button, x1098 y44 w92 h26 gSSOK_EDU_OrgExportExcel, 엑셀 저장
+    Gui, SSOKEDUOrg:Add, Button, x1196 y44 w100 h26 vSSOK_EDU_OrgSelectSchoolBtn gSSOK_EDU_OrgSelectSchool Default, 학교 열기
+
+    Gui, SSOKEDUOrg:Add, ListView, x12 y79 w1284 h395 vSSOK_EDU_OrgSchoolList gSSOK_EDU_OrgSchoolListEvent AltSubmit, 학교명|학교급|학급수|설립연도|지원청|주소|전화|팩스|홈페이지|학교코드
+    Gui, SSOKEDUOrg:Add, ListView, x12 y79 w1284 h395 vSSOK_EDU_OrgOfficeList gSSOK_EDU_OrgOfficeListEvent Hidden AltSubmit, 시·도교육청|구분|기관명|관할 구역|주소|전화번호|팩스번호|출처 URL
+    OnMessage(0x202, "SSOK_EDU_OrgOfficeUrlClick")
+    Gui, SSOKEDUOrg:Show, w1308 h486, SSOK4edu 관할 교육청
     SSOK_EDU_LoadOrgSchools()
+}
+
+SSOK_EDU_SetOrgViewMode(mode)
+{
+    global SSOK_EDU_OrgViewMode, SSOK_EDU_OrgSearch, SSOK_EDU_OrgSearchMode, SSOK_EDU_OrgGlobalResults
+    global SSOK_EDU_OrgOfficeRows
+
+    if (mode != "office")
+        mode := "school"
+
+    SSOK_EDU_OrgViewMode := mode
+    SetTimer, SSOK_EDU_OrgGlobalSearchTimer, Off
+    SSOK_EDU_OrgSearch := ""
+    SSOK_EDU_OrgSearchMode := "office"
+    SSOK_EDU_OrgGlobalResults := []
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgSearch,
+
+    if (mode = "office")
+    {
+        GuiControl, SSOKEDUOrg:Disable, SSOK_EDU_OrgOffice
+        GuiControl, SSOKEDUOrg:Disable, SSOK_EDU_OrgSupport
+        GuiControl, SSOKEDUOrg:Disable, SSOK_EDU_OrgKind
+        GuiControl, SSOKEDUOrg:Disable, SSOK_EDU_OrgSelectSchoolBtn
+        GuiControl, SSOKEDUOrg:Hide, SSOK_EDU_OrgSchoolList
+        GuiControl, SSOKEDUOrg:Show, SSOK_EDU_OrgOfficeList
+
+        if (!IsObject(SSOK_EDU_OrgOfficeRows))
+            SSOK_EDU_OrgOfficeRows := SSOK_EDU_GetOrgOfficeDirectoryData()
+        SSOK_EDU_RefreshOrgOfficeList()
+    }
+    else
+    {
+        GuiControl, SSOKEDUOrg:Enable, SSOK_EDU_OrgOffice
+        GuiControl, SSOKEDUOrg:Enable, SSOK_EDU_OrgSupport
+        GuiControl, SSOKEDUOrg:Enable, SSOK_EDU_OrgKind
+        GuiControl, SSOKEDUOrg:Enable, SSOK_EDU_OrgSelectSchoolBtn
+        GuiControl, SSOKEDUOrg:Hide, SSOK_EDU_OrgOfficeList
+        GuiControl, SSOKEDUOrg:Show, SSOK_EDU_OrgSchoolList
+        SSOK_EDU_RefreshOrgSchoolList()
+    }
+}
+
+SSOK_EDU_ListViewHitColumn(lvHwnd)
+{
+    if (!lvHwnd)
+        return 0
+
+    MouseGetPos, mx, my
+    VarSetCapacity(pt, 8, 0)
+    NumPut(mx, pt, 0, "Int")
+    NumPut(my, pt, 4, "Int")
+    DllCall("ScreenToClient", "Ptr", lvHwnd, "Ptr", &pt)
+
+    VarSetCapacity(hit, 24, 0)
+    NumPut(NumGet(pt, 0, "Int"), hit, 0, "Int")
+    NumPut(NumGet(pt, 4, "Int"), hit, 4, "Int")
+    DllCall("SendMessage", "Ptr", lvHwnd, "UInt", 0x1039, "Ptr", 0, "Ptr", &hit, "Ptr")
+    subItem := NumGet(hit, 16, "Int")
+    return subItem + 1
+}
+
+SSOK_EDU_OrgOfficeUrlClick(wParam, lParam, msg, hwnd)
+{
+    global SSOK_EDU_OrgViewMode
+
+    if (SSOK_EDU_OrgViewMode != "office")
+        return
+
+    Gui, SSOKEDUOrg:Default
+    GuiControlGet, lvHwnd, Hwnd, SSOK_EDU_OrgOfficeList
+    if (!lvHwnd || hwnd != lvHwnd)
+        return
+
+    x := lParam & 0xFFFF
+    y := (lParam >> 16) & 0xFFFF
+    VarSetCapacity(hit, 24, 0)
+    NumPut(x, hit, 0, "Int")
+    NumPut(y, hit, 4, "Int")
+    DllCall("SendMessage", "Ptr", lvHwnd, "UInt", 0x1039, "Ptr", 0, "Ptr", &hit, "Ptr")
+
+    row := NumGet(hit, 12, "Int") + 1
+    col := NumGet(hit, 16, "Int") + 1
+    if (row < 1 || col != 8)
+        return
+
+    Gui, ListView, SSOK_EDU_OrgOfficeList
+    LV_GetText(url, row, 8)
+    url := Trim(url)
+    if (url = "")
+        return
+
+    if (!RegExMatch(url, "i)^https?://"))
+        url := "https://" . url
+    SSOK_OpenUrlPreferred(url)
+}
+
+SSOK_EDU_RefreshOrgOfficeList()
+{
+    global SSOK_EDU_OrgOfficeRows, SSOK_EDU_OrgOfficeList, SSOK_EDU_OrgSearch, SSOK_EDU_OrgStatus
+
+    if (!IsObject(SSOK_EDU_OrgOfficeRows))
+        SSOK_EDU_OrgOfficeRows := SSOK_EDU_GetOrgOfficeDirectoryData()
+
+    Gui, SSOKEDUOrg:Submit, NoHide
+    q := Trim(SSOK_EDU_OrgSearch)
+
+    Gui, SSOKEDUOrg:Default
+    Gui, ListView, SSOK_EDU_OrgOfficeList
+    LV_Delete()
+
+    count := 0
+    for idx, item in SSOK_EDU_OrgOfficeRows
+    {
+        if (q != "")
+        {
+            hay := item[1] . "`n" . item[2] . "`n" . item[3] . "`n" . item[4] . "`n" . item[5] . "`n" . item[6] . "`n" . item[7] . "`n" . item[8]
+            if (!InStr(hay, q))
+                continue
+        }
+
+        LV_Add("", item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8])
+        count++
+    }
+
+    LV_ModifyCol(1, 145)
+    LV_ModifyCol(2, 80)
+    LV_ModifyCol(3, 185)
+    LV_ModifyCol(4, 155)
+    LV_ModifyCol(5, 280)
+    LV_ModifyCol(6, 110)
+    LV_ModifyCol(7, 110)
+    LV_ModifyCol(8, 310)
+
+    if (count > 0)
+        LV_Modify(1, "Select Focus Vis")
+
+    status := (q = "") ? ("교육청 자료 " . count . "개") : ("교육청 검색 " . count . "개")
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, %status%
+}
+
+SSOK_EDU_GetOrgOfficeDirectoryData()
+{
+    data := []
+    data.Push(["서울특별시교육청", "시도교육청", "서울특별시교육청", "서울특별시", "서울특별시 용산구 두텁바위로 27", "02-1396", "02-6907-2859", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시동부교육지원청", "동대문구, 중랑구", "서울특별시 동대문구 전농로 168", "02-2217-7323", "02-2217-7330", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시서부교육지원청", "마포구, 서대문구, 은평구", "서울특별시 서대문구 이화여대2길 15", "02-390-5500", "02-364-6057", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시남부교육지원청", "영등포구, 구로구, 금천구", "서울특별시 영등포구 문래로 121", "02-2165-0200", "02-2632-4389", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시북부교육지원청", "노원구, 도봉구", "서울특별시 도봉구 노해로 313", "02-3499-6990", "02-990-2360", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시중부교육지원청", "종로구, 중구, 용산구", "서울특별시 종로구 대학로 10", "02-708-6500", "02-708-6641", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시강동송파교육지원청", "강동구, 송파구", "서울특별시 송파구 잠실로 26", "02-3434-4300", "02-424-3388", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시강서양천교육지원청", "강서구, 양천구", "서울특별시 양천구 월정로 269", "02-2600-0800", "02-2620-8312", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시강남서초교육지원청", "강남구, 서초구", "서울특별시 강남구 선릉로116길 45", "02-545-1577", "02-3015-3420", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시동작관악교육지원청", "동작구, 관악구", "서울특별시 동작구 장승배기로10가길 35", "02-810-8300", "02-822-7004", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시성동광진교육지원청", "성동구, 광진구", "서울특별시 성동구 고산자로 280", "02-2286-3694", "02-2281-3816", "https://www.sen.go.kr/"])
+    data.Push(["서울특별시교육청", "교육지원청", "서울특별시성북강북교육지원청", "성북구, 강북구", "서울특별시 성북구 종암로 208", "02-944-9383", "02-985-8361", "https://www.sen.go.kr/"])
+    data.Push(["부산광역시교육청", "시도교육청", "부산광역시교육청", "부산광역시", "부산광역시 부산진구 화지로 12", "051-860-0114", "051-860-0628", "https://www.pen.go.kr/main/main.do"])
+    data.Push(["부산광역시교육청", "교육지원청", "부산광역시서부교육지원청", "서구, 사하구, 영도구, 중구", "부산광역시 서구 꽃마을로 33", "051-250-0500", "051-246-1832", "https://home.pen.go.kr/seobu/main.do"])
+    data.Push(["부산광역시교육청", "교육지원청", "부산광역시남부교육지원청", "남구, 동구, 부산진구", "부산광역시 남구 못골로 29", "051-640-0200", "051-637-8958", "https://home.pen.go.kr/nambu/main.do"])
+    data.Push(["부산광역시교육청", "교육지원청", "부산광역시북부교육지원청", "북구, 사상구, 강서구", "부산광역시 북구 백양대로1016번다길 44", "051-330-1200", "051-330-1338", "https://home.pen.go.kr/bukbu/"])
+    data.Push(["부산광역시교육청", "교육지원청", "부산광역시동래교육지원청", "동래구, 금정구, 연제구", "부산광역시 동래구 동래로179번길 31", "051-550-0114", "051-558-3869", "https://home.pen.go.kr/dongnae/main.do"])
+    data.Push(["부산광역시교육청", "교육지원청", "부산광역시해운대교육지원청", "해운대구, 수영구, 기장군", "부산광역시 해운대구 세실로 137", "051-709-0300", "051-709-0309", "https://home.pen.go.kr/haeundae/main.do"])
+    data.Push(["대구광역시교육청", "시도교육청", "대구광역시교육청", "대구광역시", "대구광역시 수성구 수성로76길 11", "053-231-0000", "053-757-8100", "https://www.dge.go.kr/main/main.do"])
+    data.Push(["대구광역시교육청", "교육지원청", "대구광역시동부교육지원청", "동구, 수성구", "대구광역시 중구 관덕정길 35", "053-232-0000", "053-255-5938", "https://www.dge.go.kr/dgdbe/main.do"])
+    data.Push(["대구광역시교육청", "교육지원청", "대구광역시서부교육지원청", "서구, 북구", "대구광역시 서구 서대구로3길 5", "053-233-0000", "053-522-5269", "https://www.dge.go.kr/dgsbe/main.do"])
+    data.Push(["대구광역시교육청", "교육지원청", "대구광역시남부교육지원청", "중구, 남구, 달서구", "대구광역시 달서구 학산로 185", "053-234-0000", "053-234-0019", "https://www.dge.go.kr/dgnbe/main.do"])
+    data.Push(["대구광역시교육청", "교육지원청", "대구광역시달성교육지원청", "달성군", "대구광역시 달성군 옥포읍 비슬로 1934", "053-235-0000", "053-235-0019", "https://www.dge.go.kr/dgdse/main.do"])
+    data.Push(["대구광역시교육청", "교육지원청", "대구광역시군위교육지원청", "군위군", "대구광역시 군위군 군위읍 군청로 204", "054-380-2200", "054-380-2219", "https://www.dge.go.kr/dggwe/main.do"])
+    data.Push(["인천광역시교육청", "시도교육청", "인천광역시교육청", "인천광역시", "인천광역시 남동구 정각로 9", "032-420-6526~7", "032-420-6537", "https://www.ice.go.kr/ice/main.do"])
+    data.Push(["인천광역시교육청", "교육지원청", "인천광역시남부교육지원청", "제물포구, 영종구, 미추홀구, 옹진군", "인천광역시 중구 차이나타운로51번길 45", "032-762-7361", "032-770-0119", "https://www.ice.go.kr/ice/main.do"])
+    data.Push(["인천광역시교육청", "교육지원청", "인천광역시북부교육지원청", "부평구, 계양구", "인천광역시 부평구 부평문화로53번길 35", "032-524-9631~2", "032-510-1539", "https://www.ice.go.kr/ice/main.do"])
+    data.Push(["인천광역시교육청", "교육지원청", "인천광역시동부교육지원청", "남동구, 연수구", "인천광역시 남동구 인주대로 923", "032-460-6000", "032-460-6019", "https://www.ice.go.kr/ice/main.do"])
+    data.Push(["인천광역시교육청", "교육지원청", "인천광역시서부교육지원청", "서해구, 검단구", "인천광역시 서구 경명대로 713", "032-560-6600", "032-560-6519", "https://www.ice.go.kr/ice/main.do"])
+    data.Push(["인천광역시교육청", "교육지원청", "인천광역시강화교육지원청", "강화군", "인천광역시 강화군 불은면 중앙로 607", "032-930-7777", "032-937-0795", "https://www.ice.go.kr/ice/main.do"])
+    data.Push(["대전광역시교육청", "시도교육청", "대전광역시교육청", "대전광역시", "대전광역시 서구 둔산로 89", "042-616-8900", "042-616-8579", "https://www.dje.go.kr/main.do?s=djeNew"])
+    data.Push(["대전광역시교육청", "교육지원청", "대전광역시동부교육지원청", "동구, 중구, 대덕구", "대전광역시 중구 문화로234번길 34", "042-229-1000", "042-229-1019", "https://www.dje.go.kr/"])
+    data.Push(["대전광역시교육청", "교육지원청", "대전광역시서부교육지원청", "서구, 유성구", "대전광역시 서구 계백로 1419", "042-530-1114", "042-530-1019", "https://www.dje.go.kr/"])
+    data.Push(["울산광역시교육청", "시도교육청", "울산광역시교육청", "울산광역시", "울산광역시 중구 북부순환도로 375", "052-210-5400", "052-210-5759", "https://use.go.kr/"])
+    data.Push(["울산광역시교육청", "교육지원청", "울산광역시강북교육지원청", "중구, 북구, 동구", "울산광역시 북구 산업로 1015", "052-219-5615", "052-219-5616", "https://use.go.kr/"])
+    data.Push(["울산광역시교육청", "교육지원청", "울산광역시강남교육지원청", "남구, 울주군", "울산광역시 남구 월평로 87", "052-228-6666", "052-228-6667", "https://use.go.kr/"])
+    data.Push(["세종특별자치시교육청", "시도교육청", "세종특별자치시교육청", "세종특별자치시", "세종특별자치시 한누리대로 2154", "044-1396", "044-320-3198", "https://www.sje.go.kr/sje/main.do"])
+    data.Push(["경기도교육청", "시도교육청", "경기도교육청(남부청사)", "경기도", "경기도 수원시 영통구 도청로 28 ", "031-249-0114", "031-259-5990", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "시도교육청", "경기도교육청(북부청사)", "경기도", "경기도 의정부시 동일로 700", "031-249-0114", "031-821-2058", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도수원교육지원청", "수원시", "경기도 수원시 장안구 경수대로 792", "031-250-1335", "031-246-3442", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도성남교육지원청", "성남시", "경기도 성남시 분당구 양현로 20", "031-780-2500", "031-781-2196", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도안양과천교육지원청", "안양시, 과천시", "경기도 안양시 동안구 관평로 210", "031-380-7056", "031-386-9913", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도부천교육지원청", "부천시", "경기도 부천시 계남로 219", "032-620-0112", "032-326-3107", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도광명교육지원청", "광명시", "경기도 광명시 광명로 777", "02-2610-0592", "02-2684-7353", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도안산교육지원청", "안산시", "경기도 안산시 상록구 석호공원로5길 8", "031-412-4621", "031-487-0040", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도평택교육지원청", "평택시", "경기도 평택시 평택1로 80", "031-650-1218", "031-657-9118", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도동두천양주교육지원청", "동두천시, 양주시", "경기도 동두천시 중앙로 110-32", "031-860-4356", "031-864-4606", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도고양교육지원청", "고양시", "경기도 고양시 일산동구 중앙로 1296", "031-900-2800", "031-900-8095", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도구리남양주교육지원청", "구리시, 남양주시", "경기도 남양주시 경춘로 520", "031-563-5191", "031-562-6947", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도파주교육지원청", "파주시", "경기도 파주시 금정2길 55", "031-940-7114", "031-944-2340", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도군포의왕교육지원청", "군포시, 의왕시", "경기도 군포시 청백리길 17", "031-390-1101", "031-397-1324", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도광주하남교육지원청", "광주시, 하남시", "경기도 광주시 광주대로 178", "031-760-4000", "031-280-7288", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도김포교육지원청", "김포시", "경기도 김포시 김포한강11로 342", "031-980-1125", "031-984-6767", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도화성오산교육지원청", "화성시, 오산시", "경기도 오산시 북삼미로 119", "031-371-0600", "031-371-0795", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도시흥교육지원청", "시흥시", "경기도 시흥시 마유로446번길 11-2", "031-488-2464", "031-488-2469", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도용인교육지원청", "용인시", "경기도 용인시 처인구 중부대로1161번길 69", "031-8020-9114", "031-8020-9117", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도의정부교육지원청", "의정부시", "경기도 의정부시 가능로136번길 29", "031-8200-114", "031-842-2574", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도이천교육지원청", "이천시", "경기도 이천시 이섭대천로1311번길 18", "031-639-5694", "031-639-5695", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도안성교육지원청", "안성시", "경기도 안성시 명륜길 82", "031-678-5258", "031-675-0177", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도양평교육지원청", "양평군", "경기도 양평군 양평읍 양근강변길 126", "031-770-5200", "031-770-5206", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도여주교육지원청", "여주시", "경기도 여주시 청심로 181", "031-880-2308", "031-884-2396", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도연천교육지원청", "연천군", "경기도 연천군 연천읍 연천로 356-1", "031-834-1422", "031-834-1565", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도포천교육지원청", "포천시", "경기도 포천시 군내면 호국로 1520", "031-539-0000", "031-8089-8190", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["경기도교육청", "교육지원청", "경기도가평교육지원청", "가평군", "경기도 가평군 가평읍 향교로 17", "031-580-5114", "031-581-0557", "https://www.goe.go.kr/goe/cm/cntnts/cntntsView.do?cntntsId=963&mi=10034"])
+    data.Push(["강원특별자치도교육청", "시도교육청", "강원특별자치도교육청", "강원특별자치도", "강원특별자치도 춘천시 영서로 2854", "033-1396", "033-258-5138", "https://www.gwe.go.kr/"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도춘천교육지원청", "춘천시", "강원특별자치도 춘천시 둥지길 56", "033-259-1500", "033-259-1670", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도원주교육지원청", "원주시", "강원특별자치도 원주시 단구로 151", "033-760-5720", "033-764-4908", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도강릉교육지원청", "강릉시", "강원특별자치도 강릉시 노암등길 39", "033-640-3315", "033-640-1291~2", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도동해교육지원청", "동해시", "강원특별자치도 동해시 천곡로 117", "033-530-3065", "033-530-3008", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도태백교육지원청", "태백시", "강원특별자치도 태백시 하장성1길 14", "033-580-5513", "033-581-5547", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도속초양양교육지원청", "속초시, 양양군", "강원특별자치도 속초시 미시령로 3336", "033-639-6000", "033-639-6007~8", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도삼척교육지원청", "삼척시", "강원특별자치도 삼척시 청석로3길 32", "033-570-5199", "033-572-7802", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도홍천교육지원청", "홍천군", "강원특별자치도 홍천군 홍천읍 꽃뫼로 95", "033-430-1115", "033-430-1108", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도횡성교육지원청", "횡성군", "강원특별자치도 횡성군 횡성읍 한우로242번길 9", "033-340-0715", "033-343-3651", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도영월교육지원청", "영월군", "강원특별자치도 영월군 영월읍 영월로 1892", "033-370-1114", "033-370-1188", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도평창교육지원청", "평창군", "강원특별자치도 평창군 평창읍 노성로 193-9", "033-330-1712", "033-334-2618", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도정선교육지원청", "정선군", "강원특별자치도 정선군 정선읍 비봉로 41", "033-560-8114", "033-562-5856", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도철원교육지원청", "철원군", "강원특별자치도 철원군 갈말읍 명성로139번길 47", "033-450-1000", "033-452-3700", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도화천교육지원청", "화천군", "강원특별자치도 화천군 화천읍 상승로 19", "033-440-1510", "033-441-2596", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도양구교육지원청", "양구군", "강원특별자치도 양구군 양구읍 관공서로 32", "033-480-1410", "033-480-1456", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도인제교육지원청", "인제군", "강원특별자치도 인제군 인제읍 인제로193번길 15", "033-460-1000", "033-460-1058", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["강원특별자치도교육청", "교육지원청", "강원특별자치도고성교육지원청", "고성군", "강원특별자치도 고성군 간성읍 간성로 80", "033-680-6073", "033-680-6098", "https://www.gwe.go.kr/main/content.do?key=m2307211206458"])
+    data.Push(["충청북도교육청", "시도교육청", "충청북도교육청", "충청북도", "충청북도 청주시 서원구 청남로 1929", "043-290-2000", "043-290-2741", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도청주교육지원청", "청주시", "충청북도 청주시 서원구 산남로24번길 25", "043-299-3000", "043-299-3229", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도충주교육지원청", "충주시", "충청북도 충주시 봉현로 170", "043-850-0610", "043-848-0664", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도제천교육지원청", "제천시", "충청북도 제천시 청전대로1길 7", "043-640-6600", "043-642-0999", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도보은교육지원청", "보은군", "충청북도 보은군 보은읍 장신로 26", "043-540-5500", "043-542-5475", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도옥천교육지원청", "옥천군", "충청북도 옥천군 옥천읍 삼양로 75", "043-730-1313", "043-732-1314", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도영동교육지원청", "영동군", "충청북도 영동군 영동읍 학산영동로 1220", "043-740-7777", "043-740-7708", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도진천교육지원청", "진천군", "충청북도 진천군 진천읍 상산로 48", "043-530-5305", "043-534-0324", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도괴산증평교육지원청", "괴산군, 증평군", "충청북도 괴산군 괴산읍 읍내로3길 23", "043-830-5065", "043-830-5056", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도음성교육지원청", "음성군", "충청북도 음성군 음성읍 중앙로 77", "043-871-5099", "043-872-4498", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청북도교육청", "교육지원청", "충청북도단양교육지원청", "단양군", "충청북도 단양군 단양읍 중앙1로 15", "043-420-6104", "043-422-3561", "https://www.cbe.go.kr/cbe/cm/cntnts/cntntsView.do?cntntsId=35649&mi=11749"])
+    data.Push(["충청남도교육청", "시도교육청", "충청남도교육청", "충청남도", "충청남도 홍성군 홍북읍 선화로 22", "041-635-3114", "041-635-3919", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도천안교육지원청", "천안시", "충청남도 천안시 서북구 광장로 239", "041-529-0500", "041-554-0033", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도공주교육지원청", "공주시", "충청남도 공주시 왕릉로 115", "041-850-5500", "041-850-2359", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도보령교육지원청", "보령시", "충청남도 보령시 보령북로 169", "041-930-6352", "041-935-2379", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도아산교육지원청", "아산시", "충청남도 아산시 문화로 53", "041-539-2200", "041-549-6451", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도서산교육지원청", "서산시", "충청남도 서산시 문화로 112", "041-660-0305", "041-660-0308", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도논산계룡교육지원청", "논산시, 계룡시", "충청남도 논산시 관촉로 253", "041-730-7100", "041-730-7119", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도당진교육지원청", "당진시", "충청남도 당진시 남부로 186", "041-351-2500", "041-351-2599", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도금산교육지원청", "금산군", "충청남도 금산군 금산읍 인삼로 14", "041-750-8100", "041-750-8119", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도부여교육지원청", "부여군", "충청남도 부여군 부여읍 금성로 150", "041-830-1500", "041-830-1519", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도서천교육지원청", "서천군", "충청남도 서천군 서천읍 서천로 105", "041-950-6091", "041-953-1244", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도청양교육지원청", "청양군", "충청남도 청양군 청양읍 중앙로12길 19", "041-940-2400", "041-940-2419", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도홍성교육지원청", "홍성군", "충청남도 홍성군 홍성읍 충절로 998", "041-630-5544", "041-630-5539", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도예산교육지원청", "예산군", "충청남도 예산군 예산읍 역전로126번길 14", "041-330-1100", "041-330-1119", "https://www.cne.go.kr/"])
+    data.Push(["충청남도교육청", "교육지원청", "충청남도태안교육지원청", "태안군", "충청남도 태안군 태안읍 원이로 28", "041-670-8282", "041-674-8179", "https://www.cne.go.kr/"])
+    data.Push(["전북특별자치도교육청", "시도교육청", "전북특별자치도교육청", "전북특별자치도", "전북특별자치도 전주시 완산구 홍산로 111", "063-1396", "063-220-9431, 9432", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도전주교육지원청", "전주시", "전북특별자치도 전주시 덕진구 태진로 100", "063-270-6000", "063-255-9221", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도군산교육지원청", "군산시", "전북특별자치도 군산시 조촌로 22", "063-450-7000", "063-450-7019", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도익산교육지원청", "익산시", "전북특별자치도 익산시 중앙로 127", "063-850-8800", "063-850-8819", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도정읍교육지원청", "정읍시", "전북특별자치도 정읍시 충정로 276", "063-530-3000", "063-530-3019", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도남원교육지원청", "남원시", "전북특별자치도 남원시 남문로 373", "063-620-1100", "063-620-7520", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도김제교육지원청", "김제시", "전북특별자치도 김제시 요촌북로 70", "063-540-1100", "063-540-1119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도완주교육지원청", "완주군", "전북특별자치도 완주군 용진읍 지암로 65", "063-290-2100", "063-290-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도진안교육지원청", "진안군", "전북특별자치도 진안군 진안읍 학천변길 47", "063-430-2100", "063-430-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도무주교육지원청", "무주군", "전북특별자치도 무주군 무주읍 단천로5길 22", "063-320-5100", "063-324-7173", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도장수교육지원청", "장수군", "전북특별자치도 장수군 장수읍 호비로 50", "063-350-2100", "063-350-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도임실교육지원청", "임실군", "전북특별자치도 임실군 임실읍 봉황로 247", "063-640-2100", "063-640-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도순창교육지원청", "순창군", "전북특별자치도 순창군 순창읍 장류로 383", "063-650-2100", "063-650-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도고창교육지원청", "고창군", "전북특별자치도 고창군 고창읍 중앙로 258", "063-560-2100", "063-560-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전북특별자치도교육청", "교육지원청", "전북특별자치도부안교육지원청", "부안군", "전북특별자치도 부안군 부안읍 매창로 113", "063-580-2100", "063-580-2119", "https://www.jbe.go.kr/"])
+    data.Push(["전남광주통합특별시교육청", "시도교육청", "전남광주통합특별시교육청(전남청사)", "전남광주통합특별시", "전남광주통합특별시 무안군 삼향읍 어진누리길 10", "061-260-0013", "061-260-0679", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "시도교육청", "전남광주통합특별시교육청(광주청사)", "전남광주통합특별시", "전남광주통합특별시 서구 화운로 93", "062-380-4633", "062-375-9383", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "광주동부교육지원청", "동구, 중구, 북구", "전남광주통합특별시 북구 서양로 111", "062-605-5500", "062-605-5519", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "광주서부교육지원청", "서구, 남구, 광산구", "전남광주통합특별시 서구 상무번영로 98", "062-600-9700", "062-600-9720", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "목포교육지원청", "목포시", "전남광주통합특별시 목포시 교육로 5", "061-282-7321", "061-282-7329", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "여수교육지원청", "여수시", "전남광주통합특별시 여수시 관문동1길 39", "061-690-5566", "061-686-5123", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "순천교육지원청", "순천시", "전남광주통합특별시 순천시 연향2로 15", "061-721-8700", "061-723-1769", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "나주교육지원청", "나주시", "전남광주통합특별시 나주시 완사천길 15", "061-330-0154", "061-333-8379", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "광양교육지원청", "광양시", "전남광주통합특별시 광양시 광양읍 우산길 3", "061-760-3346", "061-762-2530", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "담양교육지원청", "담양군", "전남광주통합특별시 담양군 담양읍 신성길 2-8", "061-380-8154", "061-383-3278", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "곡성교육지원청", "곡성군", "전남광주통합특별시 곡성군 곡성읍 군청로 13", "061-360-6667", "061-363-0227", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "구례교육지원청", "구례군", "전남광주통합특별시 구례군 구례읍 구례2길 21", "061-780-6600", "061-782-8035", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "고흥교육지원청", "고흥군", "전남광주통합특별시 고흥군 고흥읍 백련장전길 36", "061-830-2000", "061-835-1019", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "보성교육지원청", "보성군", "전남광주통합특별시 보성군 보성읍 새싹길 26", "061-850-7114", "061-852-4648", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "화순교육지원청", "화순군", "전남광주통합특별시 화순군 화순읍 진각로 159", "061-370-7114", "061-370-7103", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "장흥교육지원청", "장흥군", "전남광주통합특별시 장흥군 장흥읍 동교로 64-17", "061-860-1245", "061-863-1337", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "강진교육지원청", "강진군", "전남광주통합특별시 강진군 강진읍 금릉6길 8", "061-430-1505", "061-432-9337", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "해남교육지원청", "해남군", "전남광주통합특별시 해남군 해남읍 교육청길 50", "061-530-1100", "061-530-1104", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "영암교육지원청", "영암군", "전남광주통합특별시 영암군 영암읍 월출로 84", "061-470-4156", "061-473-0335", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "무안교육지원청", "무안군", "전남광주통합특별시 무안군 무안읍 승달로 63", "061-450-7000", "061-454-7811", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "함평교육지원청", "함평군", "전남광주통합특별시 함평군 함평읍 영수길 273-17", "061-320-6654", "061-324-1655", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "영광교육지원청", "영광군", "전남광주통합특별시 영광군 영광읍 중앙로 204", "061-350-6600", "061-352-1605", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "장성교육지원청", "장성군", "전남광주통합특별시 장성군 장성읍 방울샘길 22", "061-390-6000", "061-393-1800", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "완도교육지원청", "완도군", "전남광주통합특별시 완도군 완도읍 개포로114번길 30-12", "061-550-0500", "061-554-0424", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "진도교육지원청", "진도군", "전남광주통합특별시 진도군 진도읍 달동네길 12", "061-540-5164", "061-543-0009", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["전남광주통합특별시교육청", "교육지원청", "신안교육지원청", "신안군", "전남광주통합특별시 목포시 해안로165번길 25", "061-240-3656", "061-245-3190", "https://gen.go.kr/sub/page.php?page_code=introduce_06_02"])
+    data.Push(["경상북도교육청", "시도교육청", "경상북도교육청", "경상북도", "경상북도 안동시 풍천면 도청대로 511", "054-805-3000", "054-805-3129", "https://www.gbe.kr/main/main.do"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도포항교육지원청", "포항시", "경상북도 포항시 북구 삼흥로 416", "054-288-6800", "054-288-6820", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도경주교육지원청", "경주시", "경상북도 경주시 초당길 9", "054-740-9118", "054-741-4827", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도김천교육지원청", "김천시", "경상북도 김천시 충효길 19", "054-420-5210", "054-432-2827", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도안동교육지원청", "안동시", "경상북도 안동시 경동로 554", "054-851-9100", "054-851-9199", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도구미교육지원청", "구미시", "경상북도 구미시 송정대로 63", "054-440-2215", "054-440-2219", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도영주교육지원청", "영주시", "경상북도 영주시 가흥로 165", "054-632-5167", "054-632-0919", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도영천교육지원청", "영천시", "경상북도 영천시 장수로 18-2", "054-330-2365", "054-330-2375", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도상주교육지원청", "상주시", "경상북도 상주시 만산8길 26", "054-530-2300", "054-530-2399", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도문경교육지원청", "문경시", "경상북도 문경시 호계면 태봉1길 25", "054-550-5544", "054-553-1396", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도경산교육지원청", "경산시", "경상북도 경산시 원효로 309-6", "053-810-7565", "053-810-7589", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도의성교육지원청", "의성군", "경상북도 의성군 의성읍 구봉길 168-7", "054-830-1163", "054-833-9552", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도청송교육지원청", "청송군", "경상북도 청송군 청송읍 군청로 25", "054-870-1100", "054-870-1106", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도영양교육지원청", "영양군", "경상북도 영양군 영양읍 영양창수로 83", "054-680-2200", "054-680-2205", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도영덕교육지원청", "영덕군", "경상북도 영덕군 영덕읍 읍사무소1길 32-15", "054-730-8007", "054-730-8006", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도청도교육지원청", "청도군", "경상북도 청도군 청도읍 남성현로 31", "054-370-1145", "054-372-1904", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도고령교육지원청", "고령군", "경상북도 고령군 대가야읍 가야금길 34", "054-950-2500", "054-954-3771", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도성주교육지원청", "성주군", "경상북도 성주군 성주읍 주산로 71-4", "054-930-2000", "054-931-0038", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도칠곡교육지원청", "칠곡군", "경상북도 칠곡군 왜관읍 중앙로10길 33", "054-979-2100", "054-971-1506", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도예천교육지원청", "예천군", "경상북도 예천군 호명읍 양지9길 6, 3~4층", "054-650-2515", "054-652-5968", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도봉화교육지원청", "봉화군", "경상북도 봉화군 봉화읍 솔안4길 12", "054-679-1750", "054-673-9530", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도울진교육지원청", "울진군", "경상북도 울진군 울진읍 월변7길 17", "054-780-3351", "054-783-3880", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상북도교육청", "교육지원청", "경상북도울릉교육지원청", "울릉군", "경상북도 울릉군 울릉읍 약수터길 40", "054-791-2293", "054-791-2295", "https://www.gbe.kr/main/cm/cntnts/cntntsView.do?cntntsId=3118&mi=4155"])
+    data.Push(["경상남도교육청", "시도교육청", "경상남도교육청", "경상남도", "경상남도 창원시 성산구 중앙대로 241", "055-268-1004", "055-268-1369", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도창원교육지원청", "창원시", "경상남도 창원시 성산구 중앙대로228번길 3", "055-210-0522~0524", "055-210-0530", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도진주교육지원청", "진주시", "경상남도 진주시 비봉로23번길 8", "055-740-2000", "055-752-5786", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도통영교육지원청", "통영시", "경상남도 통영시 광도면 죽림2로 25-32", "055-650-8065", "055-645-2253", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도사천교육지원청", "사천시", "경상남도 사천시 삼상로 85", "055-830-1565", "055-832-3865", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도김해교육지원청", "김해시", "경상남도 김해시 김해대로1902번길 50", "055-330-7620~7621", "055-322-1910", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도밀양교육지원청", "밀양시", "경상남도 밀양시 상남면 밀양대로 1522", "055-350-1564", "055-350-1588", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도거제교육지원청", "거제시", "경상남도 거제시 거제중앙로 1809", "055-630-9264", "055-630-9209", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도양산교육지원청", "양산시", "경상남도 양산시 물금읍 청룡로 53", "055-379-3124", "055-379-3111", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도의령교육지원청", "의령군", "경상남도 의령군 의령읍 의병로 148", "055-570-7166", "055-573-3796", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도함안교육지원청", "함안군", "경상남도 함안군 가야읍 함안대로 497", "055-580-8064", "055-582-4945", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도창녕교육지원청", "창녕군", "경상남도 창녕군 창녕읍 창녕대로 135", "055-530-3565", "055-533-2511", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도고성교육지원청", "고성군", "경상남도 고성군 고성읍 동외로 108", "055-670-8163", "055-674-1006", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도남해교육지원청", "남해군", "경상남도 남해군 남해읍 화전로95번길 14", "055-860-4165", "055-864-3572", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도하동교육지원청", "하동군", "경상남도 하동군 하동읍 군청로 191", "055-880-1958", "055-883-0138", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도산청교육지원청", "산청군", "경상남도 산청군 산청읍 친환경로2720번길 10", "055-970-3064", "055-973-0556", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도함양교육지원청", "함양군", "경상남도 함양군 함양읍 함양로 1157", "055-960-2763", "055-960-2709", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도거창교육지원청", "거창군", "경상남도 거창군 거창읍 거함대로 3235", "055-940-6100", "055-943-7066", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["경상남도교육청", "교육지원청", "경상남도합천교육지원청", "합천군", "경상남도 합천군 합천읍 동서로 150", "055-930-7071", "055-932-0572", "https://www.gne.go.kr/www/minwon/complaints/guide/guide_01.jsp"])
+    data.Push(["제주특별자치도교육청", "시도교육청", "제주특별자치도교육청", "제주특별자치도", "제주특별자치도 제주시 문연로 5", "064-710-0114", "064-710-0709", "https://www.jje.go.kr/"])
+    data.Push(["제주특별자치도교육청", "교육지원청", "제주시교육지원청", "제주시", "제주특별자치도 제주시 남광로 27", "064-754-1221", "064-754-1229", "https://www.jje.go.kr/"])
+    data.Push(["제주특별자치도교육청", "교육지원청", "서귀포시교육지원청", "서귀포시", "제주특별자치도 서귀포시 토평로 43", "064-730-8100", "064-730-8107", "https://www.jje.go.kr/jse/index.jje?contentsSid=374"])
+    return data
 }
 
 SSOK_EDU_GetOfficeNamesPipe()
@@ -8783,55 +9167,179 @@ SSOK_EDU_LoadOrgSchools()
 SSOK_EDU_RefreshOrgSchoolList()
 {
     global SSOK_EDU_OrgSupport, SSOK_EDU_OrgKind, SSOK_EDU_OrgSchools, SSOK_EDU_OrgVisibleSchools
-    global SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgStatus
+    global SSOK_EDU_OrgSchoolList, SSOK_EDU_OrgStatus, SSOK_EDU_OrgSearch
+    global SSOK_EDU_OrgSearchMode, SSOK_EDU_OrgGlobalResults
     global SSOK_EDU_ClassReqLoading, SSOK_EDU_ClassReqDone, SSOK_EDU_ClassReqTotal
 
     Gui, SSOKEDUOrg:Submit, NoHide
     support := Trim(SSOK_EDU_OrgSupport)
     kind := Trim(SSOK_EDU_OrgKind)
+    isGlobal := (SSOK_EDU_OrgSearchMode = "global")
+    source := isGlobal ? SSOK_EDU_OrgGlobalResults : SSOK_EDU_OrgSchools
     visible := []
 
     Gui, SSOKEDUOrg:Default
     Gui, ListView, SSOK_EDU_OrgSchoolList
     LV_Delete()
-    if (IsObject(SSOK_EDU_OrgSchools))
+    if (IsObject(source))
     {
-        for idx, item in SSOK_EDU_OrgSchools
+        for idx, item in source
         {
-            if (support != "" && support != "교육청 전체" && item.parentOrg != support)
+            ; 전국검색에서는 현재 교육청/지원청 선택값에 제한하지 않습니다.
+            if (!isGlobal && support != "" && support != "교육청 전체" && item.parentOrg != support)
                 continue
             if (kind != "" && kind != "전체" && item.kind != kind)
                 continue
 
             visible.Push(item)
             classText := (item.classCount != "" ? item.classCount : "-")
-            LV_Add("", item.schoolName, item.kind, classText, item.parentOrg, item.address, item.tel, item.fax, item.homepage, item.schoolCode)
+            foundYear := "-"
+            if (RegExMatch(Trim(item.foundDate), "^([0-9]{4})", foundYearMatch))
+                foundYear := foundYearMatch1
+            LV_Add("", item.schoolName, item.kind, classText, foundYear, item.parentOrg, item.address, item.tel, item.fax, item.homepage, item.schoolCode)
         }
     }
 
     SSOK_EDU_OrgVisibleSchools := visible
     LV_ModifyCol(1, 155)
-    LV_ModifyCol(2, 78)
-    LV_ModifyCol(3, "70 Integer")
-    LV_ModifyCol(4, 170)
-    LV_ModifyCol(5, 290)
-    LV_ModifyCol(6, 120)
-    LV_ModifyCol(7, 120)
-    LV_ModifyCol(8, 250)
-    LV_ModifyCol(9, 0)
+    LV_ModifyCol(2, 75)
+    LV_ModifyCol(3, "60 Integer")
+    LV_ModifyCol(4, "68 Integer")
+    LV_ModifyCol(5, 165)
+    LV_ModifyCol(6, 260)
+    LV_ModifyCol(7, 105)
+    LV_ModifyCol(8, 105)
+    LV_ModifyCol(9, 190)
+    LV_ModifyCol(10, 0)
 
     if (visible.Length() > 0)
         LV_Modify(1, "Select Focus Vis")
 
-    status := "학교 " . visible.Length() . "개"
-    if (SSOK_EDU_ClassReqLoading && SSOK_EDU_ClassReqTotal > 0)
+    status := isGlobal ? ("전국검색 " . visible.Length() . "개") : ("학교 " . visible.Length() . "개")
+    if (!isGlobal && SSOK_EDU_ClassReqLoading && SSOK_EDU_ClassReqTotal > 0)
         status .= " · 학급수 " . SSOK_EDU_ClassReqDone . "/" . SSOK_EDU_ClassReqTotal
     GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, %status%
 }
 
+SSOK_EDU_ApplyOrgGlobalSearch()
+{
+    global SSOK_EDU_OrgSearch, SSOK_EDU_OrgSearchMode, SSOK_EDU_OrgGlobalResults
+    global SSOK_EDU_OrgStatus, SSOK_EDU_OrgViewMode
+
+    if (SSOK_EDU_OrgViewMode = "office")
+    {
+        SSOK_EDU_RefreshOrgOfficeList()
+        return
+    }
+
+    Gui, SSOKEDUOrg:Submit, NoHide
+    q := Trim(SSOK_EDU_OrgSearch)
+
+    ; 검색어를 지우면 다시 현재 선택한 교육청의 관할학교 목록으로 돌아갑니다.
+    if (q = "")
+    {
+        if (SSOK_EDU_OrgSearchMode = "global")
+        {
+            SSOK_EDU_OrgSearchMode := "office"
+            SSOK_EDU_OrgGlobalResults := []
+            SSOK_EDU_LoadOrgSchools()
+        }
+        else
+            SSOK_EDU_RefreshOrgSchoolList()
+        return
+    }
+
+    if (StrLen(q) < 2)
+    {
+        GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, 전국검색은 2글자 이상
+        return
+    }
+
+    SSOK_EDU_CancelClassCountLoad()
+    GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, 전국 학교 검색 중...
+    results := SSOK_EDU_FetchSchoolsByName(q)
+
+    ; 조회 중 검색어가 바뀐 경우에는 새 타이머 검색 결과를 기다립니다.
+    Gui, SSOKEDUOrg:Submit, NoHide
+    if (Trim(SSOK_EDU_OrgSearch) != q)
+        return
+
+    if (IsObject(results))
+    {
+        for idx, item in results
+            item.classCount := "-"
+    }
+    SSOK_EDU_OrgSearchMode := "global"
+    SSOK_EDU_OrgGlobalResults := results
+    SSOK_EDU_RefreshOrgSchoolList()
+}
+
+SSOK_EDU_FetchSchoolsByName(query)
+{
+    results := []
+    seen := {}
+    q := Trim(query)
+    if (q = "")
+        return results
+
+    pageSize := 1000
+    key := SSOK_EDU_GetApiKey()
+    params := Object("SCHUL_NM", q)
+    url := SSOK_EDU_BuildUrl("schoolInfo", params, pageSize, key, 1)
+    resp := SSOK_EDU_HttpGet(url)
+    if (!resp.ok)
+        return results
+
+    firstRows := SSOK_EDU_ParseSchools(resp.text)
+    if (!IsObject(firstRows) || firstRows.Length() < 1)
+        return results
+
+    for idx, item in firstRows
+    {
+        k := item.officeCode . "|" . item.schoolCode
+        if (!seen.HasKey(k))
+        {
+            seen[k] := 1
+            results.Push(item)
+        }
+    }
+
+    total := SSOK_EDU_ParseTotalCount(resp.text)
+    if (total <= firstRows.Length())
+        return results
+
+    perPage := firstRows.Length()
+    if (perPage < 1)
+        return results
+    pageCount := Ceil(total / perPage)
+    if (pageCount > 10)
+        pageCount := 10
+    Loop, % pageCount - 1
+    {
+        pageIndex := A_Index + 1
+        url := SSOK_EDU_BuildUrl("schoolInfo", params, pageSize, key, pageIndex)
+        resp2 := SSOK_EDU_HttpGet(url)
+        if (!resp2.ok)
+            break
+        pageRows := SSOK_EDU_ParseSchools(resp2.text)
+        if (!IsObject(pageRows) || pageRows.Length() < 1)
+            break
+        for idx, item in pageRows
+        {
+            k := item.officeCode . "|" . item.schoolCode
+            if (!seen.HasKey(k))
+            {
+                seen[k] := 1
+                results.Push(item)
+            }
+        }
+    }
+    return results
+}
+
 SSOK_EDU_ExportOrgSchoolsExcel()
 {
-    global SSOK_EDU_OrgVisibleSchools, SSOK_EDU_OrgOffice
+    global SSOK_EDU_OrgVisibleSchools, SSOK_EDU_OrgOffice, SSOK_EDU_OrgSearchMode, SSOK_EDU_OrgSearch
 
     if (!IsObject(SSOK_EDU_OrgVisibleSchools) || SSOK_EDU_OrgVisibleSchools.Length() < 1)
     {
@@ -8840,7 +9348,10 @@ SSOK_EDU_ExportOrgSchoolsExcel()
     }
 
     Gui, SSOKEDUOrg:Submit, NoHide
-    officeName := SSOK_EDU_GetOfficeNameByIndex(SSOK_EDU_OrgOffice)
+    if (SSOK_EDU_OrgSearchMode = "global")
+        officeName := "전국_학교검색_" . Trim(SSOK_EDU_OrgSearch)
+    else
+        officeName := SSOK_EDU_GetOfficeNameByIndex(SSOK_EDU_OrgOffice)
     safeOffice := RegExReplace(officeName, "[\/:*?""<>|]", "")
     defaultName := safeOffice . "_학교목록_" . A_YYYY . A_MM . A_DD . ".xlsx"
     defaultPath := A_Desktop . "\" . defaultName
@@ -8931,7 +9442,7 @@ SSOK_EDU_SelectOrgSchoolRow(row)
     ; 숨김 학교코드를 기준으로 원본 학교 객체를 찾습니다.
     Gui, SSOKEDUOrg:Default
     Gui, ListView, SSOK_EDU_OrgSchoolList
-    LV_GetText(schoolCode, row, 9)
+    LV_GetText(schoolCode, row, 10)
     school := ""
     if (schoolCode != "")
     {
@@ -9175,7 +9686,7 @@ SSOK_EDU_SetClassCountValue(schoolCode, value)
     rowCount := LV_GetCount()
     Loop, %rowCount%
     {
-        LV_GetText(code, A_Index, 9)
+        LV_GetText(code, A_Index, 10)
         if (code = schoolCode)
         {
             LV_Modify(A_Index, "Col3", value)
@@ -9186,12 +9697,16 @@ SSOK_EDU_SetClassCountValue(schoolCode, value)
 
 SSOK_EDU_UpdateClassCountStatus()
 {
-    global SSOK_EDU_OrgVisibleSchools, SSOK_EDU_OrgStatus
+    global SSOK_EDU_OrgVisibleSchools, SSOK_EDU_OrgStatus, SSOK_EDU_OrgSearchMode, SSOK_EDU_OrgViewMode
     global SSOK_EDU_ClassReqLoading, SSOK_EDU_ClassReqDone, SSOK_EDU_ClassReqTotal
 
+    if (SSOK_EDU_OrgViewMode = "office")
+        return
+
     visibleCount := IsObject(SSOK_EDU_OrgVisibleSchools) ? SSOK_EDU_OrgVisibleSchools.Length() : 0
-    status := "학교 " . visibleCount . "개"
-    if (SSOK_EDU_ClassReqLoading && SSOK_EDU_ClassReqTotal > 0)
+    isGlobal := (SSOK_EDU_OrgSearchMode = "global")
+    status := isGlobal ? ("전국검색 " . visibleCount . "개") : ("학교 " . visibleCount . "개")
+    if (!isGlobal && SSOK_EDU_ClassReqLoading && SSOK_EDU_ClassReqTotal > 0)
         status .= " · 학급수 " . SSOK_EDU_ClassReqDone . "/" . SSOK_EDU_ClassReqTotal
     GuiControl, SSOKEDUOrg:, SSOK_EDU_OrgStatus, %status%
 }

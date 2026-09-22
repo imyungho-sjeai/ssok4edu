@@ -1,4 +1,4 @@
-; SSOK_BUILD_CARD_COMPARE_SIMPLE_FILENAME_NO_POPUP_20260922
+; SSOK_BUILD_CARD_COMPARE_SIMPLE_FILENAME_NO_POPUP_20260921
 ; 간편 지출품의: 선택한 견적서 읽기 → 품명 첫 칸에서 Win+1 입력
 ; AutoHotkey v1 지출품의 모듈입니다. Win+1 / Win+2 / Win+3를 이 파일에서 직접 처리합니다.
 #If SSOK_Expense_HotkeyContext()
@@ -6866,96 +6866,1065 @@ SSOK_Expense_Tools_RunWin2()
 
 
 ; ============================================================================
-; 예산 DashBoard - 1차 입력 화면
-; - 회계 장표를 Excel/K-에듀파인에서 복사한 뒤 그대로 붙여넣는 단계
-; - 분석/Sorting/추출 기능은 이 원본 데이터를 기준으로 다음 단계에서 연결
+; 예산 DashBoard
+; - 근거자료: 학교회계-사업관리-사업관리카드-사업관리카드현액
+; - 셀병합해제 후 다운로드한 Excel 파일을 탐색기에서 바로 끌어 놓아 분석
+; - 세부사업 / 세부항목 / 원가통계비목 / 산출내역 / 세부항목담당자별 집계·정렬
+; - 현액·품의액·원인행위액·집행률·집행잔액 표시
+; - 정산재원 / 일반재원 별도 관리 및 관리용 집행률 표시
+; - 소계/합계/총계 행은 중복 집계에서 제외하고 실제 산출내역 행만 합산
+; - 원본 총계 검증, 집행잔액, 초과집행 필터, 0원 제외, 검색, 정렬, 표 복사 지원
 ; ============================================================================
+
+SSOKBudgetDashboardGuiDropFiles:
+    SSOK_Expense_BudgetDashboard_HandleDrop(A_GuiEvent, A_GuiControl)
+return
 
 SSOKBudgetDashboardGuiClose:
 SSOKBudgetDashboardGuiEscape:
     Gui, SSOKBudgetDashboard:Destroy
 return
 
-SSOK_Expense_BudgetDashboard_Paste:
-    if (Clipboard = "")
-    {
-        MsgBox, 48, 예산 DashBoard, 클립보드에 붙여넣을 장표가 없습니다.
-        return
-    }
-    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardRaw, %Clipboard%
-    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, 회계 장표를 붙여넣었습니다. OK를 눌러 입력을 확인해 주세요.
-return
-
 SSOK_Expense_BudgetDashboard_Clear:
-    SSOK_BudgetDashboardData := ""
-    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardRaw,
-    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus,
+    SSOK_BudgetDashboardParsed := ""
+    SSOK_BudgetDashboardFilePath := ""
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardFileDrop, 사업관리카드(현액) Excel 파일을 여기에 놓아주세요
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, 탐색기에서 셀병합해제한 Excel 파일을 위 영역으로 끌어 놓아주세요.
 return
 
-SSOK_Expense_BudgetDashboard_OK:
-    Gui, SSOKBudgetDashboard:Submit, NoHide
-    raw := SSOK_BudgetDashboardRaw
-    raw := StrReplace(raw, "`r`n", "`n")
-    raw := StrReplace(raw, "`r", "`n")
-    raw := Trim(raw, " `t`n")
+SSOK_Expense_BudgetDashboard_BackToInput:
+    SSOK_Expense_BudgetDashboard_Show()
+return
 
-    if (raw = "")
-    {
-        MsgBox, 48, 예산 DashBoard, 회계 장표를 붙여넣어 주세요.
-        return
-    }
+SSOK_Expense_BudgetDashboard_Refresh:
+    SSOK_Expense_BudgetDashboard_RefreshList()
+return
 
-    rowCount := 0
-    maxCols := 0
-    Loop, Parse, raw, `n
-    {
-        line := RTrim(A_LoopField, " `t")
-        if (Trim(line, " `t") = "")
-            continue
-
-        rowCount++
-        cols := StrSplit(line, "`t").Length()
-        if (cols > maxCols)
-            maxCols := cols
-    }
-
-    SSOK_BudgetDashboardData := raw
-    status := "입력 완료: " . rowCount . "행"
-    if (maxCols > 0)
-        status .= " / 최대 " . maxCols . "열"
-    status .= "  ·  분석/Sorting/추출용 원본 장표를 보관했습니다."
-    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, %status%
+SSOK_Expense_BudgetDashboard_CopyView:
+    SSOK_Expense_BudgetDashboard_CopyCurrentView()
 return
 
 SSOK_Expense_BudgetDashboard_Show()
 {
-    global SSOK_BudgetDashboardRaw, SSOK_BudgetDashboardData, SSOK_BudgetDashboardStatus
-    global SSOK_BudgetDashboardHwnd
+    global SSOK_BudgetDashboardHwnd, SSOK_BudgetDashboardFilePath
+    global SSOK_BudgetDashboardFileDrop, SSOK_BudgetDashboardStatus
 
     Gui, SSOKBudgetDashboard:Destroy
-    Gui, SSOKBudgetDashboard:New, +AlwaysOnTop +ToolWindow +HwndSSOK_BudgetDashboardHwnd, 예산 DashBoard
-    Gui, SSOKBudgetDashboard:Margin, 18, 16
+    Gui, SSOKBudgetDashboard:New, +AlwaysOnTop +ToolWindow +HwndSSOK_BudgetDashboardHwnd, 업무용도구 - 예산 DashBoard
+    Gui, SSOKBudgetDashboard:Margin, 20, 18
     Gui, SSOKBudgetDashboard:Color, F7FBFF
 
     Gui, SSOKBudgetDashboard:Font, s13 Bold, Malgun Gothic
-    Gui, SSOKBudgetDashboard:Add, Text, x18 y14 w864 h30 c005BAC, 예산 DashBoard
-
-    Gui, SSOKBudgetDashboard:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKBudgetDashboard:Add, Text, x18 y48 w864 h38 c555555, 에듀파인/Excel의 회계 장표 영역을 복사한 뒤 아래 입력창에 Ctrl+V로 붙여넣거나 [회계 장표 붙여넣기]를 눌러 주세요.`n붙여넣은 원본은 이후 예산 분석 · Sorting · 조건별 추출 기능의 기준 데이터로 사용합니다.
+    Gui, SSOKBudgetDashboard:Add, Text, x20 y16 w820 h30 c005BAC, 업무용도구 - 예산 DashBoard
 
     Gui, SSOKBudgetDashboard:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKBudgetDashboard:Add, Button, x18 y94 w210 h36 gSSOK_Expense_BudgetDashboard_Paste, 회계 장표 붙여넣기
+    fileDisplay := FileExist(SSOK_BudgetDashboardFilePath) ? SSOK_BudgetDashboardFilePath : "사업관리카드(현액) Excel 파일을 여기에 놓아주세요"
+    Gui, SSOKBudgetDashboard:Add, Text, x20 y58 w820 h116 +Border Center 0x200 vSSOK_BudgetDashboardFileDrop c555555, %fileDisplay%
 
     Gui, SSOKBudgetDashboard:Font, s9 Norm, Malgun Gothic
-    initialText := (SSOK_BudgetDashboardData != "") ? SSOK_BudgetDashboardData : ""
-    Gui, SSOKBudgetDashboard:Add, Edit, x18 y140 w864 h380 vSSOK_BudgetDashboardRaw WantTab HScroll -Wrap, %initialText%
+    Gui, SSOKBudgetDashboard:Add, Text, x20 y194 w820 h24 c555555, 자료출처: 학교회계-사업관리-사업관리카드-사업관리카드현액
+    Gui, SSOKBudgetDashboard:Add, Text, x20 y220 w820 h24 c555555, * 셀병합해제한 엑셀 파일을 다운로드 합니다.
+    Gui, SSOKBudgetDashboard:Add, Text, x20 y246 w820 h1 Hidden vSSOK_BudgetDashboardStatus,
 
-    Gui, SSOKBudgetDashboard:Add, Text, x18 y532 w864 h28 +0x200 vSSOK_BudgetDashboardStatus c005BAC,
+    Gui, SSOKBudgetDashboard:Add, Button, x20 y258 w150 h38 gSSOK_Expense_BudgetDashboard_Clear, 초기화
 
-    Gui, SSOKBudgetDashboard:Add, Button, x18 y570 w120 h38 gSSOK_Expense_BudgetDashboard_Clear, 초기화
-    Gui, SSOKBudgetDashboard:Add, Button, x148 yp w120 h38 gSSOK_Expense_BudgetDashboard_OK Default, OK
+    Gui, SSOKBudgetDashboard:Show, w860 h318 Center, 업무용도구 - 예산 DashBoard
+}
 
-    Gui, SSOKBudgetDashboard:Show, w900 h628 Center, 예산 DashBoard
+SSOK_Expense_BudgetDashboard_HandleDrop(dropText, targetControl := "")
+{
+    global SSOK_BudgetDashboardFilePath
+
+    files := SSOK_Expense_BudgetDashboard_DropExcelFiles(dropText)
+    if (!IsObject(files) || !files.Length())
+    {
+        MsgBox, 48, 예산 DashBoard, Excel 파일(.xlsx/.xlsm/.xls)만 끌어 놓을 수 있습니다.
+        return
+    }
+
+    SSOK_BudgetDashboardFilePath := files[1]
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardFileDrop, % SSOK_BudgetDashboardFilePath
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, 파일을 읽고 분석하고 있습니다...
+
+    SSOK_Expense_BudgetDashboard_LoadFile(SSOK_BudgetDashboardFilePath)
+}
+
+SSOK_Expense_BudgetDashboard_DropExcelFiles(dropText)
+{
+    files := []
+    normalized := StrReplace(dropText . "", "`r`n", "`n")
+    normalized := StrReplace(normalized, "`r", "`n")
+
+    for _, raw in StrSplit(normalized, "`n")
+    {
+        path := Trim(raw, " `t" . Chr(34))
+        if (path = "")
+            continue
+        if !RegExMatch(path, "i)\.(xlsx|xlsm|xls)$")
+            continue
+        if FileExist(path)
+            files.Push(path)
+    }
+
+    return files
+}
+
+SSOK_Expense_BudgetDashboard_LoadFile(filePath)
+{
+    global SSOK_BudgetDashboardParsed, SSOK_BudgetDashboardFilePath
+
+    if (filePath = "" || !FileExist(filePath))
+    {
+        MsgBox, 48, 예산 DashBoard, 사업관리카드(현액) Excel 파일을 찾을 수 없습니다.
+        return false
+    }
+
+    if !RegExMatch(filePath, "i)\.(xlsx|xlsm|xls)$")
+    {
+        MsgBox, 48, 예산 DashBoard, Excel 파일(.xlsx/.xlsm/.xls)만 사용할 수 있습니다.
+        return false
+    }
+
+    parsed := ""
+    errMsg := ""
+    if !SSOK_Expense_BudgetDashboard_ReadExcel(filePath, parsed, errMsg)
+    {
+        GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardStatus, 분석 실패
+        if (errMsg = "")
+            errMsg := "사업관리카드(현액) 파일을 분석하지 못했습니다."
+        MsgBox, 48, 예산 DashBoard, %errMsg%
+        return false
+    }
+
+    SSOK_BudgetDashboardFilePath := filePath
+    SSOK_BudgetDashboardParsed := parsed
+    SSOK_Expense_BudgetDashboard_ShowDashboard()
+    return true
+}
+
+SSOK_Expense_BudgetDashboard_ReadExcel(filePath, ByRef parsed, ByRef errMsg)
+{
+    parsed := ""
+    errMsg := ""
+    xl := ""
+    book := ""
+    selectedSheet := ""
+    stage := "Excel 실행"
+    success := false
+
+    try
+    {
+        xl := ComObjCreate("Excel.Application")
+        xl.Visible := false
+        xl.DisplayAlerts := false
+        try xl.EnableEvents := false
+        try xl.AskToUpdateLinks := false
+        try xl.ScreenUpdating := false
+        try xl.AutomationSecurity := 3
+
+        stage := "파일 열기"
+        book := xl.Workbooks.Open(filePath, 0, true)
+
+        stage := "사업관리카드 머리글 찾기"
+        sheetCount := book.Worksheets.Count
+        Loop, %sheetCount%
+        {
+            ws := book.Worksheets.Item(A_Index)
+            if SSOK_Expense_BudgetDashboard_FindHeader(ws
+                , headerRow, lastRow
+                , colBusiness, colSubItem, colCost, colCalc
+                , colCurrent, colDraft, colCommit
+                , colSettle, colGeneral, colManager)
+            {
+                selectedSheet := ws
+                break
+            }
+        }
+
+        if !IsObject(selectedSheet)
+        {
+            errMsg := "사업관리카드(현액) 표 머리글을 찾지 못했습니다.`n`n"
+                . "근거자료: 학교회계-사업관리-사업관리카드-사업관리카드현액`n"
+                . "* 셀병합해제 후 다운로드한 파일인지 확인해 주세요."
+        }
+        else
+        {
+            stage := "예산 자료 집계"
+            if SSOK_Expense_BudgetDashboard_ReadSheet(selectedSheet
+                , headerRow, lastRow
+                , colBusiness, colSubItem, colCost, colCalc
+                , colCurrent, colDraft, colCommit
+                , colSettle, colGeneral, colManager
+                , parsed, readErr)
+            {
+                success := true
+            }
+            else
+            {
+                errMsg := readErr
+            }
+        }
+    }
+    catch e
+    {
+        errMsg := "예산 Dashboard 분석 중 오류가 발생했습니다.`n`n단계: " . stage . "`n" . e.Message
+    }
+
+    if IsObject(book)
+        try book.Close(false)
+    if IsObject(xl)
+        try xl.Quit()
+
+    return success
+}
+
+SSOK_Expense_BudgetDashboard_FindHeader(ws, ByRef headerRow, ByRef lastRow, ByRef colBusiness, ByRef colSubItem, ByRef colCost, ByRef colCalc, ByRef colCurrent, ByRef colDraft, ByRef colCommit, ByRef colSettle, ByRef colGeneral, ByRef colManager)
+{
+    headerRow := 0
+    lastRow := 0
+    colBusiness := 0
+    colSubItem := 0
+    colCost := 0
+    colCalc := 0
+    colCurrent := 0
+    colDraft := 0
+    colCommit := 0
+    colSettle := 0
+    colGeneral := 0
+    colManager := 0
+
+    try used := ws.UsedRange
+    catch
+        return false
+
+    if !IsObject(used)
+        return false
+
+    try startRow := used.Row
+    catch
+        startRow := 1
+    try startCol := used.Column
+    catch
+        startCol := 1
+    try rowCount := used.Rows.Count
+    catch
+        return false
+    try colCount := used.Columns.Count
+    catch
+        return false
+
+    if (rowCount < 1 || colCount < 1)
+        return false
+
+    lastRow := startRow + rowCount - 1
+    lastCol := startCol + colCount - 1
+    scanLastRow := startRow + 29
+    if (scanLastRow > lastRow)
+        scanLastRow := lastRow
+    scanLastCol := startCol + 49
+    if (scanLastCol > lastCol)
+        scanLastCol := lastCol
+
+    rowTotal := scanLastRow - startRow + 1
+    Loop, %rowTotal%
+    {
+        r := startRow + A_Index - 1
+        tmpBusiness := 0
+        tmpSubItem := 0
+        tmpCost := 0
+        tmpCalc := 0
+        tmpCurrent := 0
+        tmpDraft := 0
+        tmpCommit := 0
+        tmpSettle := 0
+        tmpGeneral := 0
+        tmpManager := 0
+
+        colTotal := scanLastCol - startCol + 1
+        Loop, %colTotal%
+        {
+            c := startCol + A_Index - 1
+            cellText := SSOK_Expense_BudgetDashboard_GetCellText(ws, r, c)
+            key := SSOK_Expense_BudgetDashboard_HeaderKey(cellText)
+
+            if (key = "세부사업")
+                tmpBusiness := c
+            else if (key = "세부항목")
+                tmpSubItem := c
+            else if (key = "원가통계비목")
+                tmpCost := c
+            else if (key = "산출내역")
+                tmpCalc := c
+            else if InStr(key, "예산현액")
+                tmpCurrent := c
+            else if InStr(key, "지출품의액")
+                tmpDraft := c
+            else if InStr(key, "원인행위액")
+                tmpCommit := c
+            else if (key = "정산재원")
+                tmpSettle := c
+            else if (key = "일반재원")
+                tmpGeneral := c
+            else if InStr(key, "세부항목담당자")
+                tmpManager := c
+        }
+
+        if (tmpBusiness && tmpCost && tmpCalc && tmpCurrent && tmpDraft && tmpCommit)
+        {
+            headerRow := r
+            colBusiness := tmpBusiness
+            colSubItem := tmpSubItem
+            colCost := tmpCost
+            colCalc := tmpCalc
+            colCurrent := tmpCurrent
+            colDraft := tmpDraft
+            colCommit := tmpCommit
+            colSettle := tmpSettle
+            colGeneral := tmpGeneral
+            colManager := tmpManager
+            return true
+        }
+    }
+
+    return false
+}
+
+SSOK_Expense_BudgetDashboard_ReadSheet(ws, headerRow, lastRow, colBusiness, colSubItem, colCost, colCalc, colCurrent, colDraft, colCommit, colSettle, colGeneral, colManager, ByRef parsed, ByRef errMsg)
+{
+    errMsg := ""
+    rows := []
+    fundGroups := {}
+    totalCurrent := 0
+    totalDraft := 0
+    totalCommit := 0
+    overCount := 0
+
+    sourceTotalFound := false
+    sourceCurrent := 0
+    sourceDraft := 0
+    sourceCommit := 0
+
+    lastBusiness := ""
+    lastSubItem := ""
+    lastCost := ""
+    lastManager := ""
+
+    dataCount := lastRow - headerRow
+    if (dataCount < 1)
+    {
+        errMsg := "사업관리카드에 집계할 자료가 없습니다."
+        return false
+    }
+
+    Loop, %dataCount%
+    {
+        r := headerRow + A_Index
+
+        rawBusiness := SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colBusiness)
+        rawSubItem := colSubItem ? SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colSubItem) : ""
+        rawCost := SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colCost)
+        rawCalc := SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colCalc)
+        rawManager := colManager ? SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colManager) : ""
+
+        marker := SSOK_Expense_BudgetDashboard_HeaderKey(rawBusiness . rawSubItem . rawCost . rawCalc)
+
+        if InStr(marker, "총계")
+        {
+            sourceTotalFound := true
+            sourceCurrent := SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colCurrent))
+            sourceDraft := SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colDraft))
+            sourceCommit := SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colCommit))
+        }
+
+        ; 소계/합계/총계는 실제 산출내역을 다시 합친 행이므로 중복 집계에서 제외합니다.
+        if (InStr(marker, "소계") || InStr(marker, "합계") || InStr(marker, "총계"))
+            continue
+
+        if (rawBusiness != "")
+            lastBusiness := rawBusiness
+        if (rawSubItem != "")
+            lastSubItem := rawSubItem
+        if (rawCost != "")
+            lastCost := rawCost
+        if (rawManager != "")
+            lastManager := rawManager
+
+        business := (rawBusiness != "") ? rawBusiness : lastBusiness
+        subItem := (rawSubItem != "") ? rawSubItem : lastSubItem
+        cost := (rawCost != "") ? rawCost : lastCost
+        calc := rawCalc
+        manager := (rawManager != "") ? rawManager : lastManager
+
+        ; 실제 산출내역 행만 대시보드 원자료로 사용합니다.
+        if (calc = "" || cost = "")
+            continue
+
+        if (SSOK_Expense_BudgetDashboard_HeaderKey(business) = "세부사업"
+            || SSOK_Expense_BudgetDashboard_HeaderKey(calc) = "산출내역")
+            continue
+
+        current := SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colCurrent))
+        draft := SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colDraft))
+        commit := SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colCommit))
+        settleRaw := colSettle ? SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colSettle)) : 0
+        generalRaw := colGeneral ? SSOK_Expense_BudgetDashboard_ParseNumber(SSOK_Expense_BudgetDashboard_GetCellText(ws, r, colGeneral)) : 0
+        rate := (current != 0) ? (commit / current * 100) : ((commit > 0) ? 1000000000 : 0)
+
+        fundKey := business . Chr(30) . subItem
+        if (subItem = "")
+            fundKey := business . Chr(30) . calc
+
+        rows.Push({business:business
+            , subItem:subItem
+            , cost:cost
+            , calc:calc
+            , manager:manager
+            , current:current
+            , draft:draft
+            , commit:commit
+            , rate:rate
+            , fundKey:fundKey
+            , settle:0
+            , general:0
+            , settleCommit:0
+            , generalCommit:0})
+
+        if !IsObject(fundGroups[fundKey])
+            fundGroups[fundKey] := {current:0, commit:0, settle:settleRaw, general:generalRaw, rowCount:0}
+
+        fg := fundGroups[fundKey]
+        fg.current += current
+        fg.commit += commit
+        fg.rowCount++
+        ; 사업관리카드의 정산재원/일반재원은 같은 세부항목에서 반복되므로 한 값만 보관합니다.
+        if (settleRaw != 0 || generalRaw != 0 || (fg.settle = 0 && fg.general = 0))
+        {
+            fg.settle := settleRaw
+            fg.general := generalRaw
+        }
+
+        totalCurrent += current
+        totalDraft += draft
+        totalCommit += commit
+        if (commit > current)
+            overCount++
+    }
+
+    if (!rows.Length())
+    {
+        errMsg := "실제 산출내역 행을 찾지 못했습니다.`n`n셀병합해제 후 다운로드한 사업관리카드(현액) 파일인지 확인해 주세요."
+        return false
+    }
+
+    totalSettle := 0
+    totalGeneral := 0
+    totalSettleCommit := 0
+    totalGeneralCommit := 0
+
+    ; 원본에는 실제 지출이 어느 재원에서 빠졌는지 별도 표시가 없습니다.
+    ; 관리용으로 정산재원을 먼저 집행한 것으로 가정하고 재원별 집행액을 계산합니다.
+    for _, fg in fundGroups
+    {
+        totalSettle += fg.settle
+        totalGeneral += fg.general
+
+        settleCommit := fg.commit
+        if (settleCommit < 0)
+            settleCommit := 0
+        if (settleCommit > fg.settle)
+            settleCommit := fg.settle
+
+        remainingCommit := fg.commit - settleCommit
+        if (remainingCommit < 0)
+            remainingCommit := 0
+        generalCommit := remainingCommit
+        if (generalCommit > fg.general)
+            generalCommit := fg.general
+
+        fg.settleCommit := settleCommit
+        fg.generalCommit := generalCommit
+        totalSettleCommit += settleCommit
+        totalGeneralCommit += generalCommit
+    }
+
+    ; 세부항목 단위 재원 금액을 산출내역 현액 비율로 배분하여 어떤 보기에서도 중복 없이 합산되게 합니다.
+    for _, row in rows
+    {
+        fg := fundGroups[row.fundKey]
+        if !IsObject(fg)
+            continue
+
+        if (fg.current != 0)
+            currentShare := row.current / fg.current
+        else if (fg.rowCount > 0)
+            currentShare := 1 / fg.rowCount
+        else
+            currentShare := 0
+
+        if (fg.commit != 0)
+            commitShare := row.commit / fg.commit
+        else
+            commitShare := currentShare
+
+        row.settle := fg.settle * currentShare
+        row.general := fg.general * currentShare
+        row.settleCommit := fg.settleCommit * commitShare
+        row.generalCommit := fg.generalCommit * commitShare
+    }
+
+    rate := (totalCurrent != 0) ? (totalCommit / totalCurrent * 100) : 0
+    balance := totalCurrent - totalCommit
+    resourceTotal := totalSettle + totalGeneral
+
+    if (sourceTotalFound)
+    {
+        if (Abs(totalCurrent - sourceCurrent) < 0.5
+            && Abs(totalDraft - sourceDraft) < 0.5
+            && Abs(totalCommit - sourceCommit) < 0.5)
+            verifyText := "원본 총계 일치"
+        else
+            verifyText := "원본 총계 불일치"
+    }
+    else
+    {
+        verifyText := "원본 총계 행 없음"
+    }
+
+    if (colSettle && colGeneral)
+    {
+        if (Abs(resourceTotal - totalCurrent) < 0.5)
+            resourceVerifyText := "재원합계 일치"
+        else
+            resourceVerifyText := "재원합계 확인 필요"
+    }
+    else
+    {
+        resourceVerifyText := "재원열 없음"
+    }
+
+    parsed := {rows:rows
+        , rowCount:rows.Length()
+        , current:totalCurrent
+        , draft:totalDraft
+        , commit:totalCommit
+        , rate:rate
+        , balance:balance
+        , overCount:overCount
+        , settle:totalSettle
+        , general:totalGeneral
+        , settleCommit:totalSettleCommit
+        , generalCommit:totalGeneralCommit
+        , sourceTotalFound:sourceTotalFound
+        , sourceCurrent:sourceCurrent
+        , sourceDraft:sourceDraft
+        , sourceCommit:sourceCommit
+        , verifyText:verifyText
+        , resourceVerifyText:resourceVerifyText}
+
+    return true
+}
+
+SSOK_Expense_BudgetDashboard_GetCellText(ws, r, c)
+{
+    if (!c)
+        return ""
+
+    value := ""
+    try value := ws.Cells.Item(r, c).Value2
+    catch
+        return ""
+
+    if IsObject(value)
+        return ""
+
+    value := value . ""
+    value := StrReplace(value, "`r", " ")
+    value := StrReplace(value, "`n", " ")
+    value := StrReplace(value, "`t", " ")
+    return Trim(value)
+}
+
+SSOK_Expense_BudgetDashboard_HeaderKey(text)
+{
+    s := text . ""
+    s := StrReplace(s, Chr(160), "")
+    s := StrReplace(s, "　", "")
+    s := Trim(s)
+    s := RegExReplace(s, "[\s\[\]\(\)（）{}<>._:/\\\-]+")
+    return s
+}
+
+SSOK_Expense_BudgetDashboard_ParseNumber(value)
+{
+    s := Trim(value . "")
+    if (s = "" || s = "-")
+        return 0
+
+    negative := false
+    if (SubStr(s, 1, 1) = "(" && SubStr(s, 0) = ")")
+    {
+        negative := true
+        s := SubStr(s, 2, StrLen(s) - 2)
+    }
+
+    s := StrReplace(s, ",", "")
+    s := StrReplace(s, "%", "")
+    s := StrReplace(s, "원", "")
+    s := RegExReplace(s, "[^0-9.\-]")
+
+    if (s = "" || s = "-" || s = ".")
+        return 0
+
+    n := s + 0
+    if (negative && n > 0)
+        n := -n
+    return n
+}
+
+SSOK_Expense_BudgetDashboard_ShowDashboard()
+{
+    global SSOK_BudgetDashboardParsed, SSOK_BudgetDashboardHwnd, SSOK_BudgetDashboardFilePath
+    global SSOK_BudgetDashboardViewChoice, SSOK_BudgetDashboardSearch
+    global SSOK_BudgetDashboardSortChoice, SSOK_BudgetDashboardResourceChoice
+    global SSOK_BudgetDashboardHideZero, SSOK_BudgetDashboardOverOnly
+    global SSOK_BudgetDashboardListStatus
+
+    if !IsObject(SSOK_BudgetDashboardParsed)
+    {
+        SSOK_Expense_BudgetDashboard_Show()
+        return
+    }
+
+    p := SSOK_BudgetDashboardParsed
+    SSOK_BudgetDashboardViewChoice := "세부사업별"
+    SSOK_BudgetDashboardSearch := ""
+    SSOK_BudgetDashboardSortChoice := "현액 큰순"
+    SSOK_BudgetDashboardResourceChoice := "전체"
+    SSOK_BudgetDashboardHideZero := 0
+    SSOK_BudgetDashboardOverOnly := 0
+
+    SplitPath, SSOK_BudgetDashboardFilePath, sourceName
+
+    Gui, SSOKBudgetDashboard:Destroy
+    Gui, SSOKBudgetDashboard:New, +AlwaysOnTop +ToolWindow +HwndSSOK_BudgetDashboardHwnd, 예산 DashBoard
+    Gui, SSOKBudgetDashboard:Margin, 18, 14
+    Gui, SSOKBudgetDashboard:Color, F7FBFF
+
+    Gui, SSOKBudgetDashboard:Font, s13 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y12 w500 h28 c005BAC, 예산 DashBoard
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x560 y14 w920 h20 Right c555555, % "산출내역 " . p.rowCount . "행  |  초과집행 " . p.overCount . "건  |  " . p.verifyText . "  |  " . p.resourceVerifyText
+    Gui, SSOKBudgetDashboard:Add, Text, x560 y34 w920 h18 Right c777777, %sourceName%
+
+    SSOK_Expense_BudgetDashboard_AddKpi(18, 58, 280, "예산현액", SSOK_Expense_FormatNumber(p.current) . "원", "005BAC")
+    SSOK_Expense_BudgetDashboard_AddKpi(310, 58, 280, "지출품의액", SSOK_Expense_FormatNumber(p.draft) . "원", "3A6EA5")
+    SSOK_Expense_BudgetDashboard_AddKpi(602, 58, 280, "원인행위액", SSOK_Expense_FormatNumber(p.commit) . "원", "6A5ACD")
+    SSOK_Expense_BudgetDashboard_AddKpi(894, 58, 280, "집행률(B/A)", SSOK_Expense_BudgetDashboard_FormatRate(p.current, p.commit), "00856A")
+    balanceColor := (p.balance < 0) ? "C62828" : "555555"
+    SSOK_Expense_BudgetDashboard_AddKpi(1186, 58, 294, "집행잔액(A-B)", SSOK_Expense_FormatNumber(p.balance) . "원", balanceColor)
+
+    settleText := "현액 " . SSOK_Expense_FormatNumber(p.settle) . "원   |   관리집행 " . SSOK_Expense_FormatNumber(p.settleCommit) . "원   |   " . SSOK_Expense_BudgetDashboard_FormatRate(p.settle, p.settleCommit)
+    generalText := "현액 " . SSOK_Expense_FormatNumber(p.general) . "원   |   관리집행 " . SSOK_Expense_FormatNumber(p.generalCommit) . "원   |   " . SSOK_Expense_BudgetDashboard_FormatRate(p.general, p.generalCommit)
+    SSOK_Expense_BudgetDashboard_AddResourceKpi(18, 136, 718, "정산재원", settleText, "7A4E00")
+    SSOK_Expense_BudgetDashboard_AddResourceKpi(748, 136, 732, "일반재원", generalText, "3F6B4F")
+
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y199 w1462 h18 c777777, ※ 재원별 집행액/집행률은 원본에 실제 사용재원 구분이 없어 '정산재원 우선 집행' 기준으로 계산한 관리용 값입니다.
+
+    progressValue := Round(p.rate)
+    if (progressValue < 0)
+        progressValue := 0
+    if (progressValue > 100)
+        progressValue := 100
+    Gui, SSOKBudgetDashboard:Add, Progress, x18 y221 w1462 h12 Range0-100, %progressValue%
+
+    Gui, SSOKBudgetDashboard:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y247 w36 h24 +0x200, 보기
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, DropDownList, x54 y245 w180 vSSOK_BudgetDashboardViewChoice gSSOK_Expense_BudgetDashboard_Refresh, 세부사업별||세부항목별|원가통계비목별|산출내역별|세부항목담당자별
+
+    Gui, SSOKBudgetDashboard:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x246 y247 w36 h24 +0x200, 검색
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Edit, x282 y245 w250 h24 vSSOK_BudgetDashboardSearch gSSOK_Expense_BudgetDashboard_Refresh
+
+    Gui, SSOKBudgetDashboard:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x544 y247 w36 h24 +0x200, 정렬
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, DropDownList, x580 y245 w190 vSSOK_BudgetDashboardSortChoice gSSOK_Expense_BudgetDashboard_Refresh, 현액 큰순||품의액 큰순|원인행위 큰순|집행률 높은순|집행률 낮은순|정산재원 큰순|정산 집행률 높은순|일반재원 큰순|일반 집행률 높은순|이름순
+
+    Gui, SSOKBudgetDashboard:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x782 y247 w36 h24 +0x200, 재원
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, DropDownList, x818 y245 w105 vSSOK_BudgetDashboardResourceChoice gSSOK_Expense_BudgetDashboard_Refresh, 전체||정산재원|일반재원
+
+    Gui, SSOKBudgetDashboard:Add, CheckBox, x936 y247 w100 h24 vSSOK_BudgetDashboardHideZero gSSOK_Expense_BudgetDashboard_Refresh, 0원 행 제외
+    Gui, SSOKBudgetDashboard:Add, CheckBox, x1040 y247 w105 h24 vSSOK_BudgetDashboardOverOnly gSSOK_Expense_BudgetDashboard_Refresh, 초과집행만
+    Gui, SSOKBudgetDashboard:Add, Button, x1160 y242 w86 h30 gSSOK_Expense_BudgetDashboard_CopyView, 표 복사
+    Gui, SSOKBudgetDashboard:Add, Button, x1252 y242 w96 h30 gSSOK_Expense_BudgetDashboard_BackToInput, 다른 파일
+    Gui, SSOKBudgetDashboard:Add, Button, x1354 y242 w126 h30 gSSOKBudgetDashboardGuiClose, 닫기
+
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, ListView, x18 y282 w1462 h452 Grid -Multi, 구분|상세|현액|품의액|원인행위액|집행률|집행잔액|정산재원|정산 집행률|일반재원|일반 집행률
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y741 w1462 h24 +0x200 vSSOK_BudgetDashboardListStatus c555555,
+    Gui, SSOKBudgetDashboard:Add, Text, x18 y770 w1462 h20 c777777, 다른 사업관리카드 파일도 이 창에 바로 끌어 놓으면 즉시 다시 분석합니다.
+
+    Gui, SSOKBudgetDashboard:Show, w1498 h805 Center, 예산 DashBoard
+    SSOK_Expense_BudgetDashboard_RefreshList()
+}
+
+SSOK_Expense_BudgetDashboard_AddKpi(x, y, w, title, value, valueColor)
+{
+    Gui, SSOKBudgetDashboard:Font, s8 Norm, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, GroupBox, x%x% y%y% w%w% h68, %title%
+    valueX := x + 10
+    valueY := y + 27
+    valueW := w - 20
+    Gui, SSOKBudgetDashboard:Font, s11 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x%valueX% y%valueY% w%valueW% h26 Center c%valueColor%, %value%
+}
+
+SSOK_Expense_BudgetDashboard_AddResourceKpi(x, y, w, title, value, valueColor)
+{
+    Gui, SSOKBudgetDashboard:Font, s8 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, GroupBox, x%x% y%y% w%w% h56, %title%
+    valueX := x + 12
+    valueY := y + 23
+    valueW := w - 24
+    Gui, SSOKBudgetDashboard:Font, s10 Bold, Malgun Gothic
+    Gui, SSOKBudgetDashboard:Add, Text, x%valueX% y%valueY% w%valueW% h24 Center c%valueColor%, %value%
+}
+
+SSOK_Expense_BudgetDashboard_RefreshList()
+{
+    global SSOK_BudgetDashboardParsed
+    global SSOK_BudgetDashboardViewChoice, SSOK_BudgetDashboardSearch
+    global SSOK_BudgetDashboardSortChoice, SSOK_BudgetDashboardResourceChoice
+    global SSOK_BudgetDashboardHideZero, SSOK_BudgetDashboardOverOnly
+    global SSOK_BudgetDashboardListStatus
+
+    if !IsObject(SSOK_BudgetDashboardParsed)
+        return
+
+    Gui, SSOKBudgetDashboard:Submit, NoHide
+    viewMode := SSOK_BudgetDashboardViewChoice
+    searchText := Trim(SSOK_BudgetDashboardSearch)
+    sortMode := SSOK_BudgetDashboardSortChoice
+    resourceMode := SSOK_BudgetDashboardResourceChoice
+    hideZero := SSOK_BudgetDashboardHideZero
+    overOnly := SSOK_BudgetDashboardOverOnly
+
+    entries := SSOK_Expense_BudgetDashboard_BuildEntries(viewMode)
+    SSOK_Expense_BudgetDashboard_SortEntries(entries, sortMode)
+
+    Gui, SSOKBudgetDashboard:Default
+    LV_Delete()
+
+    shown := 0
+    shownCurrent := 0
+    shownDraft := 0
+    shownCommit := 0
+    shownSettle := 0
+    shownGeneral := 0
+    shownSettleCommit := 0
+    shownGeneralCommit := 0
+    shownOver := 0
+
+    for _, entry in entries
+    {
+        if (searchText != "")
+        {
+            searchPool := entry.label . " " . entry.detail
+            if !InStr(searchPool, searchText)
+                continue
+        }
+
+        if (resourceMode = "정산재원" && entry.settle <= 0)
+            continue
+        if (resourceMode = "일반재원" && entry.general <= 0)
+            continue
+
+        if (hideZero && entry.current = 0 && entry.draft = 0 && entry.commit = 0)
+            continue
+
+        if (overOnly && !(entry.commit > entry.current))
+            continue
+
+        LV_Add("", entry.label
+            , entry.detail
+            , SSOK_Expense_FormatNumber(entry.current)
+            , SSOK_Expense_FormatNumber(entry.draft)
+            , SSOK_Expense_FormatNumber(entry.commit)
+            , SSOK_Expense_BudgetDashboard_FormatRate(entry.current, entry.commit)
+            , SSOK_Expense_FormatNumber(entry.current - entry.commit)
+            , SSOK_Expense_FormatNumber(entry.settle)
+            , SSOK_Expense_BudgetDashboard_FormatRate(entry.settle, entry.settleCommit)
+            , SSOK_Expense_FormatNumber(entry.general)
+            , SSOK_Expense_BudgetDashboard_FormatRate(entry.general, entry.generalCommit))
+
+        shown++
+        shownCurrent += entry.current
+        shownDraft += entry.draft
+        shownCommit += entry.commit
+        shownSettle += entry.settle
+        shownGeneral += entry.general
+        shownSettleCommit += entry.settleCommit
+        shownGeneralCommit += entry.generalCommit
+        if (entry.commit > entry.current)
+            shownOver++
+    }
+
+    LV_ModifyCol(1, 175)
+    LV_ModifyCol(2, 285)
+    LV_ModifyCol(3, 105)
+    LV_ModifyCol(4, 105)
+    LV_ModifyCol(5, 110)
+    LV_ModifyCol(6, 75)
+    LV_ModifyCol(7, 105)
+    LV_ModifyCol(8, 105)
+    LV_ModifyCol(9, 85)
+    LV_ModifyCol(10, 105)
+    LV_ModifyCol(11, 85)
+    Loop, 9
+    {
+        colNo := A_Index + 2
+        LV_ModifyCol(colNo, "Right")
+    }
+
+    status := "표시 " . shown . "건"
+    status .= "  |  현액 " . SSOK_Expense_FormatNumber(shownCurrent) . "원"
+    status .= "  |  원인행위 " . SSOK_Expense_FormatNumber(shownCommit) . "원"
+    status .= "  |  집행률 " . SSOK_Expense_BudgetDashboard_FormatRate(shownCurrent, shownCommit)
+    status .= "  |  정산 " . SSOK_Expense_FormatNumber(shownSettle) . "원 / " . SSOK_Expense_BudgetDashboard_FormatRate(shownSettle, shownSettleCommit)
+    status .= "  |  일반 " . SSOK_Expense_FormatNumber(shownGeneral) . "원 / " . SSOK_Expense_BudgetDashboard_FormatRate(shownGeneral, shownGeneralCommit)
+    status .= "  |  초과 " . shownOver . "건"
+    GuiControl, SSOKBudgetDashboard:, SSOK_BudgetDashboardListStatus, %status%
+}
+
+SSOK_Expense_BudgetDashboard_BuildEntries(viewMode)
+{
+    global SSOK_BudgetDashboardParsed
+    entries := []
+    p := SSOK_BudgetDashboardParsed
+
+    if (viewMode = "산출내역별")
+    {
+        for _, row in p.rows
+        {
+            managerText := (row.manager != "") ? row.manager : "담당자 없음"
+            detailText := row.business . " / " . row.subItem . " / " . row.cost . " / " . managerText
+            entries.Push({label:row.calc
+                , detail:detailText
+                , current:row.current
+                , draft:row.draft
+                , commit:row.commit
+                , settle:row.settle
+                , general:row.general
+                , settleCommit:row.settleCommit
+                , generalCommit:row.generalCommit})
+        }
+        return entries
+    }
+
+    groups := {}
+    for _, row in p.rows
+    {
+        if (viewMode = "세부항목별")
+        {
+            key := row.business . Chr(30) . row.subItem
+            label := (row.subItem != "") ? row.subItem : "(세부항목 없음)"
+            detailBase := row.business
+        }
+        else if (viewMode = "원가통계비목별")
+        {
+            key := row.cost
+            label := (row.cost != "") ? row.cost : "(원가통계비목 없음)"
+            detailBase := ""
+        }
+        else if (viewMode = "세부항목담당자별")
+        {
+            key := (row.manager != "") ? row.manager : "담당자 없음"
+            label := key
+            detailBase := ""
+        }
+        else
+        {
+            key := row.business
+            label := (row.business != "") ? row.business : "(세부사업 없음)"
+            detailBase := ""
+        }
+
+        if (key = "")
+            continue
+
+        if !IsObject(groups[key])
+            groups[key] := {label:label, detailBase:detailBase, detail:"", current:0, draft:0, commit:0, settle:0, general:0, settleCommit:0, generalCommit:0, count:0}
+
+        g := groups[key]
+        g.current += row.current
+        g.draft += row.draft
+        g.commit += row.commit
+        g.settle += row.settle
+        g.general += row.general
+        g.settleCommit += row.settleCommit
+        g.generalCommit += row.generalCommit
+        g.count++
+    }
+
+    for _, g in groups
+    {
+        if (g.detailBase != "")
+            g.detail := g.detailBase . " / 산출내역 " . g.count . "건"
+        else
+            g.detail := "산출내역 " . g.count . "건"
+        entries.Push(g)
+    }
+
+    return entries
+}
+
+SSOK_Expense_BudgetDashboard_SortEntries(ByRef entries, sortMode)
+{
+    count := entries.Length()
+    if (count < 2)
+        return
+
+    Loop, % count - 1
+    {
+        i := A_Index
+        Loop, % count - i
+        {
+            j := i + A_Index
+            if SSOK_Expense_BudgetDashboard_ShouldSwap(entries[i], entries[j], sortMode)
+            {
+                tmp := entries[i]
+                entries[i] := entries[j]
+                entries[j] := tmp
+            }
+        }
+    }
+}
+
+SSOK_Expense_BudgetDashboard_ShouldSwap(a, b, sortMode)
+{
+    if (sortMode = "이름순")
+        return (a.label > b.label)
+
+    if (sortMode = "품의액 큰순")
+    {
+        va := a.draft
+        vb := b.draft
+        descending := true
+    }
+    else if (sortMode = "원인행위 큰순")
+    {
+        va := a.commit
+        vb := b.commit
+        descending := true
+    }
+    else if (sortMode = "집행률 높은순" || sortMode = "집행률 낮은순")
+    {
+        va := SSOK_Expense_BudgetDashboard_RateSortValue(a.current, a.commit)
+        vb := SSOK_Expense_BudgetDashboard_RateSortValue(b.current, b.commit)
+        descending := (sortMode = "집행률 높은순")
+    }
+    else if (sortMode = "정산재원 큰순")
+    {
+        va := a.settle
+        vb := b.settle
+        descending := true
+    }
+    else if (sortMode = "정산 집행률 높은순")
+    {
+        va := SSOK_Expense_BudgetDashboard_RateSortValue(a.settle, a.settleCommit)
+        vb := SSOK_Expense_BudgetDashboard_RateSortValue(b.settle, b.settleCommit)
+        descending := true
+    }
+    else if (sortMode = "일반재원 큰순")
+    {
+        va := a.general
+        vb := b.general
+        descending := true
+    }
+    else if (sortMode = "일반 집행률 높은순")
+    {
+        va := SSOK_Expense_BudgetDashboard_RateSortValue(a.general, a.generalCommit)
+        vb := SSOK_Expense_BudgetDashboard_RateSortValue(b.general, b.generalCommit)
+        descending := true
+    }
+    else
+    {
+        va := a.current
+        vb := b.current
+        descending := true
+    }
+
+    if (va = vb)
+        return (a.label > b.label)
+
+    if (descending)
+        return (va < vb)
+    return (va > vb)
+}
+
+SSOK_Expense_BudgetDashboard_RateSortValue(current, commit)
+{
+    if (current = 0)
+    {
+        if (commit > 0)
+            return 1000000000
+        return 0
+    }
+    return commit / current * 100
+}
+
+SSOK_Expense_BudgetDashboard_FormatRate(current, commit)
+{
+    if (current = 0)
+    {
+        if (commit > 0)
+            return "초과"
+        return "0.00%"
+    }
+    return Format("{:.2f}%", commit / current * 100)
+}
+
+SSOK_Expense_BudgetDashboard_CopyCurrentView()
+{
+    Gui, SSOKBudgetDashboard:Default
+    rowCount := LV_GetCount()
+    if (rowCount < 1)
+    {
+        MsgBox, 48, 예산 DashBoard, 복사할 표시 행이 없습니다.
+        return
+    }
+
+    out := "구분`t상세`t현액`t품의액`t원인행위액`t집행률`t집행잔액`t정산재원`t정산 집행률`t일반재원`t일반 집행률`r`n"
+    Loop, %rowCount%
+    {
+        rowNo := A_Index
+        line := ""
+        Loop, 11
+        {
+            colNo := A_Index
+            LV_GetText(cellText, rowNo, colNo)
+            if (colNo > 1)
+                line .= "`t"
+            line .= cellText
+        }
+        out .= line . "`r`n"
+    }
+
+    Clipboard := out
+    ClipWait, 1
+    if ErrorLevel
+    {
+        MsgBox, 48, 예산 DashBoard, 현재 표를 클립보드에 복사하지 못했습니다.
+        return
+    }
+
+    ToolTip, 현재 대시보드 표를 Excel 붙여넣기 형식으로 복사했습니다.
+    SetTimer, SSOKExpenseClearTip, -1800
 }
 
 
@@ -7175,8 +8144,8 @@ return
 SSOK_Expense_CardCompare_Reset:
     SSOK_CardCompareUsePath := ""
     SSOK_CardCompareStatementPath := ""
-    GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, 파일을 여기에 놓아주세요
-    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, 파일을 여기에 놓아주세요
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareUsePath, 법인카드사용부 Excel 파일을 여기에 놓아주세요
+    GuiControl, SSOKCardCompare:, SSOK_CardCompareStatementPath, 법인카드이용내역서 Excel 파일을 여기에 놓아주세요
     GuiControl, SSOKCardCompare:, SSOK_CardCompareStatus,
 return
 
@@ -7232,48 +8201,38 @@ SSOK_Expense_CardCompare_Show()
     global SSOK_CardCompareStatus
 
     Gui, SSOKCardCompare:Destroy
-    Gui, SSOKCardCompare:New, +ToolWindow, 법인카드 사용 내역 비교 자동 작성
+    Gui, SSOKCardCompare:New, +ToolWindow, 업무용도구 - 법인카드내역비교
     Gui, SSOKCardCompare:Margin, 20, 18
     Gui, SSOKCardCompare:Color, F7FBFF
 
-    Gui, SSOKCardCompare:Font, s12 Bold, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, w760 h30, 법인카드 사용 내역 비교 자동 작성
+    Gui, SSOKCardCompare:Font, s13 Bold, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Text, x20 y16 w760 h30 c005BAC, 업무용도구 - 법인카드내역비교
 
-    ; A 법인카드사용부
     Gui, SSOKCardCompare:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, x20 y+18 w760 h24 +0x200, A 법인카드사용부
+    useDisplay := FileExist(SSOK_CardCompareUsePath) ? SSOK_CardCompareUsePath : "법인카드사용부 Excel 파일을 여기에 놓아주세요"
+    Gui, SSOKCardCompare:Add, Text, x20 y58 w760 h84 +Border Center 0x200 vSSOK_CardCompareUsePath c555555, %useDisplay%
 
     Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, x20 y+2 w650 h24 c555555, 근거자료: 학교회계-지출관리-기타관리-법인카드사용부
+    Gui, SSOKCardCompare:Add, Text, x20 y154 w650 h24 c555555, 자료출처: 학교회계-지출관리-기타관리-법인카드사용부
     Gui, SSOKCardCompare:Font, s9 Underline, Malgun Gothic
     Gui, SSOKCardCompare:Add, Text, x690 yp w90 h24 +0x200 c0066CC gSSOKCardCompareOpenKEdufine, 바로가기
-    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
 
-    useDisplay := FileExist(SSOK_CardCompareUsePath) ? SSOK_CardCompareUsePath : "파일을 여기에 놓아주세요"
-    Gui, SSOKCardCompare:Add, Text, x20 y+8 w760 h76 +Border Center 0x200 vSSOK_CardCompareUsePath c555555, %useDisplay%
-
-    ; B 법인카드 이용내역서
     Gui, SSOKCardCompare:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, x20 y+24 w760 h24 +0x200, B 법인카드 이용내역서
+    statementDisplay := FileExist(SSOK_CardCompareStatementPath) ? SSOK_CardCompareStatementPath : "법인카드이용내역서 Excel 파일을 여기에 놓아주세요"
+    Gui, SSOKCardCompare:Add, Text, x20 y190 w760 h84 +Border Center 0x200 vSSOK_CardCompareStatementPath c555555, %statementDisplay%
 
     Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, x20 y+2 w650 h24 c555555, 근거자료: 농협 인터넷뱅킹 - 월별 이용내역서 엑셀 자료 다운로드
+    Gui, SSOKCardCompare:Add, Text, x20 y286 w650 h24 c555555, 자료출처: 농협 인터넷뱅킹 - 월별 이용내역서 엑셀 자료 다운로드
     Gui, SSOKCardCompare:Font, s9 Underline, Malgun Gothic
     Gui, SSOKCardCompare:Add, Text, x690 yp w90 h24 +0x200 c0066CC gSSOKCardCompareOpenNHBizCard, 바로가기
+
+    Gui, SSOKCardCompare:Add, Text, x20 y318 w760 h1 Hidden vSSOK_CardCompareStatus,
+
     Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
+    Gui, SSOKCardCompare:Add, Button, x20 y334 w150 h38 gSSOK_Expense_CardCompare_Reset, 초기화
+    Gui, SSOKCardCompare:Add, Button, x184 yp w150 h38 gSSOK_Expense_CardCompare_Check Default, 작업실행
 
-    statementDisplay := FileExist(SSOK_CardCompareStatementPath) ? SSOK_CardCompareStatementPath : "파일을 여기에 놓아주세요"
-    Gui, SSOKCardCompare:Add, Text, x20 y+8 w760 h76 +Border Center 0x200 vSSOK_CardCompareStatementPath c555555, %statementDisplay%
-
-    ; 상태
-    Gui, SSOKCardCompare:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKCardCompare:Add, Text, x20 y+20 w760 h30 +0x200 vSSOK_CardCompareStatus c005BAC,
-
-    ; 하단 버튼
-    Gui, SSOKCardCompare:Add, Button, x20 y+12 w180 h40 gSSOK_Expense_CardCompare_Reset, 초기화
-    Gui, SSOKCardCompare:Add, Button, x214 yp w180 h40 gSSOK_Expense_CardCompare_Check Default, 작업실행
-
-    Gui, SSOKCardCompare:Show, w800 h500 Center
+    Gui, SSOKCardCompare:Show, w800 h392 Center, 업무용도구 - 법인카드내역비교
 }
 
 ; ============================================================================
@@ -8570,9 +9529,9 @@ SSOK_Expense_WorkPublic_Check:
     SSOK_WorkPublicPrevPath := ""
     SSOK_WorkPublicCurrentPath := ""
     SSOK_WorkPublicCardPath := ""
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, 파일을 여기에 놓아주세요
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, 파일을 여기에 놓아주세요
-    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, 파일을 여기에 놓아주세요
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicPrevDrop, 전월 업무추진비 집행내역 Excel 파일을 여기에 놓아주세요 (선택)
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCurrentDrop, 원인행위 집행실적 Excel 파일을 여기에 놓아주세요 (필수)
+    GuiControl, SSOKWorkPublic:, SSOK_WorkPublicCardDrop, 카드승인내역 Excel 파일을 여기에 놓아주세요 (선택)
     GuiControl, SSOKWorkPublic:, SSOK_WorkPublicStatus,
 return
 
@@ -8655,55 +9614,38 @@ SSOK_Expense_WorkPublic_Show()
     global SSOK_WorkPublicPrevDrop, SSOK_WorkPublicCurrentDrop, SSOK_WorkPublicCardDrop
 
     Gui, SSOKWorkPublic:Destroy
-    Gui, SSOKWorkPublic:New, +ToolWindow, 업무추진비 집행내역 공개 자동 작성
+    Gui, SSOKWorkPublic:New, +ToolWindow, 업무용도구 - 업무추진비공개
     Gui, SSOKWorkPublic:Margin, 20, 18
     Gui, SSOKWorkPublic:Color, F7FBFF
 
-    Gui, SSOKWorkPublic:Font, s12 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, w820 h30, 업무추진비 집행내역 공개 자동 작성
+    Gui, SSOKWorkPublic:Font, s13 Bold, Malgun Gothic
+    Gui, SSOKWorkPublic:Add, Text, x20 y16 w820 h30 c005BAC, 업무용도구 - 업무추진비공개
 
-    ; A 전월 업무추진비 집행내역
     Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+18 w820 h24 +0x200, A 전월 업무추진비 집행내역 (선택)
+    prevDisplay := FileExist(SSOK_WorkPublicPrevPath) ? SSOK_WorkPublicPrevPath : "전월 업무추진비 집행내역 Excel 파일을 여기에 놓아주세요 (선택)"
+    Gui, SSOKWorkPublic:Add, Text, x20 y58 w820 h76 +Border Center 0x200 vSSOK_WorkPublicPrevDrop c555555, %prevDisplay%
+
+    currentDisplay := FileExist(SSOK_WorkPublicCurrentPath) ? SSOK_WorkPublicCurrentPath : "원인행위 집행실적 Excel 파일을 여기에 놓아주세요 (필수)"
+    Gui, SSOKWorkPublic:Add, Text, x20 y150 w820 h76 +Border Center 0x200 vSSOK_WorkPublicCurrentDrop c555555, %currentDisplay%
 
     Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
-    prevDisplay := FileExist(SSOK_WorkPublicPrevPath) ? SSOK_WorkPublicPrevPath : "파일을 여기에 놓아주세요"
-    Gui, SSOKWorkPublic:Add, Text, x20 y+8 w820 h72 +Border Center 0x200 vSSOK_WorkPublicPrevDrop c555555, %prevDisplay%
+    Gui, SSOKWorkPublic:Add, Text, x20 y238 w820 h24 c555555, 자료출처 1: 학교회계-지출관리-지출처리-원인행위목록-업무추진비목록
+    Gui, SSOKWorkPublic:Add, Text, x20 y264 w820 h24 c555555, * 상세내역 입력된 것만 보기 해제 후 조회
+    Gui, SSOKWorkPublic:Add, Text, x20 y290 w820 h24 c555555, 자료출처 2: 학교회계-지출관리-지출장부-지출실적조회-원인행위-예산거래처별실적조회
+    Gui, SSOKWorkPublic:Add, Text, x20 y316 w820 h24 c555555, * 세출세목명: 일반업무추진비로 조회
 
-    ; B 원인행위 집행실적
     Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+22 w820 h24 +0x200, B 원인행위 집행실적 입력 (필수)
+    cardDisplay := FileExist(SSOK_WorkPublicCardPath) ? SSOK_WorkPublicCardPath : "카드승인내역 Excel 파일을 여기에 놓아주세요 (선택)"
+    Gui, SSOKWorkPublic:Add, Text, x20 y352 w820 h76 +Border Center 0x200 vSSOK_WorkPublicCardDrop c555555, %cardDisplay%
 
     Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+2 w820 h44 c555555, 근거자료 1: 학교회계-지출관리-지출처리-원인행위목록-업무추진비목록`n   * 상세내역 입력된 것만 보기 해제 후 조회
+    Gui, SSOKWorkPublic:Add, Text, x20 y440 w820 h24 c555555, 자료출처: 학교회계-지출관리-기타관리-카드승인내역조회
+    Gui, SSOKWorkPublic:Add, Text, x20 y470 w820 h1 Hidden vSSOK_WorkPublicStatus,
 
-    Gui, SSOKWorkPublic:Font, s9 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+3 w820 h22 +0x200, 또는
+    Gui, SSOKWorkPublic:Add, Button, x20 y486 w150 h38 gSSOK_Expense_WorkPublic_Check, 초기화
+    Gui, SSOKWorkPublic:Add, Button, x184 yp w150 h38 gSSOK_Expense_WorkPublic_Convert Default, 작업실행
 
-    Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+2 w820 h44 c555555, 근거자료 2: 학교회계-지출관리-지출장부-지출실적조회-원인행위-예산거래처별실적조회`n   * 세출세목명: 일반업무추진비로 조회
-
-    currentDisplay := FileExist(SSOK_WorkPublicCurrentPath) ? SSOK_WorkPublicCurrentPath : "파일을 여기에 놓아주세요"
-    Gui, SSOKWorkPublic:Add, Text, x20 y+8 w820 h72 +Border Center 0x200 vSSOK_WorkPublicCurrentDrop c555555, %currentDisplay%
-
-    ; C 카드승인내역
-    Gui, SSOKWorkPublic:Font, s10 Bold, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+22 w820 h24 +0x200, C 카드승인내역 (선택)
-
-    Gui, SSOKWorkPublic:Font, s9 Norm, Malgun Gothic
-    Gui, SSOKWorkPublic:Add, Text, x20 y+2 w820 h24 c555555, 근거자료: 학교회계-지출관리-기타관리-카드승인내역조회
-
-    cardDisplay := FileExist(SSOK_WorkPublicCardPath) ? SSOK_WorkPublicCardPath : "파일을 여기에 놓아주세요"
-    Gui, SSOKWorkPublic:Add, Text, x20 y+8 w820 h72 +Border Center 0x200 vSSOK_WorkPublicCardDrop c555555, %cardDisplay%
-
-    ; 상태
-    Gui, SSOKWorkPublic:Add, Text, x20 y+18 w820 h30 +0x200 vSSOK_WorkPublicStatus c005BAC,
-
-    ; 하단 버튼
-    Gui, SSOKWorkPublic:Add, Button, x20 y+12 w180 h40 gSSOK_Expense_WorkPublic_Check, 초기화
-    Gui, SSOKWorkPublic:Add, Button, x214 yp w180 h40 gSSOK_Expense_WorkPublic_Convert Default, 작업실행
-
-    Gui, SSOKWorkPublic:Show, w860 h760 Center
+    Gui, SSOKWorkPublic:Show, w860 h544 Center, 업무용도구 - 업무추진비공개
 }
 
 
