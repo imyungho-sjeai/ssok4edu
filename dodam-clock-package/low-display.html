@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>도담중학교 팝업 안내</title>
+<style>
+html,body{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:#fff;color:#34546a;font-family:"Malgun Gothic",Arial,sans-serif}
+#low-stage{position:absolute;left:0;top:0;width:1080px;height:1500px;overflow:hidden;background:#fff}
+.low-image{position:absolute;display:none;border:0;margin:0;padding:0}
+#low-message{position:absolute;left:0;top:45%;width:100%;text-align:center;font-size:24px;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="low-stage"><div id="low-message">학교 안내를 불러오는 중입니다</div><img id="low-image-a" class="low-image" alt=""><img id="low-image-b" class="low-image" alt=""></div>
+<script id="low-runtime">
+/* Small, strict JSON fallback for plain API/cache data. Does not use eval or Function. */
+(function (window) {
+  'use strict';
+  var json = window.JSON || {};
+  window.DODAM_JSON_FALLBACK = typeof json.parse !== 'function' || typeof json.stringify !== 'function';
+  function parse(source) {
+    var input = String(source), index = 0, length = input.length;
+    function invalid() { throw new SyntaxError('잘못된 JSON 데이터'); }
+    function space() { while (index < length && /[ \t\r\n]/.test(input.charAt(index))) index++; }
+    function string() {
+      var output = '', ch, escape, hex, map = {'"':'"','\\':'\\','/':'/','b':'\b','f':'\f','n':'\n','r':'\r','t':'\t'};
+      index++;
+      while (index < length) {
+        ch = input.charAt(index++);
+        if (ch === '"') return output;
+        if (ch === '\\') {
+          escape = input.charAt(index++);
+          if (escape === 'u') {
+            hex = input.substr(index, 4);
+            if (!/^[0-9a-fA-F]{4}$/.test(hex)) invalid();
+            output += String.fromCharCode(parseInt(hex, 16)); index += 4;
+          } else if (Object.prototype.hasOwnProperty.call(map, escape)) output += map[escape];
+          else invalid();
+        } else { if (ch.charCodeAt(0) < 32) invalid(); output += ch; }
+      }
+      invalid();
+    }
+    function value(depth) {
+      if (depth > 100) invalid();
+      space();
+      var ch = input.charAt(index), result, key, match;
+      if (ch === '"') return string();
+      if (ch === '{') {
+        index++; result = {}; space();
+        if (input.charAt(index) === '}') { index++; return result; }
+        while (index < length) {
+          space(); if (input.charAt(index) !== '"') invalid(); key = string();
+          /* API/cache schemas never use this key. Reject it in old engines. */
+          if (key === '__proto__') invalid();
+          space(); if (input.charAt(index++) !== ':') invalid();
+          result[key] = value(depth + 1); space(); ch = input.charAt(index++);
+          if (ch === '}') return result;
+          if (ch !== ',') invalid();
+        }
+        invalid();
+      }
+      if (ch === '[') {
+        index++; result = []; space();
+        if (input.charAt(index) === ']') { index++; return result; }
+        while (index < length) {
+          result.push(value(depth + 1)); space(); ch = input.charAt(index++);
+          if (ch === ']') return result;
+          if (ch !== ',') invalid();
+        }
+        invalid();
+      }
+      if (input.substr(index, 4) === 'true') { index += 4; return true; }
+      if (input.substr(index, 5) === 'false') { index += 5; return false; }
+      if (input.substr(index, 4) === 'null') { index += 4; return null; }
+      match = /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?/.exec(input.slice(index));
+      if (match) { index += match[0].length; return Number(match[0]); }
+      invalid();
+    }
+    var output = value(0); space(); if (index !== length) invalid(); return output;
+  }
+  function stringify(value) {
+    var stack = [];
+    function quote(text) {
+      var map = {'"':'\\"','\\':'\\\\','\b':'\\b','\f':'\\f','\n':'\\n','\r':'\\r','\t':'\\t'};
+      return '"' + text.replace(/["\\\x00-\x1f]/g, function (ch) {
+        if (map[ch]) return map[ch];
+        return '\\u' + ('0000' + ch.charCodeAt(0).toString(16)).slice(-4);
+      }) + '"';
+    }
+    function encode(item, depth) {
+      var type = typeof item, result = [], key, encoded, i, array;
+      if (item === null) return 'null';
+      if (type === 'string') return quote(item);
+      if (type === 'number') return isFinite(item) ? String(item) : 'null';
+      if (type === 'boolean') return item ? 'true' : 'false';
+      if (type !== 'object') return undefined;
+      if (depth > 100) throw new TypeError('JSON 데이터가 너무 깊습니다');
+      for (i = 0; i < stack.length; i++) if (stack[i] === item) throw new TypeError('순환 JSON 데이터');
+      stack.push(item); array = Object.prototype.toString.call(item) === '[object Array]';
+      if (array) for (i = 0; i < item.length; i++) { encoded = encode(item[i], depth + 1); result.push(typeof encoded === 'undefined' ? 'null' : encoded); }
+      else for (key in item) if (Object.prototype.hasOwnProperty.call(item, key)) {
+        encoded = encode(item[key], depth + 1);
+        if (typeof encoded !== 'undefined') result.push(quote(key) + ':' + encoded);
+      }
+      stack.pop();
+      return (array ? '[' : '{') + result.join(',') + (array ? ']' : '}');
+    }
+    return encode(value, 0);
+  }
+  if (typeof json.parse !== 'function') json.parse = parse;
+  if (typeof json.stringify !== 'function') json.stringify = stringify;
+  window.JSON = json;
+}(window));
+
+/* Shared GET transport for the display and diagnostics. No credentials or custom headers. */
+(function (window) {
+  'use strict';
+  var states = {}, sequence = 0;
+  function request(url, callback) {
+    var xhr = null, xdr = null, timer, sendTimer, finished = false;
+    url = String(url).split('#')[0];
+    var target = /^(https?):\/\/([^/?#]+)/i.exec(url), location = window.location;
+    function host(value, protocol) { return String(value || '').toLowerCase().replace(protocol === 'https:' ? /:443$/ : /:80$/, ''); }
+    var protocol = target ? target[1].toLowerCase() + ':' : '', originProtocol = location ? String(location.protocol).toLowerCase() : '';
+    var cross = !!target && (protocol !== originProtocol || host(target[2], protocol) !== host(location ? location.host : '', originProtocol));
+    var finalUrl = url + (url.indexOf('?') === -1 ? '?' : '&') + '_dodam=' + new Date().getTime() + '-' + (++sequence);
+    var path = url.replace(/^https?:\/\/[^/]+/i, '').split('?')[0], service = 'other';
+    if (target && /(^|\.)api\.open-meteo\.com$/i.test(host(target[2], protocol))) service = 'weather';
+    else if (/\/schoolInfo$/.test(path)) service = 'school';
+    else if (/\/SchoolSchedule$/.test(path)) service = 'schedule';
+    else if (/\/mealServiceDietInfo$/.test(path)) service = 'meals';
+    else if (/(?:^|\/)(?:dodam-notices\.json|selectRssFeed\.do)$/.test(path)) service = 'notices';
+    function publish(error, transport, status) {
+      /* Never retain query strings: NEIS credentials must not enter diagnostics. */
+      states[service] = {transport:transport,ok:!error,status:status || 0,message:error ? error.message : '응답 수신',at:new Date().getTime()};
+    }
+    function cleanup(abort) {
+      var active = xdr || xhr, noop = function () {};
+      if (timer) clearTimeout(timer);
+      if (sendTimer) clearTimeout(sendTimer);
+      if (active) {
+        var handlers = ['onload','onerror','ontimeout','onprogress','onreadystatechange'], i;
+        for (i = 0; i < handlers.length; i++) try { active[handlers[i]] = noop; } catch (ignore) {}
+        if (abort) try { active.abort(); } catch (ignore) {}
+      }
+      xhr = null; xdr = null;
+    }
+    function finish(error, body, transport, status, abort) {
+      if (finished) return;
+      finished = true;
+      cleanup(abort);
+      publish(error, transport, status);
+      try { callback(error, body, transport); } catch (ignore) { publish(new Error('응답 표시 처리 오류'), transport, status); }
+    }
+    function failure(message, transport, status, abort) { finish(new Error(message), null, transport, status, abort); }
+    try { xhr = new window.XMLHttpRequest(); } catch (ignore) {}
+    var cors = false, XDR = null;
+    try { cors = !!xhr && 'withCredentials' in xhr; } catch (ignore) {}
+    try { XDR = window.XDomainRequest; } catch (ignore) {}
+    /* Prefer advertised native CORS capability, even in a legacy document mode. */
+    if (cross && XDR && !cors) {
+      /* XDR requires matching protocols. Never downgrade HTTPS or disable validation. */
+      if (!location || protocol !== originProtocol) {
+        failure('구형 연결은 페이지와 API의 HTTPS 방식이 같아야 합니다. HTTPS 웹 주소로 열어 주세요.', 'XDR'); return;
+      }
+      try {
+        xdr = new XDR();
+        xdr.timeout = 20000;
+        xdr.onprogress = function () {};
+        xdr.onload = function () {
+          if (finished) return;
+          var body;
+          try { body = xdr.responseText; } catch (ignore) { failure('응답 본문을 읽을 수 없습니다. (XDR)', 'XDR'); return; }
+          finish(null, body, 'XDR');
+        };
+        xdr.onerror = function () { failure('구형 교차 출처 연결 실패 (XDR)', 'XDR'); };
+        xdr.ontimeout = function () { failure('연결 시간 초과 (XDR)', 'XDR', 0, true); };
+        xdr.open('GET', finalUrl);
+        timer = setTimeout(function () { failure('연결 시간 초과 (XDR)', 'XDR', 0, true); }, 20000);
+        /* IE8/9 can lose events when send runs immediately after open. */
+        sendTimer = setTimeout(function () {
+          if (finished) return;
+          try { xdr.send(null); } catch (error) { failure('구형 요청 시작 실패 (XDR)', 'XDR', 0, true); }
+        }, 0);
+      } catch (error) { failure('구형 요청 시작 실패 (XDR)', 'XDR', 0, true); }
+      return;
+    }
+    if (!xhr || (cross && !cors)) { failure('현재 브라우저에 교차 출처 요청 기능이 없습니다.', 'XHR'); return; }
+    try {
+      xhr.open('GET', finalUrl, true);
+      timer = setTimeout(function () { failure('연결 시간 초과', 'XHR', 0, true); }, 20000);
+      xhr.onreadystatechange = function () {
+        if (finished) return;
+        var status, body;
+        try {
+          if (xhr.readyState !== 4) return;
+          status = xhr.status;
+          if (status === 1223) status = 204;
+          if (status >= 200 && status < 300) body = xhr.responseText;
+        } catch (error) { failure('응답 상태 또는 본문을 읽을 수 없습니다.', 'XHR', 0, true); return; }
+        if (status >= 200 && status < 300) finish(null, body, 'XHR', status);
+        else failure('데이터 연결 실패 (HTTP ' + status + ')', 'XHR', status);
+      };
+      xhr.onerror = function () { failure('데이터 연결 실패', 'XHR'); };
+      xhr.send(null);
+    } catch (error) { failure('데이터 요청 시작 실패', 'XHR', 0, true); }
+  }
+  function readJSON(url, localScript, responseName, callback) {
+    if (!window.location || window.location.protocol !== 'file:') {
+      request(url, function (error, body) {
+        var data;
+        if (!error) try { data = window.JSON.parse(body); } catch (ignore) { error = new Error('데이터 형식 오류'); }
+        callback(error, data);
+      });
+      return;
+    }
+    // file: XHR commonly fails or reports HTTP 0. A generated data script works locally too.
+    var script, parent, timer, finished = false, service = /notices/.test(url) ? 'notices' : 'other';
+    function finish(error) {
+      if (finished) return;
+      finished = true; if (timer) clearTimeout(timer);
+      var data = window[responseName];
+      if (!error && (!data || typeof data !== 'object')) error = new Error('로컬 데이터 형식 오류');
+      if (script) {
+        script.onload = script.onerror = script.onreadystatechange = function () {};
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      states[service] = {transport:'LOCAL SCRIPT',ok:!error,status:0,message:error ? error.message : '응답 수신',at:new Date().getTime()};
+      try { callback(error, data); } catch (ignore) {}
+    }
+    try {
+      window[responseName] = null;
+      script = window.document.createElement('script'); script.type = 'text/javascript'; script.charset = 'utf-8';
+      script.onload = script.onreadystatechange = function () { if (!script.readyState || /loaded|complete/.test(script.readyState)) finish(null); };
+      script.onerror = function () { finish(new Error('로컬 데이터 파일 연결 실패')); };
+      parent = window.document.getElementsByTagName('head')[0] || window.document.body;
+      script.src = localScript + '?_dodam=' + new Date().getTime() + '-' + (++sequence);
+      timer = setTimeout(function () { finish(new Error('로컬 데이터 연결 시간 초과')); }, 8000);
+      parent.appendChild(script);
+    } catch (ignore) { finish(new Error('로컬 데이터 파일을 확인해 주세요')); }
+  }
+  window.DodamNet = {request:request,readJSON:readJSON,states:states};
+}(window));
+
+window.DODAM_LOW_OPTIONS={kind:"popup",remote:"https://imyungho-sjeai.github.io/ssok4edu/dodam-clock-package/"};
+window.DODAM_LOW_SEED={"version":1,"checkedAt":1792501512770,"source":"https://dodam.sjedums.kr/dodam-m/main.do?sso=ok","images":[{"source":"https://dodam.sjedums.kr/upload/common/pm/_38eb7c8b-110b-4b83-98b5-c096cc74c2531786521390642.png","title":"관계회복 대화모임(숙려제도) 홍보","src":"low-display-images/d32ff72ba7ada904db48929c.png","width":1080,"height":1080},{"source":"https://dodam.sjedums.kr/upload/common/pm/img_b63da3bb-9110-4f07-8823-55606e7f5ce71785884497527.jpg","title":"2027 충청 유니버시아드 대회 루미 자원봉사자 모집","src":"low-display-images/5de161cf1a30494c5c758625.jpg","width":1060,"height":1500},{"source":"https://dodam.sjedums.kr/upload/common/pm/img_7c3f7e78-b0f1-4a9b-892a-4a5108e94e401679638008677.png","title":"유출된 개인정보 유통·재가공·사용 금지 안내","src":"low-display-images/b2b91e9412a7245da4bac633.png","width":895,"height":490}]};
+/* ES3 slideshow for MSHTML. Current image count and URLs come from low-display.json. */
+(function (window, document) {
+  'use strict';
+  var gongmo = window.DODAM_LOW_OPTIONS && window.DODAM_LOW_OPTIONS.kind === 'gongmo';
+  var remote = window.DODAM_LOW_OPTIONS && window.location && window.location.protocol === 'file:' ? window.DODAM_LOW_OPTIONS.remote : '';
+  var imageBase = '', remotePolling = false;
+  var base = gongmo ? 'low-gongmo' : 'low-display', responseName = gongmo ? 'DODAM_GONGMO_RESPONSE' : 'DODAM_LOW_RESPONSE';
+  var storageKey = gongmo ? 'dodam-low-gongmo-v1' : 'dodam-low-display-v1', lastTick = 0, lastDay = '', complete = null;
+  var stage = document.getElementById('low-stage'), message = document.getElementById('low-message');
+  var panels = [document.getElementById('low-image-a'), document.getElementById('low-image-b')];
+  var list = [], checkedAt = 0, active = -1, shown = null, loading = false, polling = false, token = 0;
+  var activePanel = 0, stageWidth = 1080, stageHeight = 1500;
+  var hold = 20000, lastShownAt = 0, retryAt = 0;
+  function now() { return new Date().getTime(); }
+  function text(el, value) { if ('textContent' in el) el.textContent = value; else el.innerText = value; }
+  function info(value) { text(message, value); message.style.display = value ? 'block' : 'none'; }
+  function day() { var d = new Date(now() + 32400000); return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate(); }
+  function dateNumber(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return 0;
+    var n = value.split('-'), d = new Date(Date.UTC(Number(n[0]), Number(n[1]) - 1, Number(n[2])));
+    if (d.getUTCFullYear() !== Number(n[0]) || d.getUTCMonth() + 1 !== Number(n[1]) || d.getUTCDate() !== Number(n[2])) return 0;
+    return Number(n[0]) * 10000 + Number(n[1]) * 100 + Number(n[2]);
+  }
+  function valid(data) {
+    var result = [], seen = {}, i, item;
+    if (!data || data.version !== 1 || typeof data.checkedAt !== 'number' || !isFinite(data.checkedAt) || Object.prototype.toString.call(data.images) !== '[object Array]') throw new Error('Invalid popup list');
+    for (i = 0; i < data.images.length; i++) {
+      item = data.images[i];
+      if (!item || !(gongmo ? /^low-gongmo-images\/[a-f0-9]{24}\.(?:png|jpg|gif)$/ : /^low-display-images\/[a-f0-9]{24}\.(?:png|jpg|gif)$/).test(item.src) || typeof item.width !== 'number' || typeof item.height !== 'number' || !isFinite(item.width) || !isFinite(item.height) || item.width < 1 || item.height < 1 || item.width > 40000 || item.height > 40000) throw new Error('Invalid popup image');
+      if (gongmo && (!dateNumber(item.startsOn) || !dateNumber(item.endsOn) || dateNumber(item.endsOn) < dateNumber(item.startsOn))) throw new Error('Missing contest period');
+      if (gongmo && (item.resolutionVerified !== true)) continue;
+      if (gongmo && item.middleSchoolTarget !== true && item.sejongRelated !== true) continue;
+      if (!seen[item.src]) { seen[item.src] = true; result.push(item); }
+    }
+    return {version:1,checkedAt:data.checkedAt,images:result,assetBase:remote && data.assetBase === remote ? remote : ''};
+  }
+  function place(panel, item) {
+    var availableHeight = stageHeight;
+    var scale = Math.min(1, stageWidth / item.width, availableHeight / item.height);
+    var width = Math.max(1, Math.floor(item.width * scale)), height = Math.max(1, Math.floor(item.height * scale));
+    panel.style.width = width + 'px'; panel.style.height = height + 'px';
+    panel.style.left = Math.floor((stageWidth - width) / 2) + 'px';
+    panel.style.top = Math.floor((availableHeight - height) / 2) + 'px';
+  }
+  function resize() {
+    var width = document.documentElement.clientWidth || (document.body && document.body.clientWidth) || window.innerWidth || 1080;
+    var height = document.documentElement.clientHeight || (document.body && document.body.clientHeight) || window.innerHeight || 1500;
+    stageWidth = Math.min(1080, width); stageHeight = Math.min(1500, height);
+    stage.style.width = stageWidth + 'px'; stage.style.height = stageHeight + 'px';
+    stage.style.left = Math.max(0, Math.floor((width - stageWidth) / 2)) + 'px';
+    stage.style.top = Math.max(0, Math.floor((height - stageHeight) / 2)) + 'px';
+    if (shown) place(panels[activePanel], shown);
+  }
+  function show(index, attempts) {
+    if (!list.length || loading) return;
+    var item = list[index], loader = new window.Image(), mine = ++token, timer, done = false;
+    loading = true;
+    function finish(ok) {
+      if (done || mine !== token) return;
+      done = true; clearTimeout(timer); loader.onload = function () {}; loader.onerror = function () {}; loading = false;
+      if (!ok) {
+        if ((attempts || 0) + 1 < list.length) show((index + 1) % list.length, (attempts || 0) + 1);
+        else { retryAt = now() + 15000; if (!shown) info('학교 안내 이미지를 확인하는 중입니다'); }
+        return;
+      }
+      activePanel = activePanel ? 0 : 1;
+      var panel = panels[activePanel];
+      panel.src = imageBase + item.src; panel.alt = item.title;
+      place(panel, item); panel.style.display = 'block'; panels[activePanel ? 0 : 1].style.display = 'none';
+      active = index; shown = item; lastShownAt = now(); retryAt = 0; info('');
+      stage.setAttribute('data-image', item.src); stage.setAttribute('data-count', String(list.length));
+    }
+    loader.onload = function () { try { finish(true); } catch (ignore) { loading = false; } };
+    loader.onerror = function () { finish(false); };
+    timer = setTimeout(function () { finish(false); }, 15000);
+    loader.src = imageBase + item.src;
+  }
+  function apply(data, persist) {
+    var fresh = valid(data), i, index = -1;
+    if (fresh.checkedAt < checkedAt) return;
+    imageBase = fresh.assetBase;
+    complete = fresh;
+    if (persist) try { window.localStorage.setItem(storageKey, JSON.stringify(fresh)); } catch (ignore) {}
+    if (gongmo) {
+      var eligible = [], today = day();
+      for (i = 0; i < fresh.images.length && eligible.length < 10; i++) if (dateNumber(fresh.images[i].startsOn) <= today && dateNumber(fresh.images[i].endsOn) >= today) eligible.push(fresh.images[i]);
+      fresh = {version:1,checkedAt:fresh.checkedAt,images:eligible}; lastDay = today;
+    }
+    if (shown) for (i = 0; i < fresh.images.length; i++) if (fresh.images[i].src === shown.src) index = i;
+    token++; loading = false; retryAt = 0; list = fresh.images; checkedAt = fresh.checkedAt;
+    stage.setAttribute('data-count', String(list.length));
+    if (!list.length) {
+      active = -1; shown = null; panels[0].style.display = 'none'; panels[1].style.display = 'none';
+      stage.setAttribute('data-image', ''); info(gongmo ? '접수 중인 공모전 포스터를 확인하는 중입니다' : '등록된 팝업이 없습니다'); return;
+    }
+    if (index >= 0) { active = index; return; }
+    shown = null; active = -1; panels[0].style.display = 'none'; panels[1].style.display = 'none';
+    show(0, 0);
+  }
+  function poll() {
+    if (polling || !window.DodamNet) return;
+    polling = true;
+    window.DodamNet.readJSON(base + '.json', base + '-feed.js', responseName, function (error, data) {
+      polling = false;
+      if (!error) try { apply(data, true); } catch (ignore) {}
+      // On temporary failure keep the last complete list, but always poll again.
+    });
+  }
+  function remotePoll() {
+    if (!remote || remotePolling) return;
+    remotePolling = true;
+    var script = document.createElement('script'), head = document.getElementsByTagName('head')[0] || document.documentElement;
+    var timer, finished = false;
+    var remoteName = gongmo ? 'DODAM_GONGMO_REMOTE_RESPONSE' : 'DODAM_LOW_REMOTE_RESPONSE';
+    window[remoteName] = null;
+    function finish(ok) {
+      if (finished) return;
+      finished = true; remotePolling = false; clearTimeout(timer);
+      script.onload = script.onreadystatechange = script.onerror = function () {};
+      var data = window[remoteName];
+      window[remoteName] = null;
+      if (script.parentNode) script.parentNode.removeChild(script);
+      if (ok && data) try {
+        var fresh = valid(data);
+        if (fresh.checkedAt >= checkedAt) {
+          fresh.assetBase = remote;
+          shown = null;
+          apply(fresh, true);
+        }
+      } catch (ignore) {}
+    }
+    script.type = 'text/javascript';
+    script.onload = function () { finish(true); };
+    script.onreadystatechange = function () { if (script.readyState === 'loaded' || script.readyState === 'complete') finish(true); };
+    script.onerror = function () { finish(false); };
+    script.src = remote + base + '-remote.js?_dodam=' + now();
+    timer = setTimeout(function () { finish(false); }, 15000);
+    try { head.appendChild(script); } catch (ignore) { finish(false); }
+  }
+  function maintain() {
+    try {
+      resize();
+      if (gongmo) {
+        if (complete && lastDay !== day()) apply(complete, false);
+        if (lastTick && (now() - lastTick > 90000 || now() < lastTick)) { poll(); remotePoll(); }
+        lastTick = now();
+      }
+      if (now() < retryAt - 15000) retryAt = 0;
+      if (list.length && !loading && now() >= retryAt && (!shown || now() < lastShownAt || now() - lastShownAt >= hold)) show((active + 1) % list.length, 0);
+    } catch (ignore) {}
+  }
+  resize();
+  try { var seed = gongmo ? window.DODAM_GONGMO_SEED : window.DODAM_LOW_SEED; if (seed) apply(seed, false); } catch (ignore) {}
+  try { var cached = JSON.parse(window.localStorage.getItem(storageKey) || 'null'); if (cached) apply(cached, false); } catch (ignore) {}
+  poll();
+  if (gongmo || remote) { remotePoll(); setInterval(remote ? remotePoll : poll, 600000); }
+  setInterval(maintain, 1000); setInterval(poll, 60000);
+  if (window.addEventListener) window.addEventListener('resize', resize, false);
+  else if (window.attachEvent) window.attachEvent('onresize', resize);
+  if (gongmo) window.DodamGongmo = {refresh:function () { poll(); remotePoll(); }}; else window.DodamLowDisplay = {refresh:poll};
+}(window, document));
+
+</script>
+</body>
+</html>

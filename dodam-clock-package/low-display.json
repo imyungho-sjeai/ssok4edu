@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "checkedAt": 1792501512770,
+  "source": "https://dodam.sjedums.kr/dodam-m/main.do?sso=ok",
+  "images": [
+    {
+      "source": "https://dodam.sjedums.kr/upload/common/pm/_38eb7c8b-110b-4b83-98b5-c096cc74c2531786521390642.png",
+      "title": "관계회복 대화모임(숙려제도) 홍보",
+      "src": "low-display-images/d32ff72ba7ada904db48929c.png",
+      "width": 1080,
+      "height": 1080
+    },
+    {
+      "source": "https://dodam.sjedums.kr/upload/common/pm/img_b63da3bb-9110-4f07-8823-55606e7f5ce71785884497527.jpg",
+      "title": "2027 충청 유니버시아드 대회 루미 자원봉사자 모집",
+      "src": "low-display-images/5de161cf1a30494c5c758625.jpg",
+      "width": 1060,
+      "height": 1500
+    },
+    {
+      "source": "https://dodam.sjedums.kr/upload/common/pm/img_7c3f7e78-b0f1-4a9b-892a-4a5108e94e401679638008677.png",
+      "title": "유출된 개인정보 유통·재가공·사용 금지 안내",
+      "src": "low-display-images/b2b91e9412a7245da4bac633.png",
+      "width": 895,
+      "height": 490
+    }
+  ]
+}
