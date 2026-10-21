@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>도담중학교 | YouTube Shorts DID 1080×1400</title>
+<style>
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#081b28;color:#eaf4f7;font-family:'Malgun Gothic',Arial,sans-serif;cursor:none}
+#stage{position:absolute;left:50%;top:50%;width:1080px;height:1400px;margin-left:-540px;margin-top:-700px;overflow:hidden;background:#081b28;-webkit-transform-origin:center center;transform-origin:center center}
+#playerHost,#playerHost iframe{position:absolute;left:0;top:0;width:1080px;height:1400px;border:0}
+#message{position:absolute;left:70px;right:70px;top:46%;text-align:center;font-size:28px;line-height:1.7;z-index:2;white-space:pre-line}
+#cursorShield{position:absolute;left:0;right:0;top:0;bottom:0;z-index:5;cursor:none;background:transparent}
+#startButton{display:none;position:absolute;left:340px;top:760px;width:400px;padding:20px;font:28px 'Malgun Gothic',Arial;background:#236b80;border:0;color:white;z-index:6;cursor:pointer}
+</style>
+<script>
+// The updater replaces this seed. The HTML can also use an external feed on a web server.
+window.DODAM_YOUTUBE_DID_SEED={"channelId": "UCYRoLHKuf_wm2hbyyRkMfgQ", "channelName": "\uc138\uc885\uc2dc\uad50\uc721\uccad", "updatedAt": "2026-10-21T14:38:00.895207+00:00", "items": [{"id": "LkS3fVw9BZQ", "title": "\uacf5\ub3d9\uad50\uc721\uacfc\uc815\uc744 \ub9ce\uc774 \ub4e4\uc73c\uba74 \ub300\ud559\uc5d0\uc11c \uc88b\uc544\ud560\uae4c\uc694? #shorts"}, {"id": "gbZqTk14744", "title": "\ub3d9\uad6d\ub300\uc5d0 \uc788\ub294 \ucf54\ub07c\ub9ac \ub3d9\uc0c1\uc758 \ucf54\ub97c \ub9cc\uc9c0\uba74 \uc18c\uc6d0\uc774 \uc774\ub8e8\uc5b4\uc9c4\ub2e4?!\ud83e\udee2 #shorts"}, {"id": "PfPorPtCSW4", "title": "\uc6b0\ub9ac \uc544\uc774\uc758 \uccab \uc720\uce58\uc6d0 \uc0dd\ud65c, \uc9d1\uc5d0\uc11c \ubbf8\ub9ac \uc900\ube44\ud574\ubcfc\uae4c\uc694? \ud83c\udf92\u2728 #shorts"}]};
+window.DODAM_YOUTUBE_DID_OPTIONS={muted:true,feedUrl:'dodam-youtube-feed.js',refreshMinutes:10};
+</script>
+</head>
+<body>
+<div id="stage"><div id="playerHost"></div><div id="message">최신 Shorts를 준비하는 중…</div><div id="cursorShield"></div><button id="startButton" type="button">재생 시작</button></div>
+<script src="dodam-youtube-feed.js"></script>
+<script>
+(function(){
+ 'use strict';
+ var options=window.DODAM_YOUTUBE_DID_OPTIONS,seed=window.DODAM_YOUTUBE_DID_SEED;
+ var list=[],pending=null,index=0,player=null,generation=0,ready=false,failed=0;
+ var watchdog=null,monitor=null,retry=null,feedBusy=false;
+ var message=document.getElementById('message'),startButton=document.getElementById('startButton');
+ function text(value){if(typeof message.textContent!=='undefined')message.textContent=value;else message.innerText=value;message.style.display=value?'block':'none';}
+ function validItems(feed){var result=[],seen={},items=feed&&feed.items||[],i,item;for(i=0;i<items.length&&result.length<3;i++){item=items[i];if(item&&/^[\w-]{11}$/.test(item.id)&&!seen[item.id]){seen[item.id]=true;result.push(item);}}return result;}
+ function fit(){var w=document.documentElement.clientWidth||window.innerWidth||1080,h=document.documentElement.clientHeight||window.innerHeight||1400,transform='scale('+(w/1080)+','+(h/1400)+')',stage=document.getElementById('stage');stage.style.transform=transform;stage.style.webkitTransform=transform;}
+ function acceptFeed(feed){var items=validItems(feed);if(!items.length)return;if(!list.length){list=items;index=0;if(ready)play();}else pending=items;}
+ function refreshFeed(){
+  if(feedBusy||!options.feedUrl)return;feedBusy=true;
+  var tag=document.createElement('script'),done=false,timer;
+  function finish(ok){if(done)return;done=true;clearTimeout(timer);feedBusy=false;tag.onload=tag.onerror=tag.onreadystatechange=null;if(ok)acceptFeed(window.DODAM_YOUTUBE_DID_FEED);if(tag.parentNode)tag.parentNode.removeChild(tag);}
+  tag.src=options.feedUrl+(options.feedUrl.indexOf('?')<0?'?':'&')+'t='+new Date().getTime();
+  tag.onload=function(){finish(true);};tag.onerror=function(){finish(false);};tag.onreadystatechange=function(){if(/loaded|complete/.test(tag.readyState))finish(true);};
+  timer=setTimeout(function(){finish(false);},15000);document.getElementsByTagName('head')[0].appendChild(tag);
+ }
+ function captionsOff(target){try{target.unloadModule('captions');}catch(ignore){}}
+ function play(){
+  if(!ready||!list.length){text('재생할 Shorts 목록이 없습니다.\nPC에서 update-youtube-did.bat를 실행해 목록을 갱신해 주세요.');return;}
+  clearTimeout(watchdog);clearTimeout(retry);clearInterval(monitor);startButton.style.display='none';
+  var token=++generation,ended=false,started=false,lastTime=0,lastProgress=new Date().getTime(),duration=0;
+  if(player){try{player.destroy();}catch(ignore){}player=null;}
+  document.getElementById('playerHost').innerHTML='<div id="ytPlayer"></div>';
+  text('Shorts '+(index+1)+' / '+list.length+' 준비 중…');
+  function active(){return token===generation&&!ended;}
+  function next(error){
+   if(!active())return;ended=true;clearTimeout(watchdog);clearInterval(monitor);
+   failed=error?failed+1:0;index++;
+   if(index>=list.length){index=0;if(pending){list=pending;pending=null;}refreshFeed();}
+   if(failed>=list.length){text('YouTube 재생을 확인해 주세요.\n인터넷 연결·기기 브라우저 지원·동영상 퍼가기 허용 여부를 확인하세요.');retry=setTimeout(function(){failed=0;play();},120000);return;}
+   retry=setTimeout(play,error?2000:150);
+  }
+  function waitForPlayback(){clearTimeout(watchdog);watchdog=setTimeout(function(){next(true);},45000);}
+  var vars={autoplay:1,playsinline:1,controls:0,loop:0,rel:0,cc_load_policy:0};
+  if(/^https?:$/.test(location.protocol))vars.origin=location.protocol+'//'+location.host;
+  player=new YT.Player('ytPlayer',{width:1080,height:1400,videoId:list[index].id,playerVars:vars,events:{
+   onReady:function(e){if(!active())return;if(options.muted)e.target.mute();captionsOff(e.target);e.target.playVideo();},
+   onStateChange:function(e){if(!active())return;if(e.data===1){started=true;failed=0;lastProgress=new Date().getTime();clearTimeout(watchdog);text('');captionsOff(e.target);}else if(e.data===0)next(false);else if(e.data===2||e.data===3)waitForPlayback();},
+   onApiChange:function(e){if(active())captionsOff(e.target);},
+   onError:function(e){if(!active())return;if(e.data===153){ended=true;clearInterval(monitor);clearTimeout(watchdog);text('YouTube가 재생 페이지 주소를 확인할 수 없습니다.\n이 HTML을 HTTP(S) 웹 주소로 등록하고 다시 열어 주세요.');return;}next(true);},
+   onAutoplayBlocked:function(){if(active()){clearTimeout(watchdog);text('자동재생이 차단되었습니다.\nDID 브라우저에서 자동재생을 허용해 주세요.');startButton.style.display='block';}}
+  }});
+  waitForPlayback();
+  monitor=setInterval(function(){
+   if(!active()||!started||!player)return;
+   try{var time=Number(player.getCurrentTime()),state=player.getPlayerState(),now=new Date().getTime();duration=Number(player.getDuration());if(!isFinite(time)||!isFinite(duration)||duration<=0)return;
+    if(state===0||time>=duration||(lastTime>=duration-1&&time<lastTime-1)){next(false);return;}
+    if(Math.abs(time-lastTime)>.05)lastProgress=now;
+    if(now-lastProgress>45000){next(true);return;}lastTime=time;
+   }catch(ignore){}
+  },500);
+ }
+ startButton.onclick=function(){if(player){player.mute();player.playVideo();startButton.style.display='none';}};
+ window.onYouTubeIframeAPIReady=function(){ready=true;play();};
+ acceptFeed(window.DODAM_YOUTUBE_DID_FEED||seed);fit();
+ if(window.addEventListener)window.addEventListener('resize',fit,false);else if(window.attachEvent)window.attachEvent('onresize',fit);
+ if(!window.postMessage){text('이 기기의 브라우저는 YouTube 플레이어를 지원하지 않습니다.');return;}
+ var api=document.createElement('script');api.src='https://www.youtube.com/iframe_api';api.onerror=function(){text('YouTube 플레이어에 연결하지 못했습니다.\n기기의 인터넷 연결과 HTTPS 지원을 확인하세요.');};document.getElementsByTagName('head')[0].appendChild(api);
+ setTimeout(function(){if(!ready)text('YouTube 플레이어 응답이 없습니다.\n구형 기기의 브라우저·HTTPS 지원을 확인하세요.');},30000);
+ setInterval(refreshFeed,Math.max(1,Number(options.refreshMinutes)||10)*60000);
+})();
+</script>
+</body>
+</html>
