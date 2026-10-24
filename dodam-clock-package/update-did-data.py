@@ -1,4 +1,4 @@
-"""Refresh portable DID data on a PC with working HTTPS. Does not edit the original clock."""
+"""Refresh portable DID data and notice snapshots in both clock HTML files."""
 import json
 from pathlib import Path
 import re
@@ -25,14 +25,15 @@ def save(kind, payload):
         temporary = path.with_suffix(path.suffix + '.tmp')
         temporary.write_text(content, encoding='utf-8')
         temporary.replace(path)
-    html = ROOT / 'dodam-clock-did.html'
-    source = html.read_text(encoding='utf-8')
-    source, count = re.subn(
-        r'window\.' + response + r'_SEED=[^\r\n]*;',
-        lambda match: 'window.' + response + '_SEED=' + encoded + ';', source)
-    if count != 1:
-        raise ValueError('Expected exactly one HTML data seed: ' + response)
-    html.write_text(source, encoding='utf-8')
+    for filename in (['dodam-clock.html','dodam-clock-did.html'] if kind == 'notices' else ['dodam-clock-did.html']):
+        html = ROOT / filename
+        source = html.read_text(encoding='utf-8')
+        source, count = re.subn(
+            r'window\.' + response + r'_SEED=[^\r\n]*;',
+            lambda match: 'window.' + response + '_SEED=' + encoded + ';', source)
+        if count != 1:
+            raise ValueError('Expected exactly one HTML data seed: ' + response)
+        html.write_text(source, encoding='utf-8')
 
 
 def weather():
