@@ -1,0 +1,49 @@
+name: Refresh Dodam DID data
+on:
+  schedule:
+    - cron: '30 23 * * *' # 08:30 Asia/Seoul
+    - cron: '0 3 * * *' # 12:00 Asia/Seoul
+    - cron: '0 7 * * *' # 16:00 Asia/Seoul
+    - cron: '0 0 * * *' # 09:00 Asia/Seoul
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: dodam-did-data
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download official data
+        id: download
+        continue-on-error: true
+        run: |
+          if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+            python dodam-clock-package/update-did-data.py
+          elif [ "${{ github.event.schedule }}" = '0 0 * * *' ]; then
+            python dodam-clock-package/update-did-data.py --notices-only
+          else
+            python dodam-clock-package/update-did-data.py --weather-only
+          fi
+      - name: Save successful updates
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dodam-clock-package/dodam-clock-did.html dodam-clock-package/dodam-clock.html dodam-clock-package/dodam-weather.json dodam-clock-package/dodam-weather-feed.js dodam-clock-package/dodam-notices.json dodam-clock-package/dodam-notices-feed.js
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh Dodam DID data'
+            git push
+          fi
+      - name: Rebuild branch-based GitHub Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
+      - name: Report incomplete refresh
+        if: steps.download.outcome == 'failure'
+        run: exit 1
