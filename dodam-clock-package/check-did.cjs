@@ -39,3 +39,45 @@ const parentTimeWindow={parent:{SchoolTime:{now:()=>1234,synchronized:()=>true}}
 vm.runInNewContext(timeSource,{window:parentTimeWindow,document:{},JSON,Date,setTimeout:()=>1,clearTimeout:()=>{},setInterval:()=>1});
 assert.equal(parentTimeWindow.DodamTime.now(),1234);assert(parentTimeWindow.DodamTime.synchronized());
 console.log('PASS: legacy time transport, monotonic elapsed time and embedded KRISS clock delegation');
+const requestWeatherSource=html.slice(html.indexOf('  function requestWeather('),html.indexOf('  function weatherSlot('));
+function weatherRequest(mode, mirror, directError, seed){
+ const calls=[];const at=Date.UTC(2026,9,27,0);let result,count=0;
+ const ctx={document:{documentMode:mode},DAY:86400000,now:()=>at,JSON,Error,request:(url,cb)=>{calls.push('external');cb(directError,directError?null:'{"current":{"temperature_2m":12}}');},window:{DODAM_WEATHER_SEED:seed,DodamNet:{states:{},readJSON:(json,script,key,cb)=>{calls.push('site');cb(mirror instanceof Error?mirror:null,mirror);}}}};
+ vm.runInNewContext(requestWeatherSource,ctx);ctx.requestWeather('https://api.open-meteo.com/v1/forecast',(error,body,savedAt)=>{count++;result={error,body,savedAt}});assert.equal(count,1);return {calls,result};
+}
+const at=Date.UTC(2026,9,27,0), validWeather={savedAt:at-600000,data:{current:{temperature_2m:12}}};
+let w=weatherRequest(9,validWeather,new Error('external blocked'));assert.deepEqual(w.calls,['site']);assert.equal(w.result.savedAt,validWeather.savedAt);
+w=weatherRequest(9,{...validWeather,savedAt:at-2*86400000},new Error('blocked'));assert.deepEqual(w.calls,['site','external']);assert.equal(w.result.error.message,'사이트 날씨 자료 갱신 필요');
+w=weatherRequest(9,new Error('404'),null);assert.deepEqual(w.calls,['site','external']);assert.ifError(w.result.error);
+w=weatherRequest(undefined,validWeather,null);assert.deepEqual(w.calls,['external']);assert.ifError(w.result.error);
+w=weatherRequest(9,new Error('missing'),new Error('blocked'),validWeather);assert.ifError(w.result.error);
+console.log('PASS: IE site-first; expired site data; external recovery; modern direct; embedded recovery; callbacks once');
+
+const slotSource=html.slice(html.indexOf('  function weatherSlot('),html.indexOf('  function weather(slot'));
+const maintainSource=html.slice(html.indexOf('  function maintain('),html.indexOf('  function startData('));
+const kst=(h,m=0,d=10)=>Date.UTC(2026,10,d,h-9,m);
+let weatherNow=kst(8,29), attemptsAt=[];
+const weatherSchedule={
+ Date,HOUR:3600000,DAY:86400000,now:()=>weatherNow,seoul:d=>new Date(+d+9*3600000),
+ document:{documentMode:9},window:{location:{protocol:'https:'},DodamTime:{now:()=>weatherNow}},
+ dayKey:()=> '2026-11-10',activeDay:'2026-11-10',dataStarted:true,snapshot:null,
+ weatherSavedAt:0,weatherAttemptSlot:0,weatherCheckedAt:0,weatherBusy:false,noticeBusy:true,
+ weather(slot,siteOnly){
+  attemptsAt.push([slot,siteOnly]);
+  weatherSchedule.weatherAttemptSlot=slot;
+  weatherSchedule.weatherCheckedAt=weatherNow;
+  if(siteOnly){weatherSchedule.snapshot={};weatherSchedule.weatherSavedAt=weatherNow;}
+ },
+ renderBoard(){},diagnostics(){}
+};
+vm.runInNewContext(slotSource+maintainSource,weatherSchedule);
+assert.equal(weatherSchedule.weatherSlot(kst(8,29)),kst(16,0,9));
+assert.equal(weatherSchedule.weatherSlot(kst(8,30)),kst(8,30));
+assert.equal(weatherSchedule.weatherSlot(kst(12)),kst(12));
+assert.equal(weatherSchedule.weatherSlot(kst(16)),kst(16));
+assert.equal(weatherSchedule.weatherSlot(kst(0,0,11)),kst(16));
+for(const time of [kst(8,30),kst(8,31),kst(8,39),kst(8,40),kst(8,50),kst(12),kst(16)]) {
+ weatherNow=time;weatherSchedule.maintain();
+}
+assert.deepEqual(attemptsAt,[[kst(8,30),false],[kst(8,30),true],[kst(12),false],[kst(16),false]]);
+console.log('PASS: three Korea-time weather slots; delayed legacy publication check; no repeat after fresh feed');
