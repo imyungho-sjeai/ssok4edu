@@ -1,0 +1,34 @@
+name: Refresh portrait weather hourly
+on:
+  schedule:
+    - cron: '12 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: dodam-did-data
+  cancel-in-progress: false
+jobs:
+  weather:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refresh weather
+        shell: powershell
+        run: ./dodam-clock-package/update-portrait-weather.ps1
+      - name: Save weather
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dodam-clock-package/dodam-clock-portrait-top.html dodam-clock-package/dodam-weather.json dodam-clock-package/dodam-weather-feed.js
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh portrait weather'
+            git push
+          fi
+      - name: Rebuild branch-based Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
