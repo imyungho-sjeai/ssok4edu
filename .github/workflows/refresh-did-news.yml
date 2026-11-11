@@ -1,0 +1,34 @@
+name: Refresh Dodam education news hourly
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: dodam-did-data
+  cancel-in-progress: false
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Refresh Sejong education news
+        run: python dodam-clock-package/update-did-news.py
+      - name: Save news
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dodam-clock-package/dodam-clock-did.html dodam-clock-package/dodam-news.json dodam-clock-package/dodam-news-feed.js
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh Sejong education news'
+            git push
+          fi
+      - name: Rebuild branch-based Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
