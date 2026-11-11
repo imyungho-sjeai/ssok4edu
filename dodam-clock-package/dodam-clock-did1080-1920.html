@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>도담중학교 | DID 1080×1920</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#142c38}
+#portrait{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden;background:#eff7f8;transform-origin:0 0;-ms-transform-origin:0 0}
+iframe{position:absolute;left:0;width:1080px;border:0;display:block;background:#eff7f8}
+#clock-frame{top:0;height:520px}
+#clock-clip{position:absolute;left:0;top:0;width:1080px;height:450px;overflow:hidden}
+#discover-frame{top:450px;height:1470px}
+</style>
+</head>
+<body>
+<main id="portrait" aria-label="도담중학교 세로 정보 화면">
+<div id="clock-clip"><iframe id="clock-frame" name="clockFrame" src="dodam-clock-portrait-top.html" title="학교 시계 · 날씨 · 학사정보" scrolling="no" frameborder="0" width="1080" height="520"></iframe></div>
+<iframe id="discover-frame" name="discoverFrame" src="dodam-clock-discover.html" title="공모전 · 세종 문화정보 · 추천도서 · 최신영화" scrolling="no" frameborder="0" width="1080" height="1470"></iframe>
+</main>
+<script>
+(function(){
+ function fit(){var w=document.documentElement.clientWidth||1080,h=document.documentElement.clientHeight||1920,s=Math.min(w/1080,h/1920),el=document.getElementById('portrait');el.style.left=Math.round((w-1080*s)/2)+'px';el.style.top=Math.round((h-1920*s)/2)+'px';el.style.transform=el.style.msTransform='scale('+s+')';}
+ if(window.addEventListener)window.addEventListener('resize',fit,false);else window.attachEvent('onresize',fit);fit();
+ document.onkeydown=function(e){e=e||window.event;var key=e.keyCode||e.which,target=e.target||e.srcElement;if(target&&/INPUT|TEXTAREA|SELECT|BUTTON/.test(target.tagName))return;
+  try{if(key===32){var doc=document.getElementById('clock-frame').contentWindow.document;if(doc.onkeydown)doc.onkeydown(e);}else if(key===39){document.getElementById('discover-frame').contentWindow.DodamDiscover.next();if(e.preventDefault)e.preventDefault();else e.returnValue=false;}}catch(ignore){}
+ };
+}());
+</script>
+</body>
+</html>
